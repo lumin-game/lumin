@@ -43,6 +43,8 @@ private:
 	bool m_is_right_pressed;
 	bool m_is_z_pressed;
 
+	bool can_jump;
+
 	float m_y_velocity;
 	float m_x_velocity;
 };

@@ -223,18 +223,24 @@ bool World::spawn_wall(int x_pos, int y_pos)
 }
 
 void World::create_base_level() {
+	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
 
-	spawn_wall(200, 500);
-	spawn_wall(250, 500);
-	spawn_wall(300, 500);
-	spawn_wall(350, 500);
-	spawn_wall(400, 500);
-	spawn_wall(450, 500);
-	spawn_wall(500, 500);
-	spawn_wall(550, 500);
-	spawn_wall(600, 500);
-	spawn_wall(600, 450);
-	spawn_wall(600, 400);
+	spawn_wall(1*BLOCK_SIZE, 8*BLOCK_SIZE);
+	spawn_wall(2 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(3 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(4 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(5 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(6 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(7 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(8 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(9 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(10 * BLOCK_SIZE, 8 * BLOCK_SIZE);
+	spawn_wall(10*BLOCK_SIZE, 7 *BLOCK_SIZE);
+	spawn_wall(10 * BLOCK_SIZE, 6 * BLOCK_SIZE);
+	spawn_wall(8 * BLOCK_SIZE, 4 * BLOCK_SIZE);
+	spawn_wall(7 * BLOCK_SIZE, 4 * BLOCK_SIZE);
+	spawn_wall(4 * BLOCK_SIZE, 5 * BLOCK_SIZE);
+	spawn_wall(3 * BLOCK_SIZE, 5 * BLOCK_SIZE);
 
 }
 

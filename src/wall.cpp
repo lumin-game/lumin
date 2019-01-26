@@ -12,7 +12,7 @@ bool Wall::init(int x_pos, int y_pos)
 	// Load shared texture
 	if (!wall_texture.is_valid())
 	{
-		if (!wall_texture.load_from_file(textures_path("turtle.png")))
+		if (!wall_texture.load_from_file(textures_path("wall.png")))
 		{
 			fprintf(stderr, "Failed to load wall texture!");
 			return false;
@@ -60,8 +60,8 @@ bool Wall::init(int x_pos, int y_pos)
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
-	m_scale.x = -0.4f;
-	m_scale.y = 0.4f;
+	m_scale.x = 0.5f;
+	m_scale.y = 0.5f;
 
 	m_position.x = x_pos;
 	m_position.y = y_pos;
@@ -141,7 +141,7 @@ void Wall::set_position(vec2 position)
 	m_position = position;
 }
 
-// Returns the local bounding coordinates scaled by the current size of the turtle 
+// Returns the local bounding coordinates scaled by the current size of the wall
 vec2 Wall::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction

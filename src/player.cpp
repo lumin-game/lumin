@@ -17,7 +17,7 @@ bool Player::init()
 {
 	if (!player_texture.is_valid())
 	{
-		if (!player_texture.load_from_file(textures_path("fish.png")))
+		if (!player_texture.load_from_file(textures_path("player.png")))
 		{
 			fprintf(stderr, "Failed to load player texture!");
 			return false;
@@ -64,12 +64,14 @@ bool Player::init()
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
-	m_scale.x = 0.4f;
-	m_scale.y = 0.4f;
+	m_scale.x = 0.5f;
+	m_scale.y = 0.5f;
 	m_position = { 50.f, 100.f };
 
 	m_x_velocity = 0;
 	m_y_velocity = 0;
+
+	can_jump = false;
 
 	return true;
 }
@@ -90,8 +92,8 @@ void Player::destroy()
 void Player::update(float ms)
 {
 	const float WALK_SPEED = 60.f;
-	const float GROUND_FRICTION = 30.f;
-	const float GRAVITY = 15.f;
+	const float GROUND_FRICTION = 45.f;
+	const float GRAVITY = 22.f;
 	float gravity_step = GRAVITY * (ms / 1000);
 	float x_velocity_step = WALK_SPEED * (ms / 1000);
 	float friction_step = GROUND_FRICTION * (ms / 1000);
@@ -101,6 +103,9 @@ void Player::update(float ms)
 		// Update player position/velocity based on key presses
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		
+	if (m_is_z_pressed && can_jump) {
+		m_y_velocity = -8.f;
+	}
 	
 	if (m_is_left_pressed) {
 		m_x_velocity -= x_velocity_step;
@@ -115,14 +120,19 @@ void Player::update(float ms)
 			m_x_velocity += std::min(m_x_velocity * -1.f, friction_step);
 		}
 	}
-
-	m_x_velocity = std::min(m_x_velocity, 10.f);
-	m_x_velocity = std::max(m_x_velocity, -10.f);
+	if (m_x_velocity > 5.f) {
+		m_x_velocity = 5.f;
+	}
+	else if (m_x_velocity < -5.f) {
+		m_x_velocity = -5.f;
+	}
 
 	m_y_velocity += gravity_step;
 
-	m_position.x += m_x_velocity;
-	m_position.y += m_y_velocity;
+	m_position.x += m_x_velocity * (ms/10);
+	m_position.y += m_y_velocity * (ms/10);
+
+	can_jump = false;
 }
 
 void Player::draw(const mat3& projection)
@@ -200,12 +210,12 @@ bool Player::collides_with(const Wall& wall)
 
 	//Determine whether player rectangle and wall rectangle overlap
 	bool rects_overlap = true;
-	if (player_left > wall_right || wall_left > player_right) {
+	if (player_left >= wall_right || wall_left >= player_right) {
 		rects_overlap = false;
 	}
 
 	// If one rectangle is above other 
-	if (player_top > wall_bottom || wall_top > player_bottom) {
+	if (player_top >= wall_bottom || wall_top >= player_bottom) {
 		rects_overlap = false;
 	}
 
@@ -218,6 +228,7 @@ bool Player::collides_with(const Wall& wall)
 				//player is going straight downwards so move to top of block
 				m_position.y = wall_top - (m_scale.y * player_texture.height);
 				m_y_velocity = 0.05f;
+				can_jump = true;
 			}
 			else {
 				//player is going straight upwards so move to bottom of block
@@ -228,59 +239,61 @@ bool Player::collides_with(const Wall& wall)
 		else if (m_y_velocity == 0) {
 			if (m_x_velocity >= 0) {
 				//player is going straight rightwards so move to left of block
-				m_position.x = wall_left - (m_scale.x * player_texture.width);
+				m_position.x = wall_left - (m_scale.x  * player_texture.width);
 				m_x_velocity = 0.05f;
 			}
 			else {
 				//player is going straight leftwards to move to right of block
 				m_position.x = wall_right;
-				m_y_velocity = -0.05f;
+				m_x_velocity = -0.05f;
 			}
 		}
 		else { //player is moving in both x and y
 			if (m_x_velocity > 0 && m_y_velocity > 0) {
 				// player is moving down right, so move the player to either the left or top of the platform, whichever is closer
-				std::cout << "in correct case" << std::endl;
+
 				if (dist_passed_top <= dist_passed_left) {
 					m_position.y = wall_top - (m_scale.y * player_texture.height);
-					m_y_velocity = 0;
+					m_y_velocity = 0.05f;
+					can_jump = true;
 				}
 				else {
 					m_position.x = wall_left - (m_scale.x * player_texture.width);
-					m_x_velocity = 0;
+					m_x_velocity = 0.05f;
 				}
 			}
 			if (m_x_velocity > 0 && m_y_velocity < 0) {
 				// player is moving up right, so move the player to either the left or bottom of the platform, whichever is closer 
 				if (dist_passed_bottom <= dist_passed_left) {
 					m_position.y = wall_bottom;
-					m_y_velocity = 0;
+					m_y_velocity = -0.05f;
 				}
 				else {
 					m_position.x = wall_left - (m_scale.x * player_texture.width);
-					m_x_velocity = 0;
+					m_x_velocity = 0.05f;
 				}
 			}
 			if (m_x_velocity < 0 && m_y_velocity > 0) {
 				// player is moving down left, so move the player to either the right or top of the platform, whichever is closer 
 				if (dist_passed_top <= dist_passed_right) {
 					m_position.y = wall_top - (m_scale.y * player_texture.height);
-					m_y_velocity = 0;
+					m_y_velocity = 0.05f;
+					can_jump = true;
 				}
 				else {
 					m_position.x = wall_right;
-					m_x_velocity = 0;
+					m_x_velocity = -0.05f;
 				}
 			}
 			if (m_x_velocity < 0 && m_y_velocity < 0) {
 				// player is moving up left, so move the player to either the right or bottom of the platform, whichever is closer 
 				if (dist_passed_bottom <= dist_passed_right) {
 					m_position.y = wall_bottom;
-					m_y_velocity = 0;
+					m_y_velocity = -0.05f;
 				}
 				else {
 					m_position.x = wall_right;
-					m_x_velocity = 0;
+					m_x_velocity = -0.05f;
 				}
 			}
 		}
