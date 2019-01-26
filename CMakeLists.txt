@@ -35,6 +35,8 @@ set(SOURCE_FILES
 	src/common.cpp
 	src/wall.cpp
 	src/player.cpp
+	src/player_mesh.cpp
+	src/light_mesh.cpp
 	src/world.cpp
 	src/water.cpp
 
@@ -42,6 +44,8 @@ set(SOURCE_FILES
 	src/common.hpp
 	src/wall.hpp
 	src/player.hpp
+	src/player_mesh.hpp
+	src/light_mesh.hpp
 	src/world.hpp
 	src/water.hpp
 	)

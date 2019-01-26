@@ -1,11 +1,11 @@
 #pragma once
 
-#include "common.hpp"
 #include "wall.hpp"
+#include "player_mesh.hpp"
+#include "light_mesh.hpp"
 
-class Player : public Renderable
+class Player
 {
-	static Texture player_texture;
 public:
 	// Creates all the associated render resources and default transform
 	bool init();
@@ -18,7 +18,7 @@ public:
 	void update(float ms);
 
 	// Renders the player
-	void draw(const mat3& projection)override;
+	void draw(const mat3& projection);
 
 	// Collision routines for walls
 	bool collides_with(const Wall& wall);
@@ -47,4 +47,10 @@ private:
 
 	float m_y_velocity;
 	float m_x_velocity;
+
+	int playerWidth;
+	int playerHeight;
+
+	PlayerMesh playerMesh;
+	LightMesh lightMesh;
 };
