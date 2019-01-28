@@ -7,23 +7,28 @@
 #include <algorithm>
 #include <iostream>
 
-bool LightMesh::init()
-{
-	// The position corresponds to the center of the texture
-	float radius = 100.f;
+// external
+#include "world.hpp"
 
+bool LightMesh::init(const World* world)
+{
+	m_lightRadius = 300.f;
+
+	// We set the mesh as a square with side length radius * 2.
+	// Because circles are difficult....
+	// Note that there is no texture here
 	std::vector<Vertex> vertices;
 
 	Vertex vertex;
 	vertex.color = { 1.f, 1.f, 1.f };
 
-	vertex.position = { radius, radius, -0.02f };
+	vertex.position = { m_lightRadius, m_lightRadius, -0.02f };
 	vertices.push_back(vertex);
-	vertex.position = { radius, -radius, -0.02f };
+	vertex.position = { m_lightRadius, -m_lightRadius, -0.02f };
 	vertices.push_back(vertex);
-	vertex.position = { -radius, -radius, -0.02f };
+	vertex.position = { -m_lightRadius, -m_lightRadius, -0.02f };
 	vertices.push_back(vertex);
-	vertex.position = { -radius, radius, -0.02f };
+	vertex.position = { -m_lightRadius, m_lightRadius, -0.02f };
 	vertices.push_back(vertex);
 
 	// counterclockwise as it's the default opengl front winding direction
@@ -50,6 +55,9 @@ bool LightMesh::init()
 	// Loading shaders
 	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
 		return false;
+
+	// Remember the collision equations for walls that don't move
+	m_staticCollisionPtr = world->getStaticCollisionLines();
 
 	return true;
 }
@@ -92,6 +100,8 @@ void LightMesh::draw(const mat3& projection)
 	GLint color_uloc = glGetUniformLocation(effect.program, "fcolor");
 	GLint projection_uloc = glGetUniformLocation(effect.program, "projection");
 	GLint light_radius = glGetUniformLocation(effect.program, "lightRadius");
+	GLint collision_eqs = glGetUniformLocation(effect.program, "collisionEqs");
+	GLint collision_eqs_count = glGetUniformLocation(effect.program, "collisionEqCount");
 
 	// Setting vertices and indices
 	glBindVertexArray(mesh.vao);
@@ -112,7 +122,34 @@ void LightMesh::draw(const mat3& projection)
 	float color[] = { 1.f, 1.f, 1.f };
 	glUniform3fv(color_uloc, 1, color);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
-	glUniform1f(light_radius, 100.f);
+	glUniform1f(light_radius, m_lightRadius);
+
+	// Now we update our collision equations based on where we are in the world
+	// TODO: optimize so that we only check these collisions if wall is close enough to player
+	// TODO: if needed, we could further try and optimize by combining adjacent walls into one equation...
+	m_collisionEquations.clear();
+	if (m_staticCollisionPtr) // Make sure init() has already happened
+	{
+		for (const ParametricLine& staticLine : *m_staticCollisionPtr)
+		{
+			// Since only position is at play, (and no scaling)
+			// We only have to do a simple translation
+			ParametricLine collEq;
+			collEq.x_0 = staticLine.x_0 - m_parent.m_position.x;
+			collEq.x_t = staticLine.x_t;
+			collEq.y_0 = staticLine.y_0 - m_parent.m_position.y;
+			collEq.y_t = staticLine.y_t;
+
+			m_collisionEquations.push_back(collEq);
+		}
+		
+		// Send our list of collision equations as a vec4.
+		glUniform4fv(collision_eqs, 4 * m_collisionEquations.size(), (float*)&m_collisionEquations[0]);
+		glUniform1i(collision_eqs_count, m_collisionEquations.size());
+
+		// Note that we do not push anything to openGL if there are no equations.
+		// Maybe that's a bad idea? Doesn't seem to cause a problem right now, but could fix later.
+	}
 
 	// Drawing!
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);

@@ -3,12 +3,15 @@
 #include "wall.hpp"
 #include "player_mesh.hpp"
 #include "light_mesh.hpp"
+#include "common.hpp"
+
+class World;
 
 class Player
 {
 public:
 	// Creates all the associated render resources and default transform
-	bool init();
+	bool init(const World* world);
 
 	// Releases all associated resources
 	void destroy();

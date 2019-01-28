@@ -63,8 +63,8 @@ bool Wall::init(int x_pos, int y_pos)
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	m_position.x = x_pos;
-	m_position.y = y_pos;
+	m_position.x = (float) x_pos;
+	m_position.y = (float) y_pos;
 
 	return true;
 }
@@ -146,4 +146,49 @@ vec2 Wall::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction
 	return { std::fabs(m_scale.x) * wall_texture.width, std::fabs(m_scale.y) * wall_texture.height };
+}
+
+std::vector<ParametricLine> Wall::calculate_static_equations() const
+{
+	// Create 4 lines for each each of the box and returns them
+	vec2 boundingBox = get_bounding_box();
+	float xHalf = boundingBox.x / 2;
+	float yHalf = boundingBox.y / 2;
+
+	float rightBound = m_position.x + xHalf;
+	float leftBound = m_position.x - xHalf;
+	float topBound = m_position.y + yHalf;
+	float bottomBound = m_position.y - yHalf;
+
+	ParametricLine rightEdge;
+	rightEdge.x_0 = rightBound;
+	rightEdge.x_t = 0.f;
+	rightEdge.y_0 = bottomBound;
+	rightEdge.y_t = topBound - bottomBound;
+
+	ParametricLine leftEdge;
+	leftEdge.x_0 = leftBound;
+	leftEdge.x_t = 0.f;
+	leftEdge.y_0 = bottomBound;
+	leftEdge.y_t = topBound - bottomBound;
+
+	ParametricLine topEdge;
+	topEdge.x_0 = leftBound;
+	topEdge.x_t = rightBound - leftBound;
+	topEdge.y_0 = topBound;
+	topEdge.y_t = 0.f;
+
+	ParametricLine bottomEdge;
+	bottomEdge.x_0 = leftBound;
+	bottomEdge.x_t = rightBound - leftBound;
+	bottomEdge.y_0 = bottomBound;
+	bottomEdge.y_t = 0.f;
+
+	std::vector<ParametricLine> outLines;
+	outLines.push_back(rightEdge);
+	outLines.push_back(leftEdge);
+	outLines.push_back(topEdge);
+	outLines.push_back(bottomEdge);
+
+	return outLines;
 }

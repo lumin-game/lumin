@@ -37,6 +37,8 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	const ParametricLines* getStaticCollisionLines() const { return &m_staticLightCollisionLines; }
+
 private:
 	// Generates a new turtle
 	bool spawn_wall(int x_pos, int y_pos);
@@ -45,6 +47,8 @@ private:
 
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
+
+	void calculate_static_equations();
 
 private:
 	// Window handle
@@ -70,6 +74,8 @@ private:
 	Mix_Music* m_background_music;
 	Mix_Chunk* m_salmon_dead_sound;
 	Mix_Chunk* m_salmon_eat_sound;
+
+	ParametricLines m_staticLightCollisionLines;
 
 	// C++ rng
 	std::default_random_engine m_rng;

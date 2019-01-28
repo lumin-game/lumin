@@ -3,6 +3,7 @@
 
 // internal
 #include "wall.hpp"
+#include "world.hpp"
 
 // stlib
 #include <vector>
@@ -10,10 +11,10 @@
 #include <algorithm>
 #include <iostream>
 
-bool Player::init()
+bool Player::init(const World* world)
 {
 	playerMesh.init();
-	lightMesh.init();
+	lightMesh.init(world);
 
 	playerWidth = playerMesh.GetPlayerWidth();
 	playerHeight = playerMesh.GetPlayerHeight();

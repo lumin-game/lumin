@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include <vector>
 
 // Salmon enemy 
 class Wall : public Renderable
@@ -28,6 +29,8 @@ public:
 
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box()const;
+
+	std::vector<ParametricLine> calculate_static_equations() const;
 
 private:
 	vec2 m_position; // Window coordinates
