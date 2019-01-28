@@ -8,6 +8,12 @@
 
 #include <iostream>
 
+#if defined(__APPLE__)
+ const float RETINA_SCALE = 2.;
+#else
+ const float RETINA_SCALE = 1.;
+#endif
+
 // Same as static in c, local to compilation unit
 namespace
 {
@@ -23,7 +29,7 @@ namespace
 	}
 }
 
-World::World() : 
+World::World() :
 	m_points(0)
 {
 	// Seeding rng with random device
@@ -125,7 +131,7 @@ bool World::update(float elapsed_ms)
 	vec2 screen = { (float)w, (float)h };
 
 	// TODO check player - Wall collisions here (but might want to do it after player has moved for the frame)
-	
+
 	// Updating all entities, making the turtle and fish
 	// faster based on current
 	m_player.update(elapsed_ms);
@@ -173,8 +179,8 @@ void World::draw()
 	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
 	float left = 0.f;// *-0.5;
 	float top = 0.f;// (float)h * -0.5;
-	float right = (float)w;// *0.5;
-	float bottom = (float)h;// *0.5;
+	float right = (float)w / RETINA_SCALE;// *0.5;
+	float bottom = (float)h / RETINA_SCALE;// *0.5;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
@@ -290,7 +296,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
-		m_player.destroy(); 
+		m_player.destroy();
 		m_player.init(this);
 		m_walls.clear();
 		create_base_level();
@@ -302,7 +308,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_current_speed -= 0.1f;
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
 		m_current_speed += 0.1f;
-	
+
 	m_current_speed = fmax(0.f, m_current_speed);
 }
 
