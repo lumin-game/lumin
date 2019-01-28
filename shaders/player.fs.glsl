@@ -1,6 +1,7 @@
 #version 330
 // From vertex shader
 in vec2 texcoord;
+in vec2 vpos;
 
 // Application data
 uniform sampler2D sampler0;

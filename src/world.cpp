@@ -85,7 +85,15 @@ bool World::init(vec2 screen)
 
 	create_base_level();
 
-	return m_player.init() && m_water.init();
+	// Calculate parametric equations for edge for each wall
+	calculate_static_equations();
+
+	// Maybe not great to pass in 'this'
+	// But player (specifically the lightMesh) needs access to static equations
+	// Maybe the solution here is a collision manager object or something
+	// Or make world a singleton oof
+	// TODO: figure out a better way to handle light's dependency on walls
+	return m_player.init(this) && m_water.init();
 }
 
 // Releases all the associated resources
@@ -283,7 +291,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
 		m_player.destroy(); 
-		m_player.init();
+		m_player.init(this);
 		m_walls.clear();
 		create_base_level();
 		m_current_speed = 1.f;
@@ -298,3 +306,12 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	m_current_speed = fmax(0.f, m_current_speed);
 }
 
+void World::calculate_static_equations()
+{
+	m_staticLightCollisionLines.clear();
+	for (Wall& wall : m_walls)
+	{
+		ParametricLines wallLines = wall.calculate_static_equations();
+		m_staticLightCollisionLines.insert(m_staticLightCollisionLines.end(), wallLines.begin(), wallLines.end());
+	}
+}

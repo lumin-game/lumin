@@ -1,36 +1,36 @@
-// Header
-#include "wall.hpp"
+  // Header
+#include "player_mesh.hpp"
 
-#include <cmath>
+// stlib
+#include <vector>
+#include <string>
+#include <algorithm>
 #include <iostream>
 
-Texture Wall::wall_texture;
+Texture PlayerMesh::player_texture;
 
-bool Wall::init(int x_pos, int y_pos)
+bool PlayerMesh::init()
 {
-	m_path_type = rand() % 3; // can be 0 to 2
-	// Load shared texture
-	if (!wall_texture.is_valid())
+	if (!player_texture.is_valid())
 	{
-		if (!wall_texture.load_from_file(textures_path("wall.png")))
+		if (!player_texture.load_from_file(textures_path("player.png")))
 		{
-			fprintf(stderr, "Failed to load wall texture!");
+			fprintf(stderr, "Failed to load player texture!");
 			return false;
 		}
 	}
-
 	// The position corresponds to the center of the texture
-	float wr = wall_texture.width * 0.5f;
-	float hr = wall_texture.height * 0.5f;
+	float wr = player_texture.width * 0.5f;
+	float hr = player_texture.height * 0.5f;
 
 	TexturedVertex vertices[4];
-	vertices[0].position = { -wr, +hr, -0.02f };
+	vertices[0].position = { -wr, +hr, 0.1f };
 	vertices[0].texcoord = { 0.f, 1.f };
-	vertices[1].position = { +wr, +hr, -0.02f };
+	vertices[1].position = { +wr, +hr, 0.1f };
 	vertices[1].texcoord = { 1.f, 1.f };
-	vertices[2].position = { +wr, -hr, -0.02f };
+	vertices[2].position = { +wr, -hr, 0.1f };
 	vertices[2].texcoord = { 1.f, 0.f };
-	vertices[3].position = { -wr, -hr, -0.02f };
+	vertices[3].position = { -wr, -hr, 0.1f };
 	vertices[3].texcoord = { 0.f, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction
@@ -38,7 +38,7 @@ bool Wall::init(int x_pos, int y_pos)
 
 	// Clearing errors
 	gl_flush_errors();
-	
+
 	// Vertex Buffer creation
 	glGenBuffers(1, &mesh.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
@@ -55,7 +55,7 @@ bool Wall::init(int x_pos, int y_pos)
 		return false;
 
 	// Loading shaders
-	if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
+	if (!effect.load_from_file(shader_path("player.vs.glsl"), shader_path("player.fs.glsl")))
 		return false;
 
 	// Setting initial values, scale is negative to make it face the opposite way
@@ -63,15 +63,11 @@ bool Wall::init(int x_pos, int y_pos)
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	m_position.x = (float) x_pos;
-	m_position.y = (float) y_pos;
-
 	return true;
 }
 
-// Call if init() was successful
 // Releases all graphics resources
-void Wall::destroy()
+void PlayerMesh::destroy()
 {
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
@@ -82,14 +78,19 @@ void Wall::destroy()
 	glDeleteShader(effect.program);
 }
 
-
-void Wall::draw(const mat3& projection)
+void PlayerMesh::draw(const mat3& projection)
 {
-	// Transformation code, see Rendering and Transformation in the template specification for more info
-	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
-	transform_translate(m_position);
+
+	// see Transformations and Rendering in the specification pdf
+	// the following functions are available:
+	// transform_translate()
+	// transform_rotate()
+	// transform_scale()
+
+	transform_translate(m_parent.m_position);
 	transform_scale(m_scale);
+
 	transform_end();
 
 	// Setting shaders
@@ -103,6 +104,7 @@ void Wall::draw(const mat3& projection)
 	GLint transform_uloc = glGetUniformLocation(effect.program, "transform");
 	GLint color_uloc = glGetUniformLocation(effect.program, "fcolor");
 	GLint projection_uloc = glGetUniformLocation(effect.program, "projection");
+	GLint light_radius = glGetUniformLocation(effect.program, "lightRadius");
 
 	// Setting vertices and indices
 	glBindVertexArray(mesh.vao);
@@ -119,76 +121,26 @@ void Wall::draw(const mat3& projection)
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, wall_texture.id);
+	glBindTexture(GL_TEXTURE_2D, player_texture.id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
-	float color[] = { 1.f, 1.f, 1.f };
+	float color[] = { 1.f, 0.f, 0.f };
 	glUniform3fv(color_uloc, 1, color);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+	glUniform1f(light_radius, 200.f);
 
 	// Drawing!
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-vec2 Wall::get_position()const
+int PlayerMesh::GetPlayerHeight() const
 {
-	return m_position;
+	return player_texture.height;
 }
 
-void Wall::set_position(vec2 position)
+int PlayerMesh::GetPlayerWidth() const
 {
-	m_position = position;
-}
+	return player_texture.width;
 
-// Returns the local bounding coordinates scaled by the current size of the wall
-vec2 Wall::get_bounding_box()const
-{
-	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * wall_texture.width, std::fabs(m_scale.y) * wall_texture.height };
-}
-
-std::vector<ParametricLine> Wall::calculate_static_equations() const
-{
-	// Create 4 lines for each each of the box and returns them
-	vec2 boundingBox = get_bounding_box();
-	float xHalf = boundingBox.x / 2;
-	float yHalf = boundingBox.y / 2;
-
-	float rightBound = m_position.x + xHalf;
-	float leftBound = m_position.x - xHalf;
-	float topBound = m_position.y + yHalf;
-	float bottomBound = m_position.y - yHalf;
-
-	ParametricLine rightEdge;
-	rightEdge.x_0 = rightBound;
-	rightEdge.x_t = 0.f;
-	rightEdge.y_0 = bottomBound;
-	rightEdge.y_t = topBound - bottomBound;
-
-	ParametricLine leftEdge;
-	leftEdge.x_0 = leftBound;
-	leftEdge.x_t = 0.f;
-	leftEdge.y_0 = bottomBound;
-	leftEdge.y_t = topBound - bottomBound;
-
-	ParametricLine topEdge;
-	topEdge.x_0 = leftBound;
-	topEdge.x_t = rightBound - leftBound;
-	topEdge.y_0 = topBound;
-	topEdge.y_t = 0.f;
-
-	ParametricLine bottomEdge;
-	bottomEdge.x_0 = leftBound;
-	bottomEdge.x_t = rightBound - leftBound;
-	bottomEdge.y_0 = bottomBound;
-	bottomEdge.y_t = 0.f;
-
-	std::vector<ParametricLine> outLines;
-	outLines.push_back(rightEdge);
-	outLines.push_back(leftEdge);
-	outLines.push_back(topEdge);
-	outLines.push_back(bottomEdge);
-
-	return outLines;
 }

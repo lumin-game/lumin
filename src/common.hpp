@@ -2,6 +2,7 @@
 
 // stlib
 #include <fstream> // stdout, stderr..
+#include <vector>
 
 // glfw
 #define NOMINMAX
@@ -111,3 +112,17 @@ struct Renderable
 	void transform_translate(vec2 pos);
 	void transform_end();
 };
+
+struct ParametricLine
+{
+	// A line is:
+	// x = x_0 + x_t * t
+	// y = y_0 + y_t * t
+	// where 0 <= t <= 1
+	float x_0;
+	float x_t;
+	float y_0;
+	float y_t;
+};
+
+typedef std::vector<ParametricLine> ParametricLines;
