@@ -10,6 +10,8 @@ brew install pkg-config glfw3 sdl2 sdl2_mixer
 ## Build Instructions
 
 ```
+mkdir build
+cd build
 cmake ..
 make
 ./lumin
