@@ -1,5 +1,21 @@
 # lumin
 
+
+## Requirements
+
+```
+brew install pkg-config glfw3 sdl2 sdl2_mixer
+```
+
+## Build Instructions
+
+```
+cmake ..
+make
+./lumin
+```
+
+
 ## Mirroring to Stash
 
 ```sh
