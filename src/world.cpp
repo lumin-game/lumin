@@ -258,6 +258,17 @@ void World::create_base_level() {
 
 }
 
+void World::create_level(std::vector<std::vector<char>> grid) {
+	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	for (int i = 0; i < grid.size(); i++) {
+		for (int j = 0; j < grid[0].size(); j++) {
+			if (grid[i][j] == '@') {
+				spawn_wall(i * BLOCK_SIZE, j * BLOCK_SIZE);
+			}
+		}
+	}
+}
+
 // On key callback
 void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 {
