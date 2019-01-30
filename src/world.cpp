@@ -17,9 +17,6 @@
 // Same as static in c, local to compilation unit
 namespace
 {
-	const size_t TURTLE_DELAY_MS = 2000;
-	const size_t FISH_DELAY_MS = 5000;
-
 	namespace
 	{
 		void glfw_err_cb(int error, const char* desc)
@@ -223,7 +220,7 @@ bool World::is_over()const
 	return glfwWindowShouldClose(m_window);
 }
 
-// Creates a new turtle and if successfull adds it to the list of turtles
+// Creates a new wall and if successfull adds it to the list of wall
 bool World::spawn_wall(int x_pos, int y_pos)
 {
 	Wall wall;
@@ -237,28 +234,31 @@ bool World::spawn_wall(int x_pos, int y_pos)
 }
 
 void World::create_base_level() {
-	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	// base level is represented by a 0-indexed 10x8 matrix
+  std::vector<std::vector<char>> grid(10, std::vector<char>(8));
 
-	spawn_wall(1*BLOCK_SIZE, 8*BLOCK_SIZE);
-	spawn_wall(2 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(3 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(4 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(5 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(6 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(7 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(8 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(9 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(10 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(10*BLOCK_SIZE, 7 *BLOCK_SIZE);
-	spawn_wall(10 * BLOCK_SIZE, 6 * BLOCK_SIZE);
-	spawn_wall(8 * BLOCK_SIZE, 4 * BLOCK_SIZE);
-	spawn_wall(7 * BLOCK_SIZE, 4 * BLOCK_SIZE);
-	spawn_wall(4 * BLOCK_SIZE, 5 * BLOCK_SIZE);
-	spawn_wall(3 * BLOCK_SIZE, 5 * BLOCK_SIZE);
+	grid[0][7] = '@';
+	grid[1][7] = '@';
+	grid[2][7] = '@';
+	grid[3][7] = '@';
+	grid[4][7] = '@';
+	grid[5][7] = '@';
+	grid[6][7] = '@';
+	grid[7][7] = '@';
+	grid[8][7] = '@';
+	grid[9][7] = '@';
+	grid[9][6] = '@';
+	grid[9][5] = '@';
+	grid[7][3] = '@';
+	grid[8][3] = '@';
+  grid[3][4] = '@';
+	grid[2][4] = '@';
 
+	create_level(grid);
 }
 
 void World::create_level(std::vector<std::vector<char>> grid) {
+	// @ represents walls
 	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
 	for (int i = 0; i < grid.size(); i++) {
 		for (int j = 0; j < grid[0].size(); j++) {
