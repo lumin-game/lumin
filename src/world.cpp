@@ -299,7 +299,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 
 	// Exit Game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-		glfwDestroyWindow(m_window);
+		destroy();
 		exit(0);
 	}
 
