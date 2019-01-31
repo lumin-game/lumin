@@ -37,6 +37,7 @@ set(SOURCE_FILES
 	src/player.cpp
 	src/player_mesh.cpp
 	src/light_mesh.cpp
+    src/screen.cpp
 	src/world.cpp
 
     src/project_path.hpp
@@ -45,6 +46,7 @@ set(SOURCE_FILES
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
+    src/screen.hpp
 	src/world.hpp
 	)
 

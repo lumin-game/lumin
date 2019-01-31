@@ -14,7 +14,7 @@ bool PlayerMesh::init()
 {
 	if (!player_texture.is_valid())
 	{
-		if (!player_texture.load_from_file(textures_path("player_right.png")))
+		if (!player_texture.load_from_file(textures_path("player.png")))
 		{
 			fprintf(stderr, "Failed to load player texture!");
 			return false;
