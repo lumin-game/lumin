@@ -252,7 +252,7 @@ void World::create_base_level() {
 void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// HANDLE SALMON MOVEMENT HERE
+	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_Z) {
@@ -295,6 +295,12 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_player.destroy();
 		m_player.init(this);
 		m_current_speed = 1.f;
+	}
+
+	// Exit Game
+	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+		glfwDestroyWindow(m_window);
+		exit(0);
 	}
 
 	// Control the current speed with `<` `>`
