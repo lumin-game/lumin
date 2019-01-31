@@ -257,11 +257,11 @@ void World::create_base_level() {
 	create_level(grid);
 }
 
-void World::create_level(std::vector<std::vector<char>> grid) {
+void World::create_level(std::vector<std::vector<char>>& grid) {
 	// @ represents walls
-	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
-	for (int i = 0; i < grid.size(); i++) {
-		for (int j = 0; j < grid[0].size(); j++) {
+  const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	for (std::size_t i = 0; i < grid.size(); i++) {
+		for (std::size_t j = 0; j < grid[0].size(); j++) {
 			if (grid[i][j] == '@') {
 				spawn_wall(i * BLOCK_SIZE, j * BLOCK_SIZE);
 			}

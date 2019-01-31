@@ -45,7 +45,7 @@ private:
 
 	void create_base_level();
 
-	void create_level(std::vector<std::vector<char>> grid);
+	void create_level(std::vector<std::vector<char>>& grid);
 
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
