@@ -241,8 +241,8 @@ void World::create_base_level() {
 	spawn_wall(10 * BLOCK_SIZE, 6 * BLOCK_SIZE);
 	spawn_wall(8 * BLOCK_SIZE, 4 * BLOCK_SIZE);
 	spawn_wall(7 * BLOCK_SIZE, 4 * BLOCK_SIZE);
-	spawn_wall(4 * BLOCK_SIZE, 5 * BLOCK_SIZE);
-	spawn_wall(3 * BLOCK_SIZE, 5 * BLOCK_SIZE);
+	spawn_wall(4 * BLOCK_SIZE, 2 * BLOCK_SIZE);
+	spawn_wall(3 * BLOCK_SIZE, 2 * BLOCK_SIZE);
 
 	// Calculate parametric equations for edge for each wall
 	calculate_static_equations();

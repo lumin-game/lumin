@@ -37,8 +37,8 @@ set(SOURCE_FILES
 	src/player.cpp
 	src/player_mesh.cpp
 	src/light_mesh.cpp
+        src/screen.cpp
 	src/world.cpp
-	src/water.cpp
 
     src/project_path.hpp
 	src/common.hpp
@@ -46,8 +46,8 @@ set(SOURCE_FILES
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
+        src/screen.hpp
 	src/world.hpp
-	src/water.hpp
 	)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
