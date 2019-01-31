@@ -70,13 +70,13 @@ bool PlayerMesh::init()
 // Render player as facing right
 void PlayerMesh::turn_right() 
 {
-  m_scale.x = std::fabs(m_scale.x);
+	m_scale.x = std::fabs(m_scale.x);
 }
 
 // Render player as facing left
 void PlayerMesh::turn_left() 
 {
-  m_scale.x = -std::fabs(m_scale.x);
+	m_scale.x = -std::fabs(m_scale.x);
 }
 
 // Releases all graphics resources
