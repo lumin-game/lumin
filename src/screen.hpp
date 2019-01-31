@@ -3,7 +3,7 @@
 #include "common.hpp"
 
 
-class Water : public Renderable
+class Screen : public Renderable
 {
 public:
 	// Creates all the associated render resources and default transform

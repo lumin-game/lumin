@@ -96,7 +96,7 @@ bool World::init(vec2 screen)
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init(this) && m_water.init();
+	return m_player.init(this) && m_screen.init();
 }
 
 // Releases all the associated resources
@@ -201,7 +201,7 @@ void World::draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
 
-	m_water.draw(projection_2D);
+	m_screen.draw(projection_2D);
 
 	//////////////////
 	// Presenting
