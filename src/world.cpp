@@ -88,9 +88,6 @@ bool World::init(vec2 screen)
 
 	create_base_level();
 
-	// Calculate parametric equations for edge for each wall
-	calculate_static_equations();
-
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
 	// Maybe the solution here is a collision manager object or something
@@ -247,6 +244,8 @@ void World::create_base_level() {
 	spawn_wall(4 * BLOCK_SIZE, 5 * BLOCK_SIZE);
 	spawn_wall(3 * BLOCK_SIZE, 5 * BLOCK_SIZE);
 
+	// Calculate parametric equations for edge for each wall
+	calculate_static_equations();
 }
 
 // On key callback
@@ -287,10 +286,14 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
-		m_player.destroy();
-		m_player.init(this);
+		for (Wall& wall : m_walls)
+		{
+			wall.destroy();
+		}
 		m_walls.clear();
 		create_base_level();
+		m_player.destroy();
+		m_player.init(this);
 		m_current_speed = 1.f;
 	}
 
