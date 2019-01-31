@@ -17,9 +17,6 @@
 // Same as static in c, local to compilation unit
 namespace
 {
-	const size_t TURTLE_DELAY_MS = 2000;
-	const size_t FISH_DELAY_MS = 5000;
-
 	namespace
 	{
 		void glfw_err_cb(int error, const char* desc)
@@ -62,7 +59,7 @@ bool World::init(vec2 screen)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, 0);
-	m_window = glfwCreateWindow((int)screen.x, (int)screen.y, "A1 Assignment", nullptr, nullptr);
+	m_window = glfwCreateWindow((int)screen.x, (int)screen.y, "Lumin", nullptr, nullptr);
 	if (m_window == nullptr)
 		return false;
 
@@ -158,11 +155,6 @@ void World::draw()
 	int w, h;
     glfwGetFramebufferSize(m_window, &w, &h);
 
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << m_points;
-	glfwSetWindowTitle(m_window, title_ss.str().c_str());
-
 	/////////////////////////////////////
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
@@ -170,8 +162,7 @@ void World::draw()
 	// Clearing backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	const float clear_color[3] = { 0.3f, 0.3f, 0.8f };
-	glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0);
+	glClearColor(0.f, 0.f, 0.f, 1.0);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
