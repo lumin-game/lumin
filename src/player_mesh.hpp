@@ -23,6 +23,13 @@ public:
 	// Renders the player
 	void draw(const mat3& projection) override;
 
+	// Render player as facing right
+	void turn_right();
+
+	// Render player as facing left
+	void turn_left();
+
+
 	void SetParentData(ParentData data) { m_parent = data; }
 
 	int GetPlayerWidth() const;

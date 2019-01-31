@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 Texture PlayerMesh::player_texture;
 
@@ -13,7 +14,7 @@ bool PlayerMesh::init()
 {
 	if (!player_texture.is_valid())
 	{
-		if (!player_texture.load_from_file(textures_path("player.png")))
+		if (!player_texture.load_from_file(textures_path("player_right.png")))
 		{
 			fprintf(stderr, "Failed to load player texture!");
 			return false;
@@ -24,13 +25,13 @@ bool PlayerMesh::init()
 	float hr = player_texture.height * 0.5f;
 
 	TexturedVertex vertices[4];
-	vertices[0].position = { -wr, +hr, 0.1f };
+	vertices[0].position = { -wr, +hr + hr/2, 0.1f };
 	vertices[0].texcoord = { 0.f, 1.f };
-	vertices[1].position = { +wr, +hr, 0.1f };
+	vertices[1].position = { +wr, +hr + hr/2, 0.1f };
 	vertices[1].texcoord = { 1.f, 1.f };
-	vertices[2].position = { +wr, -hr, 0.1f };
+	vertices[2].position = { +wr, -hr/2, 0.1f };
 	vertices[2].texcoord = { 1.f, 0.f };
-	vertices[3].position = { -wr, -hr, 0.1f };
+	vertices[3].position = { -wr, -hr/2, 0.1f };
 	vertices[3].texcoord = { 0.f, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction
@@ -64,6 +65,16 @@ bool PlayerMesh::init()
 	m_scale.y = 0.5f;
 
 	return true;
+}
+
+// Render player as facing right
+void PlayerMesh::turn_right() {
+	m_scale.x = std::fabs(m_scale.x);
+}
+
+// Render player as facing left
+void PlayerMesh::turn_left() {
+	m_scale.x = -std::fabs(m_scale.x);
 }
 
 // Releases all graphics resources
