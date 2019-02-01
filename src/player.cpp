@@ -1,8 +1,7 @@
-  // Header
 #include "player.hpp"
 
 // internal
-#include "wall.hpp"
+#include "entity.hpp"
 #include "world.hpp"
 
 // stlib
@@ -53,11 +52,11 @@ void Player::update(float ms)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// Update player position/velocity based on key presses
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		
+
 	if (m_is_z_pressed && can_jump) {
 		m_y_velocity = -8.f;
 	}
-	
+
 	if (m_is_left_pressed) {
 		m_x_velocity -= x_velocity_step;
 	} else if (m_is_right_pressed) {
@@ -101,32 +100,31 @@ void Player::draw(const mat3& projection)
 	playerMesh.draw(projection);
 }
 
-// Simple bounding box collision check, 
-bool Player::collides_with(const Wall& wall)
-{
-	float wall_left = wall.get_position().x;
-	float wall_top = wall.get_position().y;
-	float wall_right = wall_left + wall.get_bounding_box().x;
-	float wall_bottom = wall_top + wall.get_bounding_box().y;
+// Simple bounding box collision check,
+bool Player::collides_with(Entity& entity) {
+	float entity_left = entity.get_position().x;
+	float entity_top = entity.get_position().y;
+	float entity_right = entity_left + entity.get_bounding_box().x;
+	float entity_bottom = entity_top + entity.get_bounding_box().y;
 
 	float player_left = m_position.x;
 	float player_top = m_position.y;
 	float player_right = player_left + (m_scale.x * playerWidth);
 	float player_bottom = player_top + (m_scale.y * playerHeight);
 
-	float dist_passed_top = player_bottom - wall_top;
-	float dist_passed_bottom = wall_bottom - player_top;
-	float dist_passed_left = player_right - wall_left;
-	float dist_passed_right = wall_right - player_left;
+	float dist_passed_top = player_bottom - entity_top;
+	float dist_passed_bottom = entity_bottom - player_top;
+	float dist_passed_left = player_right - entity_left;
+	float dist_passed_right = entity_right - player_left;
 
-	//Determine whether player rectangle and wall rectangle overlap
+	//Determine whether player rectangle and entity rectangle overlap
 	bool rects_overlap = true;
-	if (player_left >= wall_right || wall_left >= player_right) {
+	if (player_left >= entity_right || entity_left >= player_right) {
 		rects_overlap = false;
 	}
 
-	// If one rectangle is above other 
-	if (player_top >= wall_bottom || wall_top >= player_bottom) {
+	// If one rectangle is above other
+	if (player_top >= entity_bottom || entity_top >= player_bottom) {
 		rects_overlap = false;
 	}
 
@@ -137,25 +135,25 @@ bool Player::collides_with(const Wall& wall)
 		if (m_x_velocity == 0) {
 			if (m_y_velocity >= 0) {
 				//player is going straight downwards so move to top of block
-				m_position.y = wall_top - (m_scale.y * playerHeight);
+				m_position.y = entity_top - (m_scale.y * playerHeight);
 				m_y_velocity = 0.05f;
 				can_jump = true;
 			}
 			else {
 				//player is going straight upwards so move to bottom of block
-				m_position.y = wall_bottom;
+				m_position.y = entity_bottom;
 				m_y_velocity = -0.05f;
 			}
 		}
 		else if (m_y_velocity == 0) {
 			if (m_x_velocity >= 0) {
 				//player is going straight rightwards so move to left of block
-				m_position.x = wall_left - (m_scale.x  * playerWidth);
+				m_position.x = entity_left - (m_scale.x  * playerWidth);
 				m_x_velocity = 0.05f;
 			}
 			else {
 				//player is going straight leftwards to move to right of block
-				m_position.x = wall_right;
+				m_position.x = entity_right;
 				m_x_velocity = -0.05f;
 			}
 		}
@@ -164,46 +162,46 @@ bool Player::collides_with(const Wall& wall)
 				// player is moving down right, so move the player to either the left or top of the platform, whichever is closer
 
 				if (dist_passed_top <= dist_passed_left) {
-					m_position.y = wall_top - (m_scale.y * playerHeight);
+					m_position.y = entity_top - (m_scale.y * playerHeight);
 					m_y_velocity = 0.05f;
 					can_jump = true;
 				}
 				else {
-					m_position.x = wall_left - (m_scale.x * playerWidth);
+					m_position.x = entity_left - (m_scale.x * playerWidth);
 					m_x_velocity = 0.05f;
 				}
 			}
 			if (m_x_velocity > 0 && m_y_velocity < 0) {
-				// player is moving up right, so move the player to either the left or bottom of the platform, whichever is closer 
+				// player is moving up right, so move the player to either the left or bottom of the platform, whichever is closer
 				if (dist_passed_bottom <= dist_passed_left) {
-					m_position.y = wall_bottom;
+					m_position.y = entity_bottom;
 					m_y_velocity = -0.05f;
 				}
 				else {
-					m_position.x = wall_left - (m_scale.x * playerWidth);
+					m_position.x = entity_left - (m_scale.x * playerWidth);
 					m_x_velocity = 0.05f;
 				}
 			}
 			if (m_x_velocity < 0 && m_y_velocity > 0) {
-				// player is moving down left, so move the player to either the right or top of the platform, whichever is closer 
+				// player is moving down left, so move the player to either the right or top of the platform, whichever is closer
 				if (dist_passed_top <= dist_passed_right) {
-					m_position.y = wall_top - (m_scale.y * playerHeight);
+					m_position.y = entity_top - (m_scale.y * playerHeight);
 					m_y_velocity = 0.05f;
 					can_jump = true;
 				}
 				else {
-					m_position.x = wall_right;
+					m_position.x = entity_right;
 					m_x_velocity = -0.05f;
 				}
 			}
 			if (m_x_velocity < 0 && m_y_velocity < 0) {
-				// player is moving up left, so move the player to either the right or bottom of the platform, whichever is closer 
+				// player is moving up left, so move the player to either the right or bottom of the platform, whichever is closer
 				if (dist_passed_bottom <= dist_passed_right) {
-					m_position.y = wall_bottom;
+					m_position.y = entity_bottom;
 					m_y_velocity = -0.05f;
 				}
 				else {
-					m_position.x = wall_right;
+					m_position.x = entity_right;
 					m_x_velocity = -0.05f;
 				}
 			}

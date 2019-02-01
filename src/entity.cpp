@@ -1,27 +1,24 @@
-// Header
-#include "wall.hpp"
+#include "entity.hpp"
 
 #include <cmath>
 #include <iostream>
 
-Texture Wall::wall_texture;
+Texture Entity::texture;
 
-bool Wall::init(int x_pos, int y_pos)
-{
+bool Entity::init(int x_pos, int y_pos) {
 	m_path_type = rand() % 3; // can be 0 to 2
+
 	// Load shared texture
-	if (!wall_texture.is_valid())
-	{
-		if (!wall_texture.load_from_file(textures_path("wall.png")))
-		{
-			fprintf(stderr, "Failed to load wall texture!");
+	if (!texture.is_valid()) {
+		if (!texture.load_from_file(get_texture_path())) {
+			fprintf(stderr, "Failed to load entity texture!");
 			return false;
 		}
 	}
 
 	// The position corresponds to the center of the texture
-	float wr = wall_texture.width * 0.5f;
-	float hr = wall_texture.height * 0.5f;
+	float wr = texture.width * 0.5f;
+	float hr = texture.height * 0.5f;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, -0.02f };
@@ -38,7 +35,7 @@ bool Wall::init(int x_pos, int y_pos)
 
 	// Clearing errors
 	gl_flush_errors();
-	
+
 	// Vertex Buffer creation
 	glGenBuffers(1, &mesh.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
@@ -71,8 +68,7 @@ bool Wall::init(int x_pos, int y_pos)
 
 // Call if init() was successful
 // Releases all graphics resources
-void Wall::destroy()
-{
+void Entity::destroy() {
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteBuffers(1, &mesh.vao);
@@ -83,8 +79,7 @@ void Wall::destroy()
 }
 
 
-void Wall::draw(const mat3& projection)
-{
+void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
@@ -119,7 +114,7 @@ void Wall::draw(const mat3& projection)
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, wall_texture.id);
+	glBindTexture(GL_TEXTURE_2D, texture.id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -131,25 +126,21 @@ void Wall::draw(const mat3& projection)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-vec2 Wall::get_position()const
-{
+vec2 Entity::get_position() const {
 	return m_position;
 }
 
-void Wall::set_position(vec2 position)
-{
+void Entity::set_position(vec2 position) {
 	m_position = position;
 }
 
-// Returns the local bounding coordinates scaled by the current size of the wall
-vec2 Wall::get_bounding_box()const
-{
+// Returns the local bounding coordinates scaled by the current size of the entity
+vec2 Entity::get_bounding_box() const {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * wall_texture.width, std::fabs(m_scale.y) * wall_texture.height };
+	return { std::fabs(m_scale.x) * texture.width, std::fabs(m_scale.y) * texture.height };
 }
 
-std::vector<ParametricLine> Wall::calculate_static_equations() const
-{
+std::vector<ParametricLine> Entity::calculate_static_equations() const {
 	// Create 4 lines for each each of the box and returns them
 	vec2 boundingBox = get_bounding_box();
 	float xHalf = boundingBox.x / 2;

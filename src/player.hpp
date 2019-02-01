@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wall.hpp"
+#include "entity.hpp"
 #include "player_mesh.hpp"
 #include "light_mesh.hpp"
 #include "common.hpp"
@@ -23,8 +23,8 @@ public:
 	// Renders the player
 	void draw(const mat3& projection);
 
-	// Collision routines for walls
-	bool collides_with(const Wall& wall);
+	// Collision routines for entities
+	bool collides_with(Entity& entity);
 
 	// Returns the current player position
 	vec2 get_position()const;
