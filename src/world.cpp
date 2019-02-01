@@ -236,25 +236,31 @@ bool World::spawn_wall(int x_pos, int y_pos)
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
   std::vector<std::vector<char>> grid(10, std::vector<char>(8));
+  std::ifstream in(LEVEL_DATA_PATH);
 
-	grid[0][7] = '@';
-	grid[1][7] = '@';
-	grid[2][7] = '@';
-	grid[3][7] = '@';
-	grid[4][7] = '@';
-	grid[5][7] = '@';
-	grid[6][7] = '@';
-	grid[7][7] = '@';
-	grid[8][7] = '@';
-	grid[9][7] = '@';
-	grid[9][6] = '@';
-	grid[9][5] = '@';
-	grid[7][3] = '@';
-	grid[8][3] = '@';
-  grid[3][4] = '@';
-	grid[2][4] = '@';
+  if (!in) {
+    std::cout << "Cannot open file.\n";
+    return;
+  }
 
+  for (std::size_t i = 0; i < grid.size(); i++) {
+		for (std::size_t j = 0; j < grid[0].size(); j++) {
+      in >> grid[i][j];
+    }
+  }
+	in.close();
+	
 	create_level(grid);
+}
+
+// Just to print the grid (testing purposes)
+void World::print_grid(std::vector<std::vector<char>>& grid) {
+	for (std::vector<char> row : grid) {
+    for (char cell : row) {
+      std::cout << cell << " ";
+    }
+    std::cout << std::endl;
+  }
 }
 
 void World::create_level(std::vector<std::vector<char>>& grid) {
@@ -262,7 +268,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
   const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[0].size(); j++) {
-			if (grid[i][j] == '@') {
+			if (grid[i][j] == '1') {
 				spawn_wall(i * BLOCK_SIZE, j * BLOCK_SIZE);
 			}
 		}

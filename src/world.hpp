@@ -40,10 +40,12 @@ public:
 	const ParametricLines* getStaticCollisionLines() const { return &m_staticLightCollisionLines; }
 
 private:
-	// Generates a new turtle
+
 	bool spawn_wall(int x_pos, int y_pos);
 
 	void create_base_level();
+
+	void print_grid(std::vector<std::vector<char>>& grid);
 
 	void create_level(std::vector<std::vector<char>>& grid);
 
@@ -64,7 +66,6 @@ private:
 	// Water effect
 	Water m_water;
 
-	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int m_points;
 
 	// Game entities
