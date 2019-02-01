@@ -226,23 +226,27 @@ bool World::spawn_wall(int x_pos, int y_pos)
 
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
-  std::vector<std::vector<char>> grid(10, std::vector<char>(8));
-  std::ifstream in(LEVEL_DATA_PATH);
+	std::ifstream in(levels_path("level_data.txt"));
+  std::vector<std::vector<char>> grid;
 
-  if (!in) {
-    std::cout << "Cannot open file.\n";
-    return;
-  }
+	if(!in) {
+		std::cerr << "Cannot open file." << std::endl;
+		return;
+	}
 
-  for (std::size_t i = 0; i < grid.size(); i++) {
-		for (std::size_t j = 0; j < grid[0].size(); j++) {
-      in >> grid[i][j];
-    }
-  }
+	std::string row;
+	// Read next line from file until it reaches the end.
+	while (std::getline(in, row)) {
+    int n = row.length();
+    // declaring char array
+    char char_array[n+1];
+    strcpy(char_array, row.c_str()); 
+		// Dynamically sized vector<char>
+		grid.push_back((std::vector<char>(char_array, char_array + sizeof(char_array)/ sizeof(char_array[0]))));
+	}
 	in.close();
-	
-	create_level(grid);
 
+	create_level(grid);
 	// Calculate parametric equations for edge for each wall
 	calculate_static_equations();
 }
@@ -263,7 +267,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[0].size(); j++) {
 			if (grid[i][j] == '1') {
-				spawn_wall(i * BLOCK_SIZE, j * BLOCK_SIZE);
+				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
 			}
 		}
 	}

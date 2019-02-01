@@ -20,8 +20,7 @@
 #define textures_path(name)  data_path "/textures/" name
 #define audio_path(name) data_path  "/audio/" name
 #define mesh_path(name) data_path  "/meshes/" name
-
-static const std::string LEVEL_DATA_PATH = "data/levels/level_data.txt";
+#define levels_path(name) data_path "/levels/" name
 
 // Not much math is needed and there are already way too many libraries linked (:
 // If you want to do some overloads..
