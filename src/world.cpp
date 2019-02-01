@@ -235,14 +235,11 @@ void World::create_base_level() {
 	}
 
 	std::string row;
-	// Read next line from file until it reaches the end.
 	while (std::getline(in, row)) {
-    int n = row.length();
-    // declaring char array
-    char char_array[n+1];
-    strcpy(char_array, row.c_str()); 
-		// Dynamically sized vector<char>
-		grid.push_back((std::vector<char>(char_array, char_array + sizeof(char_array)/ sizeof(char_array[0]))));
+    std::string rowS(row.c_str());
+    std::vector<char> charVector(rowS.begin(), rowS.end());
+    // Dynamically sized vector<char>
+    grid.push_back(charVector);
 	}
 	in.close();
 
@@ -265,7 +262,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	// @ represents walls
   const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
 	for (std::size_t i = 0; i < grid.size(); i++) {
-		for (std::size_t j = 0; j < grid[0].size(); j++) {
+		for (std::size_t j = 0; j < grid[i].size(); j++) {
 			if (grid[i][j] == '1') {
 				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
 			}
@@ -277,7 +274,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// HANDLE SALMON MOVEMENT HERE
+	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_Z) {
