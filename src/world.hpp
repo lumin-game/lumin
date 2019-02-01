@@ -40,10 +40,14 @@ public:
 	const ParametricLines* getStaticCollisionLines() const { return &m_staticLightCollisionLines; }
 
 private:
-	// Generates a new turtle
+
 	bool spawn_wall(int x_pos, int y_pos);
 
 	void create_base_level();
+
+	void print_grid(std::vector<std::vector<char>>& grid);
+
+	void create_level(std::vector<std::vector<char>>& grid);
 
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
@@ -62,7 +66,6 @@ private:
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
 
-	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int m_points;
 
 	// Game entities

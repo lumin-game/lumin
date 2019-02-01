@@ -210,7 +210,7 @@ bool World::is_over()const
 	return glfwWindowShouldClose(m_window);
 }
 
-// Creates a new turtle and if successfull adds it to the list of turtles
+// Creates a new wall and if successfull adds it to the list of wall
 bool World::spawn_wall(int x_pos, int y_pos)
 {
 	Wall wall;
@@ -224,34 +224,56 @@ bool World::spawn_wall(int x_pos, int y_pos)
 }
 
 void World::create_base_level() {
-	const int BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	// base level is represented by a 0-indexed 10x8 matrix
+	std::ifstream in(levels_path("level_data.txt"));
+  std::vector<std::vector<char>> grid;
 
-	spawn_wall(1*BLOCK_SIZE, 8*BLOCK_SIZE);
-	spawn_wall(2 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(3 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(4 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(5 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(6 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(7 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(8 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(9 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(10 * BLOCK_SIZE, 8 * BLOCK_SIZE);
-	spawn_wall(10*BLOCK_SIZE, 7 *BLOCK_SIZE);
-	spawn_wall(10 * BLOCK_SIZE, 6 * BLOCK_SIZE);
-	spawn_wall(8 * BLOCK_SIZE, 4 * BLOCK_SIZE);
-	spawn_wall(7 * BLOCK_SIZE, 4 * BLOCK_SIZE);
-	spawn_wall(4 * BLOCK_SIZE, 2 * BLOCK_SIZE);
-	spawn_wall(3 * BLOCK_SIZE, 2 * BLOCK_SIZE);
+	if(!in) {
+		std::cerr << "Cannot open file." << std::endl;
+		return;
+	}
 
+	std::string row;
+	while (std::getline(in, row)) {
+    std::string rowS(row.c_str());
+    std::vector<char> charVector(rowS.begin(), rowS.end());
+    // Dynamically sized vector<char>
+    grid.push_back(charVector);
+	}
+	in.close();
+
+	create_level(grid);
 	// Calculate parametric equations for edge for each wall
 	calculate_static_equations();
+}
+
+// Just to print the grid (testing purposes)
+void World::print_grid(std::vector<std::vector<char>>& grid) {
+	for (std::vector<char> row : grid) {
+    for (char cell : row) {
+      std::cout << cell << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void World::create_level(std::vector<std::vector<char>>& grid) {
+	// @ represents walls
+  const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	for (std::size_t i = 0; i < grid.size(); i++) {
+		for (std::size_t j = 0; j < grid[i].size(); j++) {
+			if (grid[i][j] == '1') {
+				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
+			}
+		}
+	}
 }
 
 // On key callback
 void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// HANDLE SALMON MOVEMENT HERE
+	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_Z) {
