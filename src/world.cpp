@@ -279,7 +279,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
 		for (Entity* entity : m_entities) {
-			entity->destroy();
+			delete entity;
 		}
 		m_entities.clear();
 		create_base_level();

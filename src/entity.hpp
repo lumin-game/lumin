@@ -8,6 +8,8 @@ class Entity : public Renderable {
 
 public:
 	// Things the subclass need to implement
+	virtual ~Entity() = default;
+
 	virtual const char* get_texture_path() = 0;
 	virtual bool is_player_collidable() = 0;
 	virtual bool is_light_collidable() = 0;

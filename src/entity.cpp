@@ -5,6 +5,7 @@
 
 Texture Entity::texture;
 
+
 bool Entity::init(int x_pos, int y_pos) {
 	m_path_type = rand() % 3; // can be 0 to 2
 
