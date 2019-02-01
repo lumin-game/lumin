@@ -8,12 +8,6 @@
 
 #include <iostream>
 
-#if defined(__APPLE__)
- const float RETINA_SCALE = 2.;
-#else
- const float RETINA_SCALE = 1.;
-#endif
-
 // Same as static in c, local to compilation unit
 namespace
 {
@@ -121,7 +115,7 @@ void World::destroy()
 bool World::update(float elapsed_ms)
 {
 	int w, h;
-        glfwGetFramebufferSize(m_window, &w, &h);
+	glfwGetFramebufferSize(m_window, &w, &h);
 	vec2 screen = { (float)w, (float)h };
 
 	// TODO check player - Wall collisions here (but might want to do it after player has moved for the frame)
@@ -150,7 +144,12 @@ void World::draw()
 
 	// Getting size of window
 	int w, h;
-    glfwGetFramebufferSize(m_window, &w, &h);
+	glfwGetFramebufferSize(m_window, &w, &h);
+
+	// Check for discrepancy between window/frame buffer (high DPI display)
+	int ww, hh;
+	glfwGetWindowSize(m_window, &ww, &hh);
+	float retinaScale = w / ww;
 
 	/////////////////////////////////////
 	// First render to the custom framebuffer
@@ -167,8 +166,8 @@ void World::draw()
 	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
 	float left = 0.f;// *-0.5;
 	float top = 0.f;// (float)h * -0.5;
-	float right = (float)w / RETINA_SCALE;// *0.5;
-	float bottom = (float)h / RETINA_SCALE;// *0.5;
+	float right = (float)w / retinaScale;
+	float bottom = (float)h / retinaScale;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
