@@ -4,7 +4,7 @@
 #include "common.hpp"
 #include "player.hpp"
 #include "wall.hpp"
-#include "water.hpp"
+#include "screen.hpp"
 
 // stlib
 #include <vector>
@@ -63,8 +63,8 @@ private:
 	GLuint m_frame_buffer;
 	Texture m_screen_tex;
 
-	// Water effect
-	Water m_water;
+	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
+	Screen m_screen;
 
 	unsigned int m_points;
 

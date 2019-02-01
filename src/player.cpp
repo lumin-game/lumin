@@ -233,8 +233,10 @@ void Player::setZPressed(bool tf) {
 
 void Player::setLeftPressed(bool tf) {
 	m_is_left_pressed = tf;
+	playerMesh.turn_left();
 }
 
 void Player::setRightPressed(bool tf) {
 	m_is_right_pressed = tf;
+	playerMesh.turn_right();
 }

@@ -59,7 +59,7 @@ bool World::init(vec2 screen)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, 0);
-	m_window = glfwCreateWindow((int)screen.x, (int)screen.y, "A1 Assignment", nullptr, nullptr);
+	m_window = glfwCreateWindow((int)screen.x, (int)screen.y, "Lumin", nullptr, nullptr);
 	if (m_window == nullptr)
 		return false;
 
@@ -88,15 +88,12 @@ bool World::init(vec2 screen)
 
 	create_base_level();
 
-	// Calculate parametric equations for edge for each wall
-	calculate_static_equations();
-
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init(this) && m_water.init();
+	return m_player.init(this) && m_screen.init();
 }
 
 // Releases all the associated resources
@@ -155,11 +152,6 @@ void World::draw()
 	int w, h;
     glfwGetFramebufferSize(m_window, &w, &h);
 
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << m_points;
-	glfwSetWindowTitle(m_window, title_ss.str().c_str());
-
 	/////////////////////////////////////
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
@@ -167,8 +159,7 @@ void World::draw()
 	// Clearing backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	const float clear_color[3] = { 0.3f, 0.3f, 0.8f };
-	glClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0);
+	glClearColor(0.f, 0.f, 0.f, 1.0);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -207,7 +198,7 @@ void World::draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
 
-	m_water.draw(projection_2D);
+	m_screen.draw(projection_2D);
 
 	//////////////////
 	// Presenting
@@ -251,6 +242,9 @@ void World::create_base_level() {
 	in.close();
 	
 	create_level(grid);
+
+	// Calculate parametric equations for edge for each wall
+	calculate_static_equations();
 }
 
 // Just to print the grid (testing purposes)
@@ -313,10 +307,14 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
-		m_player.destroy();
-		m_player.init(this);
+		for (Wall& wall : m_walls)
+		{
+			wall.destroy();
+		}
 		m_walls.clear();
 		create_base_level();
+		m_player.destroy();
+		m_player.init(this);
 		m_current_speed = 1.f;
 	}
 
