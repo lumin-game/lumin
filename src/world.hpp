@@ -3,7 +3,7 @@
 // internal
 #include "common.hpp"
 #include "player.hpp"
-#include "wall.hpp"
+#include "entity.hpp"
 #include "screen.hpp"
 
 // stlib
@@ -14,7 +14,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-// Container for all our entities and game logic. Individual rendering / update is 
+// Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class World
 {
@@ -70,7 +70,7 @@ private:
 
 	// Game entities
 	Player m_player;
-	std::vector<Wall> m_walls;
+	std::vector<Entity*> m_entities;
 
 	float m_current_speed;
 

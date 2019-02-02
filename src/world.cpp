@@ -1,5 +1,6 @@
 // Header
 #include "world.hpp"
+#include "wall.hpp"
 
 // stlib
 #include <string.h>
@@ -9,32 +10,25 @@
 #include <iostream>
 
 // Same as static in c, local to compilation unit
-namespace
-{
-	namespace
-	{
-		void glfw_err_cb(int error, const char* desc)
-		{
+namespace {
+	namespace {
+		void glfw_err_cb(int error, const char* desc) {
 			fprintf(stderr, "%d: %s", error, desc);
 		}
 	}
 }
 
-World::World() :
-	m_points(0)
-{
+World::World() : m_points(0) {
 	// Seeding rng with random device
 	m_rng = std::default_random_engine(std::random_device()());
 }
 
-World::~World()
-{
+World::~World() {
 
 }
 
 // World initialization
-bool World::init(vec2 screen)
-{
+bool World::init(vec2 screen) {
 	//-------------------------------------------------------------------------
 	// GLFW / OGL Initialization
 	// Core Opengl 3.
@@ -105,9 +99,11 @@ void World::destroy()
 	Mix_CloseAudio();
 
 	m_player.destroy();
-	for (auto& wall : m_walls)
-		wall.destroy();
-	m_walls.clear();
+	for (Entity* entity : m_entities) {
+		entity->destroy();
+	}
+
+	m_entities.clear();
 	glfwDestroyWindow(m_window);
 }
 
@@ -124,10 +120,8 @@ bool World::update(float elapsed_ms)
 	// faster based on current
 	m_player.update(elapsed_ms);
 
-	for (const auto& wall : m_walls)
-	{
-		if (m_player.collides_with(wall))
-		{
+	for (Entity* entity : m_entities) {
+		if (entity->is_player_collidable() && m_player.collides_with(*entity)) {
 			//do nothing
 		}
 	}
@@ -137,8 +131,7 @@ bool World::update(float elapsed_ms)
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void World::draw()
-{
+void World::draw() {
 	// Clearing error buffer
 	gl_flush_errors();
 
@@ -179,8 +172,9 @@ void World::draw()
 	m_player.draw(projection_2D);
 
 
-	for (auto& wall: m_walls)
-		wall.draw(projection_2D);
+	for (Entity* entity: m_entities) {
+		entity->draw(projection_2D);
+	}
 
 	/////////////////////
 	// Truely render to the screen
@@ -213,10 +207,9 @@ bool World::is_over()const
 // Creates a new wall and if successfull adds it to the list of wall
 bool World::spawn_wall(int x_pos, int y_pos)
 {
-	Wall wall;
-	if (wall.init(x_pos, y_pos))
-	{
-		m_walls.emplace_back(wall);
+	Wall *wall = new Wall();
+	if (wall->init(x_pos, y_pos)) {
+		m_entities.emplace_back(wall);
 		return true;
 	}
 	fprintf(stderr, "Failed to spawn wall");
@@ -307,11 +300,10 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
-		for (Wall& wall : m_walls)
-		{
-			wall.destroy();
+		for (Entity* entity : m_entities) {
+			delete entity;
 		}
-		m_walls.clear();
+		m_entities.clear();
 		create_base_level();
 		m_player.destroy();
 		m_player.init(this);
@@ -336,9 +328,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 void World::calculate_static_equations()
 {
 	m_staticLightCollisionLines.clear();
-	for (Wall& wall : m_walls)
-	{
-		ParametricLines wallLines = wall.calculate_static_equations();
-		m_staticLightCollisionLines.insert(m_staticLightCollisionLines.end(), wallLines.begin(), wallLines.end());
+	for (Entity* entity : m_entities) {
+		ParametricLines lines = entity->calculate_static_equations();
+		m_staticLightCollisionLines.insert(m_staticLightCollisionLines.end(), lines.begin(), lines.end());
 	}
 }

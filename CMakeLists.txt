@@ -33,20 +33,21 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/project_path.hpp.in" "${CMAKE_CU
 set(SOURCE_FILES
 	src/a1.cpp
 	src/common.cpp
-	src/wall.cpp
+  src/entity.cpp
 	src/player.cpp
 	src/player_mesh.cpp
 	src/light_mesh.cpp
-        src/screen.cpp
+  src/screen.cpp
 	src/world.cpp
 
-    src/project_path.hpp
+  src/project_path.hpp
 	src/common.hpp
+  src/entity.hpp
 	src/wall.hpp
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
-        src/screen.hpp
+  src/screen.hpp
 	src/world.hpp
 	)
 
