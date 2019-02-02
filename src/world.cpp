@@ -318,6 +318,12 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_current_speed = 1.f;
 	}
 
+	// Exit Game
+	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+		destroy();
+		exit(0);
+	}
+
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) &&  key == GLFW_KEY_COMMA)
 		m_current_speed -= 0.1f;
