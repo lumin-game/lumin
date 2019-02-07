@@ -43,13 +43,13 @@ set(SOURCE_FILES
   src/project_path.hpp
 	src/common.hpp
   src/entity.hpp
+    src/glass.hpp
 	src/wall.hpp
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
   src/screen.hpp
-	src/world.hpp
-	)
+	src/world.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

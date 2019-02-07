@@ -1,6 +1,7 @@
 // Header
 #include "world.hpp"
 #include "wall.hpp"
+#include "glass.hpp"
 
 // stlib
 #include <string.h>
@@ -216,6 +217,17 @@ bool World::spawn_wall(int x_pos, int y_pos)
 	return false;
 }
 
+bool World::spawn_glass(int x_pos, int y_pos)
+{
+	Glass *glass = new Glass();
+	if (glass->init(x_pos, y_pos)) {
+		m_entities.emplace_back(glass);
+		return true;
+	}
+	fprintf(stderr, "Failed to spawn glass");
+	return false;
+}
+
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
 	std::ifstream in(levels_path("level_data.txt"));
@@ -257,6 +269,8 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
 			if (grid[i][j] == '1') {
 				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
+			} else if (grid[i][j] == '2') {
+				spawn_glass(j * BLOCK_SIZE, i * BLOCK_SIZE);
 			}
 		}
 	}

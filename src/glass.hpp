@@ -2,14 +2,14 @@
 
 #include "entity.hpp"
 
-class Wall : public Entity {
+class Glass : public Entity {
 public:
-	~Wall() override { Entity::destroy(); }
+	~Glass() override { Entity::destroy(); }
 
 	char* get_texture_path() const override { return textures_path("wall.png"); }
 	bool is_player_collidable() const override { return true; }
-	bool is_light_collidable() const override { return true; }
-	float get_r() const override { return 1.0; }
-	float get_g() const override { return 1.0; }
+	bool is_light_collidable() const override { return false; }
+	float get_r() const override { return 0.5; }
+	float get_g() const override { return 0.5; }
 	float get_b() const override { return 1.0; }
 };

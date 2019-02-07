@@ -10,9 +10,12 @@ public:
 	// Things the subclass need to implement
 	virtual ~Entity() = default;
 
-	virtual const char* get_texture_path() = 0;
-	virtual bool is_player_collidable() = 0;
-	virtual bool is_light_collidable() = 0;
+	virtual char* get_texture_path() const = 0;
+	virtual bool is_player_collidable() const = 0;
+	virtual bool is_light_collidable() const = 0;
+	virtual float get_r() const = 0;
+	virtual float get_g() const = 0;
+	virtual float get_b() const = 0;
 
 	// Creates all the associated render resources and default transform
 	bool init(int x_pos, int y_pos);
