@@ -11,8 +11,8 @@ public:
 	virtual ~Entity() = default;
 
 	virtual const char* get_texture_path() = 0;
-	virtual bool is_player_collidable() = 0;
-	virtual bool is_light_collidable() = 0;
+	virtual bool is_player_collidable() const = 0;
+	virtual bool is_light_collidable() const = 0;
 
 	// Creates all the associated render resources and default transform
 	bool init(int x_pos, int y_pos);
@@ -32,7 +32,7 @@ public:
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box() const;
 
-	std::vector<ParametricLine> calculate_static_equations() const;
+	ParametricLines calculate_static_equations() const;
 
 private:
 	vec2 m_position; // Window coordinates

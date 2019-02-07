@@ -25,13 +25,13 @@ bool PlayerMesh::init()
 	float hr = player_texture.height * 0.5f;
 
 	TexturedVertex vertices[4];
-	vertices[0].position = { -wr, +hr + hr/2, 0.1f };
+	vertices[0].position = { -wr, +hr, 0.1f };
 	vertices[0].texcoord = { 0.f, 1.f };
-	vertices[1].position = { +wr, +hr + hr/2, 0.1f };
+	vertices[1].position = { +wr, +hr, 0.1f };
 	vertices[1].texcoord = { 1.f, 1.f };
-	vertices[2].position = { +wr, -hr/2, 0.1f };
+	vertices[2].position = { +wr, -hr, 0.1f };
 	vertices[2].texcoord = { 1.f, 0.f };
-	vertices[3].position = { -wr, -hr/2, 0.1f };
+	vertices[3].position = { -wr, -hr, 0.1f };
 	vertices[3].texcoord = { 0.f, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction

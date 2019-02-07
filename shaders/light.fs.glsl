@@ -11,14 +11,13 @@ uniform float lightRadius;
 uniform vec4 collisionEqs[256]; // Equations for edges that will block the light
 uniform int collisionEqCount;	// Actual count, because openGL doesn't support dynamic uniform arrays
 // I am assuming we don't have more than 256 such edges
-// this is bad right now, but should be fine once we optimize so that only walls within our radius are checked.
 
 // Output color
 layout(location = 0) out vec4 color;
 
 void main()
 {
-	float epsilon = 0.000001f;
+	float epsilon = 0.001f;
 	color = vec4(fcolor * vcolor, 1.0);
 	
 	// Look for collisions per pixel
@@ -52,8 +51,7 @@ void main()
 
 			if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 			{
-				collisionFound = true;
-				break;
+				discard;
 			}
 		}
 	}
@@ -67,29 +65,18 @@ void main()
 
 			if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 			{
-				collisionFound = true;
-				break;
+				discard;
 			}
 		}
 	}
 
+	//TODO: Prolly don't hardcode these values
+	float radius = distance(vec2(0.0), vpos);
+	if (radius > lightRadius)
+	{
+		discard;
+	}
 
-	if (collisionFound)
-	{
-		color.a = 0;
-	}
-	else
-	{
-		//TODO: Prolly don't hardcode these values
-		float radius = distance(vec2(0.0), vpos);
-		if (radius < lightRadius)
-		{
-			color.xyz = vec3(1.0, 1.0, 1.0);
-			color.a = max(0.00, min(0.8, (1 - radius / lightRadius)));
-		}
-		else
-		{
-			color.a = 0;
-		}
-	}
+	color.xyz = vec3(1.0, 1.0, 1.0);
+	color.a = max(0.00, min(0.8, (1 - radius / lightRadius)));	
 }

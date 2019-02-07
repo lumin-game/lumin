@@ -11,7 +11,7 @@ class Player
 {
 public:
 	// Creates all the associated render resources and default transform
-	bool init(const World* world);
+	bool init();
 
 	// Releases all associated resources
 	void destroy();
@@ -22,9 +22,6 @@ public:
 
 	// Renders the player
 	void draw(const mat3& projection);
-
-	// Collision routines for entities
-	bool collides_with(Entity& entity);
 
 	// Returns the current player position
 	vec2 get_position()const;
@@ -50,6 +47,7 @@ private:
 
 	float m_y_velocity;
 	float m_x_velocity;
+	float m_max_fall_velocity;
 
 	int playerWidth;
 	int playerHeight;

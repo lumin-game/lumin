@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include "CollisionManager.hpp"
 
 Texture Entity::texture;
 
@@ -61,8 +62,10 @@ bool Entity::init(int x_pos, int y_pos) {
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	m_position.x = (float) x_pos;
-	m_position.y = (float) y_pos;
+	m_position.x = (float)x_pos;
+	m_position.y = (float)y_pos;
+
+	CollisionManager::GetInstance().RegisterEntity(this);
 
 	return true;
 }
@@ -70,6 +73,8 @@ bool Entity::init(int x_pos, int y_pos) {
 // Call if init() was successful
 // Releases all graphics resources
 void Entity::destroy() {
+	CollisionManager::GetInstance().UnregisterEntity(this);
+
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteBuffers(1, &mesh.vao);
