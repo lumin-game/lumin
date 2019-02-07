@@ -171,9 +171,27 @@ void World::draw() {
 	// Drawing entities
 	m_player.draw(projection_2D);
 
+	if (m_player.get_position().x < 64 * 8) {
+		m_camera.x = 0;
+	} else if (m_player.get_position().x > m_level_size.x*64 - 64 * 8 ) {
+		m_camera.x = m_level_size.x*64 - 64 * 16;
+	} else {
+		m_camera.x = m_player.get_position().x - 64 * 8;
+	}
+
+// 	if player.x < screen_width / 2 then
+//     camera.x = 0
+// elseif player.x > level_width - screen_width / 2 then
+//     camera.x = level_width - screen_width
+// else
+//     camera.x = player.x - screen_width / 2
+// end
+
+// draw_stuff(x - camera.x, y)
 
 	for (Entity* entity: m_entities) {
-		entity->draw(projection_2D);
+		// entity->set_position({entity->get_position().x - m_camera.x, entity->get_position().y});
+		entity->draw(projection_2D, m_camera);
 	}
 
 	/////////////////////
@@ -234,6 +252,9 @@ void World::create_base_level() {
     grid.push_back(charVector);
 	}
 	in.close();
+
+	m_level_size.x = grid[0].size();
+	m_level_size.y = grid.size();
 
 	create_level(grid);
 	// Calculate parametric equations for edge for each wall

@@ -22,7 +22,7 @@ bool Player::init(const World* world)
 	// 1.0 would be as big as the original texture
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
-	m_position = { 50.f, 100.f };
+	m_position = { 100.f, 50.f };
 
 	m_x_velocity = 0;
 	m_y_velocity = 0;

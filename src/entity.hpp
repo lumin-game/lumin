@@ -21,7 +21,9 @@ public:
 	void destroy();
 
 	// Renders the entity using the texture
-	void draw(const mat3& projection);
+	void draw(const mat3& projection, vec2 camera);
+
+    void draw(const mat3& projection);
 
 	// Returns the current wall position
 	vec2 get_position() const;
