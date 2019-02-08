@@ -51,7 +51,8 @@ void main()
 
 			if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 			{
-				discard;
+				collisionFound = true;
+				break;
 			}
 		}
 	}
@@ -65,18 +66,29 @@ void main()
 
 			if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 			{
-				discard;
+				collisionFound = true;
+				break;
 			}
 		}
 	}
 
-	//TODO: Prolly don't hardcode these values
-	float radius = distance(vec2(0.0), vpos);
-	if (radius > lightRadius)
-	{
-		discard;
-	}
 
-	color.xyz = vec3(1.0, 1.0, 1.0);
-	color.a = max(0.00, min(0.8, (1 - radius / lightRadius)));	
+	if (collisionFound)
+	{
+		color.a = 0;
+	}
+	else
+	{
+		//TODO: Prolly don't hardcode these values
+		float radius = distance(vec2(0.0), vpos);
+		if (radius < lightRadius)
+		{
+			color.xyz = vec3(1.0, 1.0, 1.0);
+			color.a = max(0.00, min(0.8, (1 - radius / lightRadius)));
+		}
+		else
+		{
+			color.a = 0;
+		}
+	}
 }
