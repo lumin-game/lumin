@@ -121,7 +121,7 @@ bool World::update(float elapsed_ms)
 	m_player.update(elapsed_ms);
 
 	for (Entity* entity : m_entities) {
-		vec2 screen_pos = {entity->get_position().x - m_player.get_position().x, entity->get_position().y};
+		vec2 screen_pos = {entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x, entity->get_position().y};
 		entity->set_screen_pos(screen_pos);
 		if (entity->is_player_collidable() && m_player.collides_with(*entity)) {
 			//do nothing
@@ -195,8 +195,6 @@ void World::draw() {
 
 	for (Entity* entity: m_entities) {
 		// entity->set_position({entity->get_position().x - m_camera.x, entity->get_position().y});
-		projection_2D.c2.x = entity->get_screen_pos().x;
-		projection_2D.c2.y = entity->get_screen_pos().y;
 		entity->draw(projection_2D);
 	}
 

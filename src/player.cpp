@@ -23,6 +23,7 @@ bool Player::init(const World* world)
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 	m_position = { 100.f, 50.f };
+	m_screen_pos = m_position;
 
 	m_x_velocity = 0;
 	m_y_velocity = 0;

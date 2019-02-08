@@ -64,6 +64,9 @@ bool Entity::init(int x_pos, int y_pos) {
 	m_position.x = (float) x_pos;
 	m_position.y = (float) y_pos;
 
+	m_screen_pos.x = (float) x_pos;
+	m_screen_pos.y = (float) y_pos;
+
 	return true;
 }
 
