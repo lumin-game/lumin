@@ -166,6 +166,8 @@ void World::draw() {
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
+//	float tx = m_player.get_screen_pos().x * 2.f / (right - left);
+//	float ty = m_player.get_screen_pos().y * 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
@@ -193,6 +195,8 @@ void World::draw() {
 
 	for (Entity* entity: m_entities) {
 		// entity->set_position({entity->get_position().x - m_camera.x, entity->get_position().y});
+		projection_2D.c2.x = entity->get_screen_pos().x;
+		projection_2D.c2.y = entity->get_screen_pos().y;
 		entity->draw(projection_2D);
 	}
 
