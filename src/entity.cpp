@@ -80,7 +80,7 @@ void Entity::destroy() {
 }
 
 
-void Entity::draw(const mat3& projection, vec2 camera) {
+void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
@@ -125,10 +125,6 @@ void Entity::draw(const mat3& projection, vec2 camera) {
 
 	// Drawing!
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-}
-
-void Entity::draw(const mat3& projection) {
-    draw(projection, {0, 0});
 }
 
 vec2 Entity::get_position() const {

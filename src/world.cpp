@@ -193,7 +193,7 @@ void World::draw() {
 
 	for (Entity* entity: m_entities) {
 		// entity->set_position({entity->get_position().x - m_camera.x, entity->get_position().y});
-		entity->draw(projection_2D, m_camera);
+		entity->draw(projection_2D);
 	}
 
 	/////////////////////
