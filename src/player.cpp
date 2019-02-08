@@ -82,6 +82,16 @@ void Player::update(float ms)
 	m_position.x += m_x_velocity * (ms/10);
 	m_position.y += m_y_velocity * (ms/10);
 
+	m_screen_pos.y = m_position.y;
+	float screen_width = 64*16;
+	if (m_position.x >= screen_width * 3/4) {
+		m_screen_pos.x = screen_width * 3/4;
+	} else if (m_position.x <= screen_width * 1/4) {
+		m_screen_pos.x = screen_width * 1/4;
+	} else {
+		m_screen_pos.x = m_position.x;
+	}
+
 	can_jump = false;
 }
 
@@ -89,12 +99,14 @@ void Player::draw(const mat3& projection)
 {
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
+	lightData.m_screen_pos = m_screen_pos;
 
 	lightMesh.SetParentData(lightData);
 	lightMesh.draw(projection);
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
+	playerData.m_screen_pos = m_screen_pos;
 
 	playerMesh.SetParentData(playerData);
 	playerMesh.draw(projection);
@@ -218,6 +230,11 @@ bool Player::collides_with(Entity& entity) {
 vec2 Player::get_position()const
 {
 	return m_position;
+}
+
+vec2 Player::get_screen_pos()const
+{
+	return m_screen_pos;
 }
 
 void Player::move(vec2 off)

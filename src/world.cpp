@@ -121,6 +121,8 @@ bool World::update(float elapsed_ms)
 	m_player.update(elapsed_ms);
 
 	for (Entity* entity : m_entities) {
+		vec2 screen_pos = {entity->get_position().x - m_player.get_position().x, entity->get_position().y};
+		entity->set_screen_pos(screen_pos);
 		if (entity->is_player_collidable() && m_player.collides_with(*entity)) {
 			//do nothing
 		}
@@ -171,13 +173,13 @@ void World::draw() {
 	// Drawing entities
 	m_player.draw(projection_2D);
 
-	if (m_player.get_position().x < 64 * 8) {
-		m_camera.x = 0;
-	} else if (m_player.get_position().x > m_level_size.x*64 - 64 * 8 ) {
-		m_camera.x = m_level_size.x*64 - 64 * 16;
-	} else {
-		m_camera.x = m_player.get_position().x - 64 * 8;
-	}
+//	if (m_player.get_position().x < 64 * 8) {
+//		m_camera.x = 0;
+//	} else if (m_player.get_position().x > m_level_size.x*64 - 64 * 8 ) {
+//		m_camera.x = m_level_size.x*64 - 64 * 16;
+//	} else {
+//		m_camera.x = m_player.get_position().x - 64 * 8;
+//	}
 
 // 	if player.x < screen_width / 2 then
 //     camera.x = 0
