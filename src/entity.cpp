@@ -65,6 +65,9 @@ bool Entity::init(int x_pos, int y_pos) {
 
 	CollisionManager::GetInstance().RegisterEntity(this);
 
+	m_screen_pos.x = (float) x_pos;
+	m_screen_pos.y = (float) y_pos;
+
 	return true;
 }
 
@@ -87,7 +90,7 @@ void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
-	transform_translate(m_position);
+	transform_translate(m_screen_pos);
 	transform_scale(m_scale);
 	transform_end();
 
@@ -136,6 +139,14 @@ vec2 Entity::get_position() const {
 
 void Entity::set_position(vec2 position) {
 	m_position = position;
+}
+
+vec2 Entity::get_screen_pos() const {
+	return m_screen_pos;
+}
+
+void Entity::set_screen_pos(vec2 position){
+	m_screen_pos = position;
 }
 
 // Returns the local bounding coordinates scaled by the current size of the entity

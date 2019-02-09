@@ -24,8 +24,9 @@ bool Player::init()
 	playerWidth = (int) (playerMesh.GetPlayerWidth() * m_scale.x);
 	playerHeight = (int) (playerMesh.GetPlayerHeight() * m_scale.y);
 
-	m_position = { 50.f, 100.f };
-
+	m_position = { 100.f, 50.f };
+	m_screen_pos = m_position;
+  
 	m_x_velocity = 0;
 	m_y_velocity = 0; 
 	m_max_fall_velocity = 20.f;
@@ -98,24 +99,53 @@ void Player::update(float ms)
 	}
 }
 
-void Player::draw(const mat3& projection)
+void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
 {
+
+	calculate_screen_pos(screen_w, screen_h);
+
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
+	lightData.m_screen_pos = m_screen_pos;
 
 	lightMesh.SetParentData(lightData);
 	lightMesh.draw(projection);
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
+	playerData.m_screen_pos = m_screen_pos;
 
 	playerMesh.SetParentData(playerData);
 	playerMesh.draw(projection);
 }
 
+void Player::calculate_screen_pos(float screen_w, float screen_h)
+{
+	if (m_position.x >= screen_w * 3/4) {
+		m_screen_pos.x = screen_w * 3/4;
+	} else if (m_position.x <= screen_w * 1/4) {
+		m_screen_pos.x = screen_w * 1/4;
+	} else {
+		m_screen_pos.x = m_position.x;
+	}
+
+	if (m_position.y >= screen_h * 3/4) {
+		m_screen_pos.y = screen_h * 3/4;
+	} else if (m_position.y <= screen_h * 1/4) {
+		m_screen_pos.y = screen_h * 1/4;
+	} else {
+		m_screen_pos.y = m_position.y;
+	}
+}
+
 vec2 Player::get_position()const
 {
 	return m_position;
+}
+
+vec2 Player::get_screen_pos()const
+{
+	return m_screen_pos;
 }
 
 void Player::move(vec2 off)

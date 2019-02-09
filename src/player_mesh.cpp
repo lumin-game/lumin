@@ -101,7 +101,7 @@ void PlayerMesh::draw(const mat3& projection)
 	// transform_rotate()
 	// transform_scale()
 
-	transform_translate(m_parent.m_position);
+	transform_translate(m_parent.m_screen_pos);
 	transform_scale(m_scale);
 
 	transform_end();
