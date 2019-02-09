@@ -22,7 +22,8 @@ bool Player::init(const World* world)
 	// 1.0 would be as big as the original texture
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
-	m_position = { 50.f, 100.f };
+	m_position = { 100.f, 50.f };
+	m_screen_pos = m_position;
 
 	m_x_velocity = 0;
 	m_y_velocity = 0;
@@ -85,19 +86,43 @@ void Player::update(float ms)
 	can_jump = false;
 }
 
-void Player::draw(const mat3& projection)
+void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
 {
+
+	calculate_screen_pos(screen_w, screen_h);
+
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
+	lightData.m_screen_pos = m_screen_pos;
 
 	lightMesh.SetParentData(lightData);
 	lightMesh.draw(projection);
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
+	playerData.m_screen_pos = m_screen_pos;
 
 	playerMesh.SetParentData(playerData);
 	playerMesh.draw(projection);
+}
+
+void Player::calculate_screen_pos(float screen_w, float screen_h)
+{
+	if (m_position.x >= screen_w * 3/4) {
+		m_screen_pos.x = screen_w * 3/4;
+	} else if (m_position.x <= screen_w * 1/4) {
+		m_screen_pos.x = screen_w * 1/4;
+	} else {
+		m_screen_pos.x = m_position.x;
+	}
+
+	if (m_position.y >= screen_h * 3/4) {
+		m_screen_pos.y = screen_h * 3/4;
+	} else if (m_position.y <= screen_h * 1/4) {
+		m_screen_pos.y = screen_h * 1/4;
+	} else {
+		m_screen_pos.y = m_position.y;
+	}
 }
 
 // Simple bounding box collision check,
@@ -218,6 +243,11 @@ bool Player::collides_with(Entity& entity) {
 vec2 Player::get_position()const
 {
 	return m_position;
+}
+
+vec2 Player::get_screen_pos()const
+{
+	return m_screen_pos;
 }
 
 void Player::move(vec2 off)
