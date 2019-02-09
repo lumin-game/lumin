@@ -1,5 +1,5 @@
 #include <memory>
-#include <assert.h>
+#include <cmath>
 #include "CollisionManager.hpp"
 
 

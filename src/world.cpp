@@ -133,7 +133,7 @@ void World::draw() {
 	// Check for discrepancy between window/frame buffer (high DPI display)
 	int ww, hh;
 	glfwGetWindowSize(m_window, &ww, &hh);
-	float retinaScale = w / ww;
+	float retinaScale = (float) (w / ww);
 
 	/////////////////////////////////////
 	// First render to the custom framebuffer

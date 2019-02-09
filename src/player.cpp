@@ -21,8 +21,8 @@ bool Player::init()
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	playerWidth = (int) playerMesh.GetPlayerWidth() * m_scale.x;
-	playerHeight = (int) playerMesh.GetPlayerHeight() * m_scale.y;
+	playerWidth = (int) (playerMesh.GetPlayerWidth() * m_scale.x);
+	playerHeight = (int) (playerMesh.GetPlayerHeight() * m_scale.y);
 
 	m_position = { 50.f, 100.f };
 
