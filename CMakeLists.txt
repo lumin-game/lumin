@@ -39,6 +39,7 @@ set(SOURCE_FILES
 	src/light_mesh.cpp
   src/screen.cpp
 	src/world.cpp
+	src/CollisionManager.cpp
 
   src/project_path.hpp
 	src/common.hpp
@@ -49,6 +50,7 @@ set(SOURCE_FILES
 	src/light_mesh.hpp
   src/screen.hpp
 	src/world.hpp
+	src/CollisionManager.hpp
 	)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

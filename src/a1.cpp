@@ -17,7 +17,7 @@ using Clock = std::chrono::high_resolution_clock;
 World world;
 const int width = 1200;
 const int height = 800;
-const char* title = "Your Title Here";
+const float minDeltaTimeMs = 100.f;
 
 // Entry point
 int main(int argc, char* argv[])
@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
 		float elapsed_sec = (float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
+		elapsed_sec = fmin(elapsed_sec, minDeltaTimeMs);
 		world.update(elapsed_sec);
 		world.draw();
 	}

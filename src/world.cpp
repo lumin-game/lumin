@@ -1,6 +1,7 @@
 // Header
 #include "world.hpp"
 #include "wall.hpp"
+#include "CollisionManager.hpp"
 
 // stlib
 #include <string.h>
@@ -81,7 +82,7 @@ bool World::init(vec2 screen) {
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init(this) && m_screen.init();
+	return m_player.init() && m_screen.init();
 }
 
 // Releases all the associated resources
@@ -114,17 +115,7 @@ bool World::update(float elapsed_ms)
 	glfwGetFramebufferSize(m_window, &w, &h);
 	vec2 screen = { (float)w, (float)h };
 
-	// TODO check player - Wall collisions here (but might want to do it after player has moved for the frame)
-
-	// Updating all entities, making the turtle and fish
-	// faster based on current
 	m_player.update(elapsed_ms);
-
-	for (Entity* entity : m_entities) {
-		if (entity->is_player_collidable() && m_player.collides_with(*entity)) {
-			//do nothing
-		}
-	}
 
 	return true;
 }
@@ -142,7 +133,7 @@ void World::draw() {
 	// Check for discrepancy between window/frame buffer (high DPI display)
 	int ww, hh;
 	glfwGetWindowSize(m_window, &ww, &hh);
-	float retinaScale = w / ww;
+	float retinaScale = (float) (w / ww);
 
 	/////////////////////////////////////
 	// First render to the custom framebuffer
@@ -239,8 +230,6 @@ void World::create_base_level() {
 	in.close();
 
 	create_level(grid);
-	// Calculate parametric equations for edge for each wall
-	calculate_static_equations();
 }
 
 // Just to print the grid (testing purposes)
@@ -309,7 +298,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_entities.clear();
 		create_base_level();
 		m_player.destroy();
-		m_player.init(this);
+		m_player.init();
 		m_current_speed = 1.f;
 	}
 
@@ -326,13 +315,4 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_current_speed += 0.1f;
 
 	m_current_speed = fmax(0.f, m_current_speed);
-}
-
-void World::calculate_static_equations()
-{
-	m_staticLightCollisionLines.clear();
-	for (Entity* entity : m_entities) {
-		ParametricLines lines = entity->calculate_static_equations();
-		m_staticLightCollisionLines.insert(m_staticLightCollisionLines.end(), lines.begin(), lines.end());
-	}
 }

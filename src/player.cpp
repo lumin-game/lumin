@@ -3,6 +3,7 @@
 // internal
 #include "entity.hpp"
 #include "world.hpp"
+#include "CollisionManager.hpp"
 
 // stlib
 #include <vector>
@@ -10,23 +11,25 @@
 #include <algorithm>
 #include <iostream>
 
-bool Player::init(const World* world)
+bool Player::init()
 {
 	playerMesh.init();
-	lightMesh.init(world);
-
-	playerWidth = playerMesh.GetPlayerWidth();
-	playerHeight = playerMesh.GetPlayerHeight();
+	lightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
+
+	playerWidth = (int) (playerMesh.GetPlayerWidth() * m_scale.x);
+	playerHeight = (int) (playerMesh.GetPlayerHeight() * m_scale.y);
+
 	m_position = { 100.f, 50.f };
 	m_screen_pos = m_position;
-
+  
 	m_x_velocity = 0;
-	m_y_velocity = 0;
+	m_y_velocity = 0; 
+	m_max_fall_velocity = 20.f;
 
 	can_jump = false;
 
@@ -77,13 +80,23 @@ void Player::update(float ms)
 	else if (m_x_velocity < -5.f) {
 		m_x_velocity = -5.f;
 	}
-
+	
 	m_y_velocity += gravity_step;
+	m_y_velocity = std::min(m_y_velocity, m_max_fall_velocity);
 
-	m_position.x += m_x_velocity * (ms/10);
-	m_position.y += m_y_velocity * (ms/10);
+	// distances are how much we plan to move this frame
+	float xDist = m_x_velocity * (ms / 10);
+	float yDist = m_y_velocity * (ms / 10);
+	CollisionManager::CollisionResult collisionResult = CollisionManager::GetInstance().BoxTrace(playerWidth, playerHeight, m_position.x, m_position.y, xDist, yDist);
 
-	can_jump = false;
+	m_position.x = collisionResult.resultXPos;
+	m_position.y = collisionResult.resultYPos;
+	can_jump = collisionResult.hitGround;
+
+	if (collisionResult.hitGround || collisionResult.hitCeiling)
+	{
+		m_y_velocity = 0.f;
+	}
 }
 
 void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
@@ -123,121 +136,6 @@ void Player::calculate_screen_pos(float screen_w, float screen_h)
 	} else {
 		m_screen_pos.y = m_position.y;
 	}
-}
-
-// Simple bounding box collision check,
-bool Player::collides_with(Entity& entity) {
-	float entity_left = entity.get_position().x;
-	float entity_top = entity.get_position().y;
-	float entity_right = entity_left + entity.get_bounding_box().x;
-	float entity_bottom = entity_top + entity.get_bounding_box().y;
-
-	float player_left = m_position.x;
-	float player_top = m_position.y;
-	float player_right = player_left + (m_scale.x * playerWidth);
-	float player_bottom = player_top + (m_scale.y * playerHeight);
-
-	float dist_passed_top = player_bottom - entity_top;
-	float dist_passed_bottom = entity_bottom - player_top;
-	float dist_passed_left = player_right - entity_left;
-	float dist_passed_right = entity_right - player_left;
-
-	//Determine whether player rectangle and entity rectangle overlap
-	bool rects_overlap = true;
-	if (player_left >= entity_right || entity_left >= player_right) {
-		rects_overlap = false;
-	}
-
-	// If one rectangle is above other
-	if (player_top >= entity_bottom || entity_top >= player_bottom) {
-		rects_overlap = false;
-	}
-
-	//TODO update this following part to actually work lol
-
-	//New attempt at collision detection
-	if (rects_overlap) {
-		if (m_x_velocity == 0) {
-			if (m_y_velocity >= 0) {
-				//player is going straight downwards so move to top of block
-				m_position.y = entity_top - (m_scale.y * playerHeight);
-				m_y_velocity = 0.05f;
-				can_jump = true;
-			}
-			else {
-				//player is going straight upwards so move to bottom of block
-				m_position.y = entity_bottom;
-				m_y_velocity = -0.05f;
-			}
-		}
-		else if (m_y_velocity == 0) {
-			if (m_x_velocity >= 0) {
-				//player is going straight rightwards so move to left of block
-				m_position.x = entity_left - (m_scale.x  * playerWidth);
-				m_x_velocity = 0.05f;
-			}
-			else {
-				//player is going straight leftwards to move to right of block
-				m_position.x = entity_right;
-				m_x_velocity = -0.05f;
-			}
-		}
-		else { //player is moving in both x and y
-			if (m_x_velocity > 0 && m_y_velocity > 0) {
-				// player is moving down right, so move the player to either the left or top of the platform, whichever is closer
-
-				if (dist_passed_top <= dist_passed_left) {
-					m_position.y = entity_top - (m_scale.y * playerHeight);
-					m_y_velocity = 0.05f;
-					can_jump = true;
-				}
-				else {
-					m_position.x = entity_left - (m_scale.x * playerWidth);
-					m_x_velocity = 0.05f;
-				}
-			}
-			if (m_x_velocity > 0 && m_y_velocity < 0) {
-				// player is moving up right, so move the player to either the left or bottom of the platform, whichever is closer
-				if (dist_passed_bottom <= dist_passed_left) {
-					m_position.y = entity_bottom;
-					m_y_velocity = -0.05f;
-				}
-				else {
-					m_position.x = entity_left - (m_scale.x * playerWidth);
-					m_x_velocity = 0.05f;
-				}
-			}
-			if (m_x_velocity < 0 && m_y_velocity > 0) {
-				// player is moving down left, so move the player to either the right or top of the platform, whichever is closer
-				if (dist_passed_top <= dist_passed_right) {
-					m_position.y = entity_top - (m_scale.y * playerHeight);
-					m_y_velocity = 0.05f;
-					can_jump = true;
-				}
-				else {
-					m_position.x = entity_right;
-					m_x_velocity = -0.05f;
-				}
-			}
-			if (m_x_velocity < 0 && m_y_velocity < 0) {
-				// player is moving up left, so move the player to either the right or bottom of the platform, whichever is closer
-				if (dist_passed_bottom <= dist_passed_right) {
-					m_position.y = entity_bottom;
-					m_y_velocity = -0.05f;
-				}
-				else {
-					m_position.x = entity_right;
-					m_x_velocity = -0.05f;
-				}
-			}
-		}
-		//TODO!!!!!: This will cause the player to stutter sometimes when going over connections between 2 blocks
-		// UNLESS I find a way to make it choose the secondary choice in all of the cases where velX and velY != 0 if the primary choice
-		// would result in the player colliding with a different block
-
-	}
-
-	return false;
 }
 
 vec2 Player::get_position()const
