@@ -29,11 +29,11 @@ public:
 	// Sets the new entity position
 	void set_position(vec2 position);
 
-    // Returns the current entity screen position
-    vec2 get_screen_pos() const;
+	// Returns the current entity screen position
+	vec2 get_screen_pos() const;
 
-    // Sets the new entity screen position
-    void set_screen_pos(vec2 position);
+	// Sets the new entity screen position
+	void set_screen_pos(vec2 position);
 
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box() const;
