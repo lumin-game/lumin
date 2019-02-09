@@ -21,7 +21,7 @@ public:
 	void update(float ms);
 
 	// Renders the player
-	void draw(const mat3& projection);
+	void draw(const mat3& projection, const int screen_w, const int screen_h);
 
 	// Collision routines for entities
 	bool collides_with(Entity& entity);

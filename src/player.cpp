@@ -83,21 +83,38 @@ void Player::update(float ms)
 	m_position.x += m_x_velocity * (ms/10);
 	m_position.y += m_y_velocity * (ms/10);
 
-	m_screen_pos.y = m_position.y;
-	float screen_width = 64*16;
-	if (m_position.x >= screen_width * 3/4) {
-		m_screen_pos.x = screen_width * 3/4;
-	} else if (m_position.x <= screen_width * 1/4) {
-		m_screen_pos.x = screen_width * 1/4;
-	} else {
-		m_screen_pos.x = m_position.x;
-	}
+//	float screen_height = 64*12;
+//	if (m_position.y >= screen_height * 3/4) {
+//		m_screen_pos.y = screen_height * 3/4;
+//	} else if (m_position.y <= screen_height * 1/4) {
+//		m_screen_pos.y = screen_height * 1/4;
+//	} else {
+//		m_screen_pos.y = m_position.y;
+//	}
 
 	can_jump = false;
 }
 
-void Player::draw(const mat3& projection)
+void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
 {
+	m_screen_pos.y = m_position.y;
+	// float screen_width = 64*16;
+	if (m_position.x >= screen_w * 3/4) {
+		m_screen_pos.x = screen_w * 3/4;
+	} else if (m_position.x <= screen_w * 1/4) {
+		m_screen_pos.x = screen_w * 1/4;
+	} else {
+		m_screen_pos.x = m_position.x;
+	}
+
+	if (m_position.y >= screen_h * 3/4) {
+		m_screen_pos.y = screen_h * 3/4;
+	} else if (m_position.y <= screen_h * 1/4) {
+		m_screen_pos.y = screen_h * 1/4;
+	} else {
+		m_screen_pos.y = m_position.y;
+	}
+
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 	lightData.m_screen_pos = m_screen_pos;
