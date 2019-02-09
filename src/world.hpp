@@ -66,9 +66,6 @@ private:
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
 
-	// Level size for side-scrolling
-	vec2 m_level_size;
-
 	unsigned int m_points;
 
 	// Game entities

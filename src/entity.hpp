@@ -21,7 +21,7 @@ public:
 	void destroy();
 
 	// Renders the entity using the texture
-    void draw(const mat3& projection);
+	void draw(const mat3& projection) override;
 
 	// Returns the current entity position
 	vec2 get_position() const;

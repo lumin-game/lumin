@@ -23,6 +23,9 @@ public:
 	// Renders the player
 	void draw(const mat3& projection, const int screen_w, const int screen_h);
 
+	// Calculate screen position given screen's width and height
+	void calculate_screen_pos(float screen_w, float screen_h);
+
 	// Collision routines for entities
 	bool collides_with(Entity& entity);
 

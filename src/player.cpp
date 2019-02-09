@@ -83,22 +83,31 @@ void Player::update(float ms)
 	m_position.x += m_x_velocity * (ms/10);
 	m_position.y += m_y_velocity * (ms/10);
 
-//	float screen_height = 64*12;
-//	if (m_position.y >= screen_height * 3/4) {
-//		m_screen_pos.y = screen_height * 3/4;
-//	} else if (m_position.y <= screen_height * 1/4) {
-//		m_screen_pos.y = screen_height * 1/4;
-//	} else {
-//		m_screen_pos.y = m_position.y;
-//	}
-
 	can_jump = false;
 }
 
 void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
 {
-	m_screen_pos.y = m_position.y;
-	// float screen_width = 64*16;
+
+	calculate_screen_pos(screen_w, screen_h);
+
+	LightMesh::ParentData lightData;
+	lightData.m_position = m_position;
+	lightData.m_screen_pos = m_screen_pos;
+
+	lightMesh.SetParentData(lightData);
+	lightMesh.draw(projection);
+
+	PlayerMesh::ParentData playerData;
+	playerData.m_position = m_position;
+	playerData.m_screen_pos = m_screen_pos;
+
+	playerMesh.SetParentData(playerData);
+	playerMesh.draw(projection);
+}
+
+void Player::calculate_screen_pos(float screen_w, float screen_h)
+{
 	if (m_position.x >= screen_w * 3/4) {
 		m_screen_pos.x = screen_w * 3/4;
 	} else if (m_position.x <= screen_w * 1/4) {
@@ -114,20 +123,6 @@ void Player::draw(const mat3& projection, const int screen_w, const int screen_h
 	} else {
 		m_screen_pos.y = m_position.y;
 	}
-
-	LightMesh::ParentData lightData;
-	lightData.m_position = m_position;
-	lightData.m_screen_pos = m_screen_pos;
-
-	lightMesh.SetParentData(lightData);
-	lightMesh.draw(projection);
-
-	PlayerMesh::ParentData playerData;
-	playerData.m_position = m_position;
-	playerData.m_screen_pos = m_screen_pos;
-
-	playerMesh.SetParentData(playerData);
-	playerMesh.draw(projection);
 }
 
 // Simple bounding box collision check,

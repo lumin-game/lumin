@@ -121,8 +121,6 @@ bool World::update(float elapsed_ms)
 	m_player.update(elapsed_ms);
 
 	for (Entity* entity : m_entities) {
-//		vec2 screen_pos = {entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x, entity->get_position().y};
-//		entity->set_screen_pos(screen_pos);
 		if (entity->is_player_collidable() && m_player.collides_with(*entity)) {
 			//do nothing
 		}
@@ -166,8 +164,6 @@ void World::draw() {
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
-//	float tx = m_player.get_screen_pos().x * 2.f / (right - left);
-//	float ty = m_player.get_screen_pos().y * 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
@@ -175,26 +171,7 @@ void World::draw() {
 	// Drawing entities
 	m_player.draw(projection_2D, ww, hh);
 
-//	if (m_player.get_position().x < 64 * 8) {
-//		m_camera.x = 0;
-//	} else if (m_player.get_position().x > m_level_size.x*64 - 64 * 8 ) {
-//		m_camera.x = m_level_size.x*64 - 64 * 16;
-//	} else {
-//		m_camera.x = m_player.get_position().x - 64 * 8;
-//	}
-
-// 	if player.x < screen_width / 2 then
-//     camera.x = 0
-// elseif player.x > level_width - screen_width / 2 then
-//     camera.x = level_width - screen_width
-// else
-//     camera.x = player.x - screen_width / 2
-// end
-
-// draw_stuff(x - camera.x, y)
-
 	for (Entity* entity: m_entities) {
-		// entity->set_position({entity->get_position().x - m_camera.x, entity->get_position().y});
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
 		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
@@ -260,9 +237,6 @@ void World::create_base_level() {
     grid.push_back(charVector);
 	}
 	in.close();
-
-	m_level_size.x = grid[0].size();
-	m_level_size.y = grid.size();
 
 	create_level(grid);
 	// Calculate parametric equations for edge for each wall
