@@ -125,11 +125,9 @@ void Entity::draw(const mat3& projection) {
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
-	float color[3];
-	color[0] = get_r();
-	color[1] = get_g();
-	color[2] = get_b();
-	glUniform3fv(color_uloc, 1, color);
+	EntityColor color = get_color();
+	float fvColor[4] = { color.r, color.g, color.b, color.a };
+	glUniform4fv(color_uloc, 1, fvColor);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 
 	// Drawing!
