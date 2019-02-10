@@ -8,6 +8,7 @@ public:
 	struct ParentData
 	{
 		vec2 m_position;
+		vec2 m_screen_pos;
 	};
 
 private:

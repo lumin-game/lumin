@@ -2,13 +2,12 @@
 
 #include <cmath>
 #include <iostream>
+#include "CollisionManager.hpp"
 
 Texture Entity::texture;
 
 
 bool Entity::init(int x_pos, int y_pos) {
-	m_path_type = rand() % 3; // can be 0 to 2
-
 	// Load shared texture
 	if (!texture.is_valid()) {
 		if (!texture.load_from_file(get_texture_path())) {
@@ -61,8 +60,13 @@ bool Entity::init(int x_pos, int y_pos) {
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	m_position.x = (float) x_pos;
-	m_position.y = (float) y_pos;
+	m_position.x = (float)x_pos;
+	m_position.y = (float)y_pos;
+
+	CollisionManager::GetInstance().RegisterEntity(this);
+
+	m_screen_pos.x = (float) x_pos;
+	m_screen_pos.y = (float) y_pos;
 
 	return true;
 }
@@ -70,6 +74,8 @@ bool Entity::init(int x_pos, int y_pos) {
 // Call if init() was successful
 // Releases all graphics resources
 void Entity::destroy() {
+	CollisionManager::GetInstance().UnregisterEntity(this);
+
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteBuffers(1, &mesh.vao);
@@ -84,7 +90,7 @@ void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
-	transform_translate(m_position);
+	transform_translate(m_screen_pos);
 	transform_scale(m_scale);
 	transform_end();
 
@@ -136,6 +142,14 @@ vec2 Entity::get_position() const {
 
 void Entity::set_position(vec2 position) {
 	m_position = position;
+}
+
+vec2 Entity::get_screen_pos() const {
+	return m_screen_pos;
+}
+
+void Entity::set_screen_pos(vec2 position){
+	m_screen_pos = position;
 }
 
 // Returns the local bounding coordinates scaled by the current size of the entity

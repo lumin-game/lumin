@@ -1,5 +1,6 @@
   // Header
 #include "light_mesh.hpp"
+#include "CollisionManager.hpp"
 
 // stlib
 #include <vector>
@@ -10,7 +11,7 @@
 // external
 #include "world.hpp"
 
-bool LightMesh::init(const World* world)
+bool LightMesh::init()
 {
 	m_lightRadius = 300.f;
 
@@ -56,9 +57,6 @@ bool LightMesh::init(const World* world)
 	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
 		return false;
 
-	// Remember the collision equations for walls that don't move
-	m_staticCollisionPtr = world->getStaticCollisionLines();
-
 	return true;
 }
 
@@ -84,7 +82,7 @@ void LightMesh::draw(const mat3& projection)
 	// transform_rotate()
 	// transform_scale()
 
-	transform_translate(m_parent.m_position);
+	transform_translate(m_parent.m_screen_pos);
 
 	transform_end();
 
@@ -125,30 +123,14 @@ void LightMesh::draw(const mat3& projection)
 	glUniform1f(light_radius, m_lightRadius);
 
 	// Now we update our collision equations based on where we are in the world
-	// TODO: optimize so that we only check these collisions if wall is close enough to player
 	// TODO: if needed, we could further try and optimize by combining adjacent walls into one equation...
-	m_collisionEquations.clear();
-	if (m_staticCollisionPtr) // Make sure init() has already happened
+	ParametricLines collisionEquations = CollisionManager::GetInstance().CalculateLightEquations(m_parent.m_position.x, m_parent.m_position.y, m_lightRadius);
+
+	// Send our list of collision equations as a vec4.
+	if (collisionEquations.size() > 0)
 	{
-		for (const ParametricLine& staticLine : *m_staticCollisionPtr)
-		{
-			// Since only position is at play, (and no scaling)
-			// We only have to do a simple translation
-			ParametricLine collEq;
-			collEq.x_0 = staticLine.x_0 - m_parent.m_position.x;
-			collEq.x_t = staticLine.x_t;
-			collEq.y_0 = staticLine.y_0 - m_parent.m_position.y;
-			collEq.y_t = staticLine.y_t;
-
-			m_collisionEquations.push_back(collEq);
-		}
-		
-		// Send our list of collision equations as a vec4.
-		glUniform4fv(collision_eqs, 4 * m_collisionEquations.size(), (float*)&m_collisionEquations[0]);
-		glUniform1i(collision_eqs_count, m_collisionEquations.size());
-
-		// Note that we do not push anything to openGL if there are no equations.
-		// Maybe that's a bad idea? Doesn't seem to cause a problem right now, but could fix later.
+		glUniform4fv(collision_eqs, 4 * collisionEquations.size(), (float*)&collisionEquations[0]);
+		glUniform1i(collision_eqs_count, collisionEquations.size());
 	}
 
 	// Drawing!

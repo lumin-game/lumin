@@ -11,7 +11,7 @@ class Player
 {
 public:
 	// Creates all the associated render resources and default transform
-	bool init(const World* world);
+	bool init();
 
 	// Releases all associated resources
 	void destroy();
@@ -21,13 +21,15 @@ public:
 	void update(float ms);
 
 	// Renders the player
-	void draw(const mat3& projection);
+	void draw(const mat3& projection, const int screen_w, const int screen_h);
 
-	// Collision routines for entities
-	bool collides_with(Entity& entity);
+	// Calculate screen position given screen's width and height
+	void calculate_screen_pos(float screen_w, float screen_h);
 
 	// Returns the current player position
 	vec2 get_position()const;
+
+	vec2 get_screen_pos()const;
 
 	// Moves the player's position by the specified offset
 	void move(vec2 off);
@@ -40,6 +42,7 @@ public:
 
 private:
 	vec2 m_position; // Window coordinates
+	vec2 m_screen_pos; // Position on screen
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 
 	bool m_is_left_pressed;
@@ -50,6 +53,7 @@ private:
 
 	float m_y_velocity;
 	float m_x_velocity;
+	float m_max_fall_velocity;
 
 	int playerWidth;
 	int playerHeight;
