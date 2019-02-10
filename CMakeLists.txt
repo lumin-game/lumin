@@ -44,6 +44,7 @@ set(SOURCE_FILES
   src/project_path.hpp
 	src/common.hpp
   src/entity.hpp
+    src/glass.hpp
 	src/wall.hpp
 	src/player.hpp
 	src/player_mesh.hpp

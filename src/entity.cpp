@@ -125,8 +125,9 @@ void Entity::draw(const mat3& projection) {
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
-	float color[] = { 1.f, 1.f, 1.f };
-	glUniform3fv(color_uloc, 1, color);
+	EntityColor color = get_color();
+	float fvColor[4] = { color.r, color.g, color.b, color.a };
+	glUniform4fv(color_uloc, 1, fvColor);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 
 	// Drawing!
@@ -156,6 +157,13 @@ vec2 Entity::get_bounding_box() const {
 }
 
 std::vector<ParametricLine> Entity::calculate_static_equations() const {
+	std::vector<ParametricLine> outLines;
+
+	if (!is_light_collidable()) {
+		return outLines;
+	}
+
+
 	// Create 4 lines for each each of the box and returns them
 	vec2 boundingBox = get_bounding_box();
 	float xHalf = boundingBox.x / 2;
@@ -190,7 +198,6 @@ std::vector<ParametricLine> Entity::calculate_static_equations() const {
 	bottomEdge.y_0 = bottomBound;
 	bottomEdge.y_t = 0.f;
 
-	std::vector<ParametricLine> outLines;
 	outLines.push_back(rightEdge);
 	outLines.push_back(leftEdge);
 	outLines.push_back(topEdge);

@@ -40,6 +40,7 @@ public:
 private:
 
 	bool spawn_wall(int x_pos, int y_pos);
+	bool spawn_glass(int x_pos, int y_pos);
 
 	void create_base_level();
 
