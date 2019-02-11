@@ -93,7 +93,7 @@ void Player::update(float ms)
 
 	// calculate how much player moved during this update to figure out how much player should move on screen
 	m_screen_x_movement = collisionResult.resultXPos - m_position.x;
-    m_screen_y_movement = collisionResult.resultYPos - m_position.y;
+	m_screen_y_movement = collisionResult.resultYPos - m_position.y;
 
 	m_position.x = collisionResult.resultXPos;
 	m_position.y = collisionResult.resultYPos;
@@ -107,7 +107,7 @@ void Player::update(float ms)
 
 void Player::draw(const mat3& projection, const float screen_w, const float screen_h)
 {
-
+	// make sure player shows up in the middle half of the screen in both x and y directions
 	m_screen_pos.x = std::max(std::min(m_screen_pos.x + m_screen_x_movement, screen_w * 3 / 4), screen_w * 1 / 4);
 	m_screen_pos.y = std::max(std::min(m_screen_pos.y + m_screen_y_movement, screen_h * 3 / 4), screen_h * 1 / 4);
 
