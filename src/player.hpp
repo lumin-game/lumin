@@ -21,10 +21,7 @@ public:
 	void update(float ms);
 
 	// Renders the player
-	void draw(const mat3& projection, const int screen_w, const int screen_h);
-
-	// Calculate screen position given screen's width and height
-	void calculate_screen_pos(float screen_w, float screen_h);
+	void draw(const mat3& projection, const float screen_w, const float screen_h);
 
 	// Returns the current player position
 	vec2 get_position()const;
@@ -54,6 +51,9 @@ private:
 	float m_y_velocity;
 	float m_x_velocity;
 	float m_max_fall_velocity;
+
+	float m_screen_x_movement;
+	float m_screen_y_movement;
 
 	int playerWidth;
 	int playerHeight;
