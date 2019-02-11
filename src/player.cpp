@@ -26,6 +26,8 @@ bool Player::init()
 
 	m_position = { 100.f, 50.f };
 	m_screen_pos = m_position;
+	m_screen_x_movement = 0.f;
+	m_screen_y_movement = 0.f;
   
 	m_x_velocity = 0;
 	m_y_velocity = 0; 
@@ -89,6 +91,10 @@ void Player::update(float ms)
 	float yDist = m_y_velocity * (ms / 10);
 	CollisionManager::CollisionResult collisionResult = CollisionManager::GetInstance().BoxTrace(playerWidth, playerHeight, m_position.x, m_position.y, xDist, yDist);
 
+	// calculate how much player moved during this update to figure out how much player should move on screen
+	m_screen_x_movement = collisionResult.resultXPos - m_position.x;
+	m_screen_y_movement = collisionResult.resultYPos - m_position.y;
+
 	m_position.x = collisionResult.resultXPos;
 	m_position.y = collisionResult.resultYPos;
 	can_jump = collisionResult.hitGround;
@@ -99,10 +105,11 @@ void Player::update(float ms)
 	}
 }
 
-void Player::draw(const mat3& projection, const int screen_w, const int screen_h)
+void Player::draw(const mat3& projection, const float screen_w, const float screen_h)
 {
-
-	calculate_screen_pos(screen_w, screen_h);
+	// make sure player shows up in the middle half of the screen in both x and y directions
+    m_screen_pos.x = std::clamp(m_screen_pos.x + m_screen_x_movement, screen_w * 1 / 4, screen_w * 3 / 4);
+    m_screen_pos.y = std::clamp(m_screen_pos.y + m_screen_y_movement, screen_h * 1 / 4, screen_h * 3 / 4);
 
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
@@ -117,25 +124,6 @@ void Player::draw(const mat3& projection, const int screen_w, const int screen_h
 
 	playerMesh.SetParentData(playerData);
 	playerMesh.draw(projection);
-}
-
-void Player::calculate_screen_pos(float screen_w, float screen_h)
-{
-	if (m_position.x >= screen_w * 3/4) {
-		m_screen_pos.x = screen_w * 3/4;
-	} else if (m_position.x <= screen_w * 1/4) {
-		m_screen_pos.x = screen_w * 1/4;
-	} else {
-		m_screen_pos.x = m_position.x;
-	}
-
-	if (m_position.y >= screen_h * 3/4) {
-		m_screen_pos.y = screen_h * 3/4;
-	} else if (m_position.y <= screen_h * 1/4) {
-		m_screen_pos.y = screen_h * 1/4;
-	} else {
-		m_screen_pos.y = m_position.y;
-	}
 }
 
 vec2 Player::get_position()const
