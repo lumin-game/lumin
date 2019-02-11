@@ -118,13 +118,6 @@ bool World::update(float elapsed_ms)
 
 	m_player.update(elapsed_ms);
 
-	for (Entity* entity: m_entities) {
-		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
-		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
-		vec2 screen_pos = {screen_pos_x, screen_pos_y};
-		entity->set_screen_pos(screen_pos);
-	}
-
 	return true;
 }
 
