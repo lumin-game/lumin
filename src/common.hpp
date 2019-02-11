@@ -126,4 +126,6 @@ struct ParametricLine
 	float y_t;
 };
 
+enum LevelGenerator { WALL, GLASS, LIGHTWALL, DARKWALL, FOG, AIR };
+
 typedef std::vector<ParametricLine> ParametricLines;

@@ -38,9 +38,7 @@ public:
 	bool is_over()const;
 
 private:
-
-	bool spawn_wall(int x_pos, int y_pos);
-	bool spawn_glass(int x_pos, int y_pos);
+	bool spawn_level(int x_pos, int y_pos, LevelGenerator level);
 
 	void create_base_level();
 

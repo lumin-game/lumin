@@ -199,26 +199,20 @@ bool World::is_over()const
 	return glfwWindowShouldClose(m_window);
 }
 
-// Creates a new wall and if successfull adds it to the list of wall
-bool World::spawn_wall(int x_pos, int y_pos)
+bool World::spawn_level(int x_pos, int y_pos, LevelGenerator level)
 {
-	Wall *wall = new Wall();
-	if (wall->init(x_pos, y_pos)) {
-		m_entities.emplace_back(wall);
+	Entity *level_entity;
+	if (level == WALL) {
+		level_entity = (Wall*) new Wall();
+	} else if (level == GLASS) {
+		level_entity = (Glass*) new Glass();
+	} 
+	// TODO: add additional entities once implemented (dark wall, light wall, fog)
+	if (level_entity->init(x_pos, y_pos)) {
+		m_entities.emplace_back(level_entity);
 		return true;
 	}
-	fprintf(stderr, "Failed to spawn wall");
-	return false;
-}
-
-bool World::spawn_glass(int x_pos, int y_pos)
-{
-	Glass *glass = new Glass();
-	if (glass->init(x_pos, y_pos)) {
-		m_entities.emplace_back(glass);
-		return true;
-	}
-	fprintf(stderr, "Failed to spawn glass");
+	fprintf(stderr, "Failed to spawn %u", level);
 	return false;
 }
 
@@ -255,14 +249,19 @@ void World::print_grid(std::vector<std::vector<char>>& grid) {
 }
 
 void World::create_level(std::vector<std::vector<char>>& grid) {
-	// @ represents walls
   const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
-			if (grid[i][j] == '1') {
-				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
-			} else if (grid[i][j] == '2') {
-				spawn_glass(j * BLOCK_SIZE, i * BLOCK_SIZE);
+			if (grid[i][j] == '#') {
+				spawn_level(j * BLOCK_SIZE, i * BLOCK_SIZE, WALL);
+			} else if (grid[i][j] == '$') {
+				spawn_level(j * BLOCK_SIZE, i * BLOCK_SIZE, GLASS);
+			} else if (grid[i][j] == '+') {
+				spawn_level(j * BLOCK_SIZE, i * BLOCK_SIZE, DARKWALL);
+			} else if (grid[i][j] == '-') {
+				spawn_level(j * BLOCK_SIZE, i * BLOCK_SIZE, LIGHTWALL);
+			} else if (grid[i][j] == '~') {
+				spawn_level(j * BLOCK_SIZE, i * BLOCK_SIZE, FOG);
 			}
 		}
 	}
