@@ -4,8 +4,6 @@
 #include <iostream>
 #include "CollisionManager.hpp"
 
-Texture Entity::texture;
-
 
 bool Entity::init(int x_pos, int y_pos) {
 	// Load shared texture

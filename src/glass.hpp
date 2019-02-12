@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.hpp"
 #include "entity.hpp"
 
 class Glass : public Entity {

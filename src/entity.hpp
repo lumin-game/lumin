@@ -8,8 +8,6 @@ struct EntityColor {
 };
 
 class Entity : public Renderable {
-	static Texture texture;
-
 public:
 	// Things the subclass need to implement
 	virtual ~Entity() = default;
@@ -46,6 +44,7 @@ public:
 	ParametricLines calculate_static_equations() const;
 
 private:
+	Texture texture;
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Screen coordinates
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
