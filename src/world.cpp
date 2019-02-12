@@ -93,10 +93,6 @@ void World::destroy()
 
 	if (m_background_music != nullptr)
 		Mix_FreeMusic(m_background_music);
-	if (m_salmon_dead_sound != nullptr)
-		Mix_FreeChunk(m_salmon_dead_sound);
-	if (m_salmon_eat_sound != nullptr)
-		Mix_FreeChunk(m_salmon_eat_sound);
 
 	Mix_CloseAudio();
 
@@ -249,7 +245,6 @@ void World::create_base_level() {
     grid.push_back(charVector);
 	}
 	in.close();
-
 	create_level(grid);
 }
 
@@ -324,8 +319,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 			delete entity;
 		}
 		m_entities.clear();
-		create_base_level();
 		m_player.destroy();
+		create_base_level();
 		m_player.init();
 		m_current_speed = 1.f;
 	}
