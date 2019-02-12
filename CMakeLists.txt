@@ -37,6 +37,7 @@ set(SOURCE_FILES
 	src/player.cpp
 	src/player_mesh.cpp
 	src/light_mesh.cpp
+	src/lightbeam_mesh.cpp
   src/screen.cpp
 	src/world.cpp
 	src/CollisionManager.cpp
@@ -49,6 +50,7 @@ set(SOURCE_FILES
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
+	src/lightbeam_mesh.hpp
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp

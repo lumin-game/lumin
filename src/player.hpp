@@ -2,7 +2,7 @@
 
 #include "entity.hpp"
 #include "player_mesh.hpp"
-#include "light_mesh.hpp"
+#include "lightbeam_mesh.hpp"
 #include "common.hpp"
 
 class World;
@@ -59,5 +59,5 @@ private:
 	int playerHeight;
 
 	PlayerMesh playerMesh;
-	LightMesh lightMesh;
+	LightBeamMesh lightbeamMesh;
 };
