@@ -38,7 +38,7 @@ public:
 	bool is_over()const;
 
 private:
-	bool spawn_level(int x_pos, int y_pos, LevelGenerator level);
+	bool add_tile(int x_pos, int y_pos, StaticTile tile);
 
 	void create_base_level();
 
