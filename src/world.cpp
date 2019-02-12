@@ -93,10 +93,6 @@ void World::destroy()
 
 	if (m_background_music != nullptr)
 		Mix_FreeMusic(m_background_music);
-	if (m_salmon_dead_sound != nullptr)
-		Mix_FreeChunk(m_salmon_dead_sound);
-	if (m_salmon_eat_sound != nullptr)
-		Mix_FreeChunk(m_salmon_eat_sound);
 
 	Mix_CloseAudio();
 
