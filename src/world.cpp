@@ -202,11 +202,6 @@ bool World::is_over()const
 bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
   const uint32_t BLOCK_SIZE = 64;
 	Entity *level_entity = NULL;
-	if (tile == WALL) {
-		level_entity = (Wall*) new Wall();
-	} else if (tile == GLASS) {
-		level_entity = (Glass*) new Glass();
-	}
 	switch (tile) {
 		case WALL:
 			level_entity = (Wall*) new Wall();
