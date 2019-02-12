@@ -249,7 +249,6 @@ void World::create_base_level() {
     grid.push_back(charVector);
 	}
 	in.close();
-
 	create_level(grid);
 }
 
@@ -324,8 +323,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 			delete entity;
 		}
 		m_entities.clear();
-		create_base_level();
 		m_player.destroy();
+		create_base_level();
 		m_player.init();
 		m_current_speed = 1.f;
 	}
