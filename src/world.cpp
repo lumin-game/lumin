@@ -281,8 +281,6 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 			for (auto const& x : tile_map) {
 				if (grid[i][j] == x.second) {
 					add_tile(j, i, x.first);
-				} else {
-					fprintf(stderr, "Invalid tile value.");
 				}
 			}
 		}
