@@ -199,26 +199,40 @@ bool World::is_over()const
 	return glfwWindowShouldClose(m_window);
 }
 
-// Creates a new wall and if successfull adds it to the list of wall
-bool World::spawn_wall(int x_pos, int y_pos)
-{
-	Wall *wall = new Wall();
-	if (wall->init(x_pos, y_pos)) {
-		m_entities.emplace_back(wall);
+bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
+  const uint32_t BLOCK_SIZE = 64;
+	Entity *level_entity = NULL;
+	if (tile == WALL) {
+		level_entity = (Wall*) new Wall();
+	} else if (tile == GLASS) {
+		level_entity = (Glass*) new Glass();
+	}
+	switch (tile) {
+		case WALL:
+			level_entity = (Wall*) new Wall();
+			break;
+		case GLASS:
+			level_entity = (Glass*) new Glass();
+			break;
+		case DARKWALL:
+			// TODO: add dark wall entity
+			break;
+		case LIGHTWALL:
+			// TODO: add light wall entity
+			break;
+		case FOG:
+			// TODO: add fog entity
+			break;
+	}
+	if (!level_entity) {
+		fprintf(stderr, "Level entity is not set");
+		return false;
+	}
+	if (level_entity->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE)) {
+		m_entities.emplace_back(level_entity);
 		return true;
 	}
-	fprintf(stderr, "Failed to spawn wall");
-	return false;
-}
-
-bool World::spawn_glass(int x_pos, int y_pos)
-{
-	Glass *glass = new Glass();
-	if (glass->init(x_pos, y_pos)) {
-		m_entities.emplace_back(glass);
-		return true;
-	}
-	fprintf(stderr, "Failed to spawn glass");
+	fprintf(stderr, "Failed to add %u tile", tile);
 	return false;
 }
 
@@ -255,14 +269,21 @@ void World::print_grid(std::vector<std::vector<char>>& grid) {
 }
 
 void World::create_level(std::vector<std::vector<char>>& grid) {
-	// @ represents walls
-  const uint32_t BLOCK_SIZE = 64; // The width and height of walls are 64, so spawning walls at x*BLOCK_SIZE, y*BLOCK_SIZE will align things nicely on a grid
+	std::map<StaticTile, char> tile_map;
+	tile_map[WALL] = '#';
+	tile_map[GLASS] = '$';
+	tile_map[DARKWALL] = '+';
+	tile_map[LIGHTWALL] = '-';
+	tile_map[FOG] = '~';
+
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
-			if (grid[i][j] == '1') {
-				spawn_wall(j * BLOCK_SIZE, i * BLOCK_SIZE);
-			} else if (grid[i][j] == '2') {
-				spawn_glass(j * BLOCK_SIZE, i * BLOCK_SIZE);
+			for (auto const& x : tile_map) {
+				if (grid[i][j] == x.second) {
+					add_tile(j, i, x.first);
+				} else {
+					fprintf(stderr, "Invalid tile value.");
+				}
 			}
 		}
 	}
