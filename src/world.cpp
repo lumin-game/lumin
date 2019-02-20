@@ -77,8 +77,6 @@ bool World::init(vec2 screen) {
 	// Initialize the screen texture
 	m_screen_tex.create_from_screen(m_window);
 
-	m_current_speed = 1.f;
-
 	m_current_level = 1;
 
 	m_unlocked_levels = 1;
@@ -287,7 +285,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 
 void World::create_current_level() {
 	std::ifstream in(levels_path("level_" + std::to_string(m_current_level) + ".txt"));
-  std::vector<std::vector<char>> grid;
+	std::vector<std::vector<char>> grid;
 
 	if(!in) {
 		std::cerr << "Cannot open file." << std::endl;
@@ -399,10 +397,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_fireflies.clear();
 
 		m_player.destroy();
-		m_current_level = 1;
 		create_current_level();
 		m_player.init();
-		m_current_speed = 1.f;
 	}
 
 	// Exit Game
@@ -410,12 +406,4 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		destroy();
 		exit(0);
 	}
-
-	// Control the current speed with `<` `>`
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) &&  key == GLFW_KEY_COMMA)
-		m_current_speed -= 0.1f;
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
-		m_current_speed += 0.1f;
-
-	m_current_speed = fmax(0.f, m_current_speed);
 }

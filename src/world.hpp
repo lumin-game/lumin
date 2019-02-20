@@ -78,8 +78,6 @@ private:
 	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
 
-	float m_current_speed;
-
 	Mix_Music* m_background_music;
 
 	// C++ rng
