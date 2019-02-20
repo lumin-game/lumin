@@ -42,7 +42,7 @@ public:
 private:
 	bool add_tile(int x_pos, int y_pos, StaticTile tile);
 
-	void create_base_level();
+	void create_current_level();
 
 	void create_firefly(vec2 pos);
 
@@ -66,6 +66,11 @@ private:
 	Screen m_screen;
 
 	unsigned int m_points;
+
+	unsigned int m_current_level;
+
+	// number of levels that user has unlocked
+	unsigned int m_unlocked_levels;
 
 	// Game entities
 	Player m_player;

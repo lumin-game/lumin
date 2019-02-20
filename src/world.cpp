@@ -79,7 +79,11 @@ bool World::init(vec2 screen) {
 
 	m_current_speed = 1.f;
 
-	create_base_level();
+	m_current_level = 1;
+
+	m_unlocked_levels = 1;
+
+	create_current_level();
 
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
@@ -281,9 +285,8 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 	return false;
 }
 
-void World::create_base_level() {
-	// base level is represented by a 0-indexed 10x8 matrix
-	std::ifstream in(levels_path("level_data.txt"));
+void World::create_current_level() {
+	std::ifstream in(levels_path("level_" + std::to_string(m_current_level) + ".txt"));
   std::vector<std::vector<char>> grid;
 
 	if(!in) {
@@ -396,7 +399,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_fireflies.clear();
 
 		m_player.destroy();
-		create_base_level();
+		m_current_level = 1;
+		create_current_level();
 		m_player.init();
 		m_current_speed = 1.f;
 	}
