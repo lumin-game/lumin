@@ -284,7 +284,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
 	std::ifstream in(levels_path("level_data.txt"));
-    std::vector<std::vector<char>> grid;
+  std::vector<std::vector<char>> grid;
 
 	if(!in) {
 		std::cerr << "Cannot open file." << std::endl;
