@@ -78,12 +78,23 @@ bool World::init(vec2 screen) {
 
 	create_base_level();
 
+	create_firefly();
+
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
 	return m_player.init() && m_screen.init();
+}
+
+
+
+void World::create_firefly()
+{
+	Firefly* firefly = new Firefly();
+	firefly->init();
+	m_fireflies.push_back(firefly);
 }
 
 // Releases all the associated resources
@@ -165,6 +176,14 @@ void World::draw() {
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
 		entity->set_screen_pos(screen_pos);
 		entity->draw(projection_2D);
+	}
+
+	for (Firefly* firefly : m_fireflies) {
+		//float screen_pos_x = firefly->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
+		//float screen_pos_y = firefly->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
+		//vec2 screen_pos = { screen_pos_x, screen_pos_y };
+		//firefly->set_screen_pos(screen_pos);
+		firefly->draw(projection_2D);
 	}
 
 	/////////////////////

@@ -5,6 +5,7 @@
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"
+#include "firefly.hpp"
 
 // stlib
 #include <vector>
@@ -42,6 +43,8 @@ private:
 
 	void create_base_level();
 
+	void create_firefly();
+
 	void print_grid(std::vector<std::vector<char>>& grid);
 
 	void create_level(std::vector<std::vector<char>>& grid);
@@ -66,6 +69,7 @@ private:
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
+	std::vector<Firefly*> m_fireflies;
 
 	float m_current_speed;
 
