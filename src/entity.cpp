@@ -5,14 +5,16 @@
 #include "CollisionManager.hpp"
 
 
-bool Entity::init(int x_pos, int y_pos) {
+bool Entity::load_texture() {
 	// Load shared texture
-	if (!texture.is_valid()) {
-		if (!texture.load_from_file(get_texture_path())) {
-			fprintf(stderr, "Failed to load entity texture!");
-			return false;
-		}
+	if (!texture.load_from_file(get_texture_path())) {
+		fprintf(stderr, "Failed to load entity texture!");
+		return false;
 	}
+}
+
+bool Entity::init(int x_pos, int y_pos) {
+	Entity::load_texture();
 
 	// The position corresponds to the center of the texture
 	float wr = texture.width * 0.5f;
@@ -91,6 +93,8 @@ void Entity::draw(const mat3& projection) {
 	transform_translate(m_screen_pos);
 	transform_scale(m_scale);
 	transform_end();
+
+//	std::cout << get_texture_path() << std::endl;
 
 	// Setting shaders
 	glUseProgram(effect.program);

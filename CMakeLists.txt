@@ -52,7 +52,7 @@ set(SOURCE_FILES
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
-	)
+        src/switch.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

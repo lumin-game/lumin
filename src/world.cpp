@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "switch.hpp"
 #include "CollisionManager.hpp"
 
 // stlib
@@ -214,6 +215,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 		case FOG:
 			// TODO: add fog entity
 			break;
+		case SWITCH:
+			level_entity = (Switch*) new Switch();
+			break;
 	}
 	if (!level_entity) {
 		fprintf(stderr, "Level entity is not set");
@@ -265,6 +269,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[DARKWALL] = '+';
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
+	tile_map[SWITCH] = '1';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {

@@ -1,9 +1,10 @@
 #include <memory>
 #include <cmath>
+#include <iostream>
 #include "CollisionManager.hpp"
 
 
-void CollisionManager::RegisterEntity(const Entity* entity)
+void CollisionManager::RegisterEntity(Entity* entity)
 {
 	if (staticLightCollisionLines.find(entity) != staticLightCollisionLines.end())
 	{
@@ -11,17 +12,17 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 		UnregisterEntity(entity);
 	}
 
-	if (entity->is_light_collidable())
-	{
+//	if (entity->is_light_collidable())
+//	{
 		staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
-	}
+//	}
 	if (entity->is_player_collidable())
 	{
 		staticCollisionEntities.push_back(entity);
 	}
 }
 
-void CollisionManager::UnregisterEntity(const Entity* entity)
+void CollisionManager::UnregisterEntity(Entity* entity)
 {
 	staticLightCollisionLines.erase(entity);
 	for (auto iter = staticCollisionEntities.begin(); iter != staticCollisionEntities.end(); ++iter)
@@ -108,9 +109,9 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 const ParametricLines CollisionManager::CalculateLightEquations(float xPos, float yPos, float lightRadius) const
 {
 	ParametricLines outEquations;
-	for (std::pair<const Entity*, ParametricLines> entry : staticLightCollisionLines)
+	for (std::pair<Entity*, ParametricLines> entry : staticLightCollisionLines)
 	{
-		const Entity* entity = entry.first;
+		Entity* entity = entry.first;
 		// Center-to-center distance between two boxes
 		float distanceX = fmax(0.f, std::fabs(entity->get_position().x - xPos) - entity->get_bounding_box().x / 2);
 		float distanceY = fmax(0.f, std::fabs(entity->get_position().y - yPos) - entity->get_bounding_box().y / 2);
@@ -118,6 +119,10 @@ const ParametricLines CollisionManager::CalculateLightEquations(float xPos, floa
 
 		if (distance < lightRadius)
 		{
+			if (entity->is_light_dynamic()) {
+				entity->set_lit(true);
+				entity->load_texture();
+			}
 			for (ParametricLine staticLine : entry.second)
 			{
 				// Since only position is at play, (and no scaling)
@@ -130,8 +135,13 @@ const ParametricLines CollisionManager::CalculateLightEquations(float xPos, floa
 
 				outEquations.push_back(collEq);
 			}
+		} else if (entity->is_light_dynamic()) {
+			entity->set_lit(false);
+			entity->load_texture();
 		}
 	}
+
+//	std::cout << outEquations.size() << std::endl;
 
 	return outEquations;
 }

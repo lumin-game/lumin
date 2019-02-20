@@ -126,6 +126,6 @@ struct ParametricLine
 	float y_t;
 };
 
-enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG };
+enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG, SWITCH };
 
 typedef std::vector<ParametricLine> ParametricLines;

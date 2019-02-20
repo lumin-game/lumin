@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include <vector>
+#include <iostream>
 
 struct EntityColor {
 	float r, g, b, a;
@@ -12,10 +13,14 @@ public:
 	// Things the subclass need to implement
 	virtual ~Entity() = default;
 
-	virtual const char* get_texture_path() = 0;
+	virtual char* get_texture_path() const = 0;
 	virtual bool is_player_collidable() const = 0;
 	virtual bool is_light_collidable() const = 0;
+	virtual bool is_light_dynamic() const = 0;
 	virtual EntityColor get_color() const = 0;
+	virtual void set_lit(bool lit) = 0;
+
+	bool load_texture();
 
 	// Creates all the associated render resources and default transform
 	bool init(int x_pos, int y_pos);
