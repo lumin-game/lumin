@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "movable_wall.hpp"
 #include "CollisionManager.hpp"
 
 // stlib
@@ -111,6 +112,10 @@ bool World::update(float elapsed_ms)
 	int w, h;
 	glfwGetFramebufferSize(m_window, &w, &h);
 	vec2 screen = { (float)w, (float)h };
+
+	for (MovableWall* mov_wall : m_movableWalls) {
+		mov_wall->update(elapsed_ms);
+	}
 
 	m_player.update(elapsed_ms);
 
@@ -246,6 +251,18 @@ void World::create_base_level() {
 	}
 	in.close();
 	create_level(grid);
+
+	//Need to spawn movable tiles here for now because the level generator can't handle them until we can add params for blocks
+	//because there's no way to encode it's movement destination within the text file currently
+
+	MovableWall *m_wall = new MovableWall();
+	m_wall->init(3 * 64, 2 * 64);
+	m_wall->set_movement_properties(3, 0, 0.2, true, true);
+	m_entities.emplace_back(m_wall);
+	m_movableWalls.emplace_back(m_wall);
+
+
+
 }
 
 // Just to print the grid (testing purposes)

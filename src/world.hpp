@@ -1,6 +1,7 @@
 #pragma once
 
 // internal
+#include "movable_wall.hpp"
 #include "common.hpp"
 #include "player.hpp"
 #include "entity.hpp"
@@ -66,6 +67,7 @@ private:
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
+	std::vector<MovableWall*> m_movableWalls;
 
 	float m_current_speed;
 
