@@ -3,23 +3,48 @@
 #include <common.hpp>
 #include <light_mesh.hpp>
 
-class Firefly : public Renderable
+class Firefly
 {
-	const int FIREFLY_COUNT = 6;
+private:
+	const int FIREFLY_COUNT = 12;
 	const float FIREFLY_DISTRIBUTION = 30.f;
-	const float FIREFLY_RADIUS = 5.f;
 
-	struct SingleFirefly
+	struct SingleFirefly : public Renderable
 	{
+		const float FIREFLY_RADIUS = 5.f;
+		const float FIREFLY_MAX_RANGE = 20.f;
+
+	public:
+		struct ParentData
+		{
+			vec2 m_position;
+			vec2 m_screen_pos;
+		};
+
+		ParentData parent;
+
 		SingleFirefly(float x, float y)
 		{
 			position = { x, y };
-			force = { 0.f, 0.f };
+			velocity = { 0.f, 0.f };
+			init();
 		}
 
+		void destroy();
+		void update(float ms, std::vector<SingleFirefly>& fireflies);
+		void draw(const mat3& projection) override;
+
+	private:
+		bool init();
+
 		vec2 position;
-		vec2 force;
+		vec2 velocity;
+
+		vec2 CalculateForce(std::vector<SingleFirefly>& fireflies) const;
 	};
+
+public:
+	~Firefly() { destroy(); }
 
 public:
 	// Creates all the associated render resources and default transform
@@ -32,11 +57,10 @@ public:
 	// ms represents the number of milliseconds elapsed from the previous update() call
 	void update(float ms);
 
-	// Renders the player
-	void draw(const mat3& projection) override;
+	void draw(const mat3& projection);
 
 	vec2 get_position() const;
-	vec2 get_screen_pos() const;
+	void set_position(vec2 position);
 	void set_screen_pos(vec2 screenPos);
 
 private:

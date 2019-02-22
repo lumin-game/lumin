@@ -37,9 +37,7 @@ bool Screen::init() {
 void Screen::destroy() {
 	glDeleteBuffers(1, &mesh.vbo);
 
-	glDeleteShader(effect.vertex);
-	glDeleteShader(effect.fragment);
-	glDeleteShader(effect.program);
+	effect.release();
 }
 
 void Screen::draw(const mat3& projection) {

@@ -43,7 +43,7 @@ private:
 
 	void create_base_level();
 
-	void create_firefly();
+	void create_firefly(vec2 pos);
 
 	void print_grid(std::vector<std::vector<char>>& grid);
 
