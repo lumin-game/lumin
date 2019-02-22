@@ -40,6 +40,7 @@ set(SOURCE_FILES
   src/screen.cpp
 	src/world.cpp
 	src/CollisionManager.cpp
+	src/firefly.cpp
 
   src/project_path.hpp
 	src/common.hpp
@@ -52,6 +53,7 @@ set(SOURCE_FILES
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
+	src/firefly.hpp
 	)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

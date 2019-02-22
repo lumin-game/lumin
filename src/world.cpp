@@ -3,6 +3,7 @@
 #include "wall.hpp"
 #include "glass.hpp"
 #include "CollisionManager.hpp"
+#include "firefly.hpp"
 
 // stlib
 #include <string.h>
@@ -86,6 +87,14 @@ bool World::init(vec2 screen) {
 	return m_player.init() && m_screen.init();
 }
 
+void World::create_firefly(vec2 pos)
+{
+	Firefly* firefly = new Firefly();
+	firefly->init();
+	firefly->set_position(pos);
+	m_fireflies.push_back(firefly);
+}
+
 // Releases all the associated resources
 void World::destroy()
 {
@@ -100,8 +109,13 @@ void World::destroy()
 	for (Entity* entity : m_entities) {
 		entity->destroy();
 	}
-
 	m_entities.clear();
+
+	for (Firefly* firefly : m_fireflies) {
+		firefly->destroy();
+	}
+	m_fireflies.clear();
+
 	glfwDestroyWindow(m_window);
 }
 
@@ -113,6 +127,11 @@ bool World::update(float elapsed_ms)
 	vec2 screen = { (float)w, (float)h };
 
 	m_player.update(elapsed_ms);
+
+	for (Firefly* firefly : m_fireflies)
+	{
+		firefly->update(elapsed_ms);
+	}
 
 	return true;
 }
@@ -167,6 +186,14 @@ void World::draw() {
 		entity->draw(projection_2D);
 	}
 
+	for (Firefly* firefly : m_fireflies) {
+		float screen_pos_x = firefly->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
+		float screen_pos_y = firefly->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
+		vec2 screen_pos = { screen_pos_x, screen_pos_y };
+		firefly->set_screen_pos(screen_pos);
+		firefly->draw(projection_2D);
+	}
+
 	/////////////////////
 	// Truely render to the screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -196,8 +223,9 @@ bool World::is_over()const
 }
 
 bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
-  const uint32_t BLOCK_SIZE = 64;
+    const uint32_t BLOCK_SIZE = 64;
 	Entity *level_entity = NULL;
+	bool shouldSpawnEntity = true;
 	switch (tile) {
 		case WALL:
 			level_entity = (Wall*) new Wall();
@@ -214,7 +242,17 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 		case FOG:
 			// TODO: add fog entity
 			break;
+		case FIREFLY:
+			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
+			shouldSpawnEntity = false;
+			break;
 	}
+
+	if (!shouldSpawnEntity)
+	{
+		return true;
+	}
+
 	if (!level_entity) {
 		fprintf(stderr, "Level entity is not set");
 		return false;
@@ -230,7 +268,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
 	std::ifstream in(levels_path("level_data.txt"));
-  std::vector<std::vector<char>> grid;
+    std::vector<std::vector<char>> grid;
 
 	if(!in) {
 		std::cerr << "Cannot open file." << std::endl;
@@ -239,12 +277,14 @@ void World::create_base_level() {
 
 	std::string row;
 	while (std::getline(in, row)) {
-    std::string rowS(row.c_str());
-    std::vector<char> charVector(rowS.begin(), rowS.end());
-    // Dynamically sized vector<char>
-    grid.push_back(charVector);
+		std::string rowS(row.c_str());
+		std::vector<char> charVector(rowS.begin(), rowS.end());
+		// Dynamically sized vector<char>
+		grid.push_back(charVector);
 	}
+
 	in.close();
+	
 	create_level(grid);
 }
 
@@ -265,6 +305,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[DARKWALL] = '+';
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
+	tile_map[FIREFLY] = '*';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
@@ -319,6 +360,12 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 			delete entity;
 		}
 		m_entities.clear();
+
+		for (Firefly* firefly : m_fireflies) {
+			delete firefly;
+		}
+		m_fireflies.clear();
+
 		m_player.destroy();
 		create_base_level();
 		m_player.init();
