@@ -12,10 +12,8 @@ void CollisionManager::RegisterEntity(Entity* entity)
 		UnregisterEntity(entity);
 	}
 
-//	if (entity->is_light_collidable())
-//	{
-		staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
-//	}
+	staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
+
 	if (entity->is_player_collidable())
 	{
 		staticCollisionEntities.push_back(entity);
@@ -121,7 +119,6 @@ const ParametricLines CollisionManager::CalculateLightEquations(float xPos, floa
 		{
 			if (entity->is_light_dynamic()) {
 				entity->set_lit(true);
-				entity->load_texture();
 			}
 			for (ParametricLine staticLine : entry.second)
 			{
@@ -137,11 +134,8 @@ const ParametricLines CollisionManager::CalculateLightEquations(float xPos, floa
 			}
 		} else if (entity->is_light_dynamic()) {
 			entity->set_lit(false);
-			entity->load_texture();
 		}
 	}
-
-//	std::cout << outEquations.size() << std::endl;
 
 	return outEquations;
 }

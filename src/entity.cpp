@@ -5,20 +5,22 @@
 #include "CollisionManager.hpp"
 
 
-bool Entity::load_texture() {
-	// Load shared texture
-	if (!texture.load_from_file(get_texture_path())) {
+bool Entity::init(int x_pos, int y_pos) {
+	if (!unlit_texture.load_from_file(get_texture_path())) {
 		fprintf(stderr, "Failed to load entity texture!");
 		return false;
 	}
-}
 
-bool Entity::init(int x_pos, int y_pos) {
-	Entity::load_texture();
+	if (get_lit_texture_path() != nullptr && !lit_texture.load_from_file(get_lit_texture_path())) {
+		fprintf(stderr, "Failed to load lit entity texture!");
+		return false;
+	}
+
+	texture = &unlit_texture;
 
 	// The position corresponds to the center of the texture
-	float wr = texture.width * 0.5f;
-	float hr = texture.height * 0.5f;
+	float wr = texture->width * 0.5f;
+	float hr = texture->height * 0.5f;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, -0.02f };
@@ -94,8 +96,6 @@ void Entity::draw(const mat3& projection) {
 	transform_scale(m_scale);
 	transform_end();
 
-//	std::cout << get_texture_path() << std::endl;
-
 	// Setting shaders
 	glUseProgram(effect.program);
 
@@ -123,7 +123,7 @@ void Entity::draw(const mat3& projection) {
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture.id);
+	glBindTexture(GL_TEXTURE_2D, texture->id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -155,7 +155,7 @@ void Entity::set_screen_pos(vec2 position){
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 Entity::get_bounding_box() const {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * texture.width, std::fabs(m_scale.y) * texture.height };
+	return { std::fabs(m_scale.x) * texture->width, std::fabs(m_scale.y) * texture->height };
 }
 
 std::vector<ParametricLine> Entity::calculate_static_equations() const {
@@ -206,4 +206,14 @@ std::vector<ParametricLine> Entity::calculate_static_equations() const {
 	outLines.push_back(bottomEdge);
 
 	return outLines;
+}
+
+void Entity::set_lit(bool lit) {
+	m_is_lit = lit;
+	texture = lit ? &lit_texture : &unlit_texture;
+	std::cout << texture << std::endl;
+}
+
+bool Entity::get_lit() const {
+	return m_is_lit;
 }
