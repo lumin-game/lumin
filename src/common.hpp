@@ -24,7 +24,47 @@
 
 // Not much math is needed and there are already way too many libraries linked (:
 // If you want to do some overloads..
-struct vec2 { float x, y; };
+struct vec2
+{ 
+	float x, y; 
+
+	float Magnitude() const
+	{
+		float sqr = x * x + y * y;
+		return std::sqrt(sqr);
+	}
+
+	vec2 Direction() const
+	{
+		float distance = Magnitude();
+		if (std::abs(distance) < FLT_EPSILON)
+		{
+			return { 0.f, 0.f };
+		}
+		return *this * (1 / distance);
+	}
+
+	vec2 operator+ (vec2 other) const
+	{
+		return { x + other.x, y + other.y };
+	}
+
+	vec2 operator- (vec2 other) const
+	{
+		return { x - other.x, y - other.y };
+	}
+
+	void operator+= (vec2 other)
+	{
+		x += other.x;
+		y += other.y;
+	}
+
+	vec2 operator*(float scalar) const
+	{
+		return { x * scalar,y * scalar };
+	}
+};
 struct vec3 { float x, y, z; };
 struct mat3 { vec3 c0, c1, c2; };
 
@@ -126,6 +166,6 @@ struct ParametricLine
 	float y_t;
 };
 
-enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG };
+enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG, FIREFLY };
 
 typedef std::vector<ParametricLine> ParametricLines;
