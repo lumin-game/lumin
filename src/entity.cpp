@@ -152,8 +152,8 @@ vec2 Entity::get_bounding_box() const {
 	return { std::fabs(m_scale.x) * texture.width, std::fabs(m_scale.y) * texture.height };
 }
 
-std::vector<ParametricLine> Entity::calculate_static_equations() const {
-	std::vector<ParametricLine> outLines;
+ParametricLines Entity::calculate_static_equations() const {
+	ParametricLines outLines;
 
 	if (!is_light_collidable()) {
 		return outLines;
@@ -201,3 +201,9 @@ std::vector<ParametricLine> Entity::calculate_static_equations() const {
 
 	return outLines;
 }
+
+ParametricLines Entity::calculate_dynamic_equations() const
+{
+	return ParametricLines();
+}
+
