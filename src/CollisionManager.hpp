@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include "entity.hpp"
 #include "common.hpp"
 
@@ -55,10 +56,17 @@ public:
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
+	const void UpdateDynamicLightEquations();
+
 private:
+	std::set<const Entity*> registeredEntities;
+
 	// Game entities : Light collision equations
 	std::map<const Entity*, const ParametricLines> staticLightCollisionLines;
+	std::map<const Entity*, const ParametricLines> dynamicLightCollisionLines;
 
 	// List of box entities that have collision
 	std::vector<const Entity*> staticCollisionEntities;
+
+	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 };

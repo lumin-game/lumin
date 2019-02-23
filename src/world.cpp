@@ -127,9 +127,13 @@ bool World::update(float elapsed_ms)
 	glfwGetFramebufferSize(m_window, &w, &h);
 	vec2 screen = { (float)w, (float)h };
 
+	// First move the world (entities)
 	for (MovableWall* mov_wall : m_movableWalls) {
 		mov_wall->update(elapsed_ms);
 	}
+
+	// Then handle light equations
+	CollisionManager::GetInstance().UpdateDynamicLightEquations();
 
 	m_player.update(elapsed_ms);
 

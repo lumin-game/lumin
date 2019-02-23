@@ -63,3 +63,13 @@ void MovableWall::update(float ms) {
 		}
 	}
 }
+
+ParametricLines MovableWall::calculate_static_equations() const
+{
+	return ParametricLines();
+}
+
+ParametricLines MovableWall::calculate_dynamic_equations() const
+{
+	return Entity::calculate_static_equations();
+}

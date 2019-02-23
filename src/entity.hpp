@@ -41,7 +41,8 @@ public:
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box() const;
 
-	ParametricLines calculate_static_equations() const;
+	virtual ParametricLines calculate_static_equations() const;
+	virtual ParametricLines calculate_dynamic_equations() const;
 
 private:
 	Texture texture;
