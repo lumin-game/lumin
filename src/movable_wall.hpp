@@ -20,6 +20,6 @@ private:
 	float move_speed;
 	bool is_moving;
 	bool movement_loops;
-	bool movement_direction;
+	bool moving_forward;
 	vec2 initial_position;
 };

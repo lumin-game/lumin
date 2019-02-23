@@ -12,7 +12,7 @@ void MovableWall::set_movement_properties(int move_blocks_X, int move_blocks_Y, 
 	move_speed = speed;
 	is_moving = moving_immediately;
 	movement_loops = loop_movement;
-	movement_direction = true;
+	moving_forward = true;
 }
 
 void MovableWall::trigger_movement(bool moving) {
@@ -27,7 +27,7 @@ void MovableWall::update(float ms) {
 		float y_dist;
 
 		// calculate dist to move_dest if move dir is true (moving forwards), or to initial position if move dir is false (moving backwards)
-		if (movement_direction) {
+		if (moving_forward) {
 			x_dist = move_dest_X - pos.x;
 			y_dist = move_dest_Y - pos.y;
 		}
@@ -41,10 +41,10 @@ void MovableWall::update(float ms) {
 		float y_normalized = y_dist / dest_distance;
 
 		// if true, the block will move past the destination this tick, so do action for when block reaches the end of its path
-		if (abs(x_normalized * move_speed) > abs(x_dist) || abs(y_normalized * move_speed) > abs(y_dist)) {
+		if (abs(x_normalized * move_speed * ms) > abs(x_dist) || abs(y_normalized * move_speed * ms) > abs(y_dist)) {
 
 			//move block to its destination
-			if (movement_direction) {
+			if (moving_forward) {
 				set_position({ move_dest_X, move_dest_Y });
 			}
 			else {
@@ -52,7 +52,7 @@ void MovableWall::update(float ms) {
 			}
 			
 			if (movement_loops) {
-				movement_direction = !movement_direction;
+				moving_forward = !moving_forward;
 			}
 			else {
 				is_moving = false;
