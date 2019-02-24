@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "player.hpp"
 #include <vector>
 #include <iostream>
 
@@ -25,6 +26,9 @@ public:
 
 	// Releases all the associated resources
 	void destroy();
+
+	// Update logic for entities
+	void update(Player* player);
 
 	// Renders the entity using the texture
 	void draw(const mat3& projection) override;

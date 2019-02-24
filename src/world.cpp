@@ -161,6 +161,9 @@ void World::draw() {
 	m_player.draw(projection_2D, ww, hh);
 
 	for (Entity* entity: m_entities) {
+		// Call update function on all entities
+		entity->update(&m_player);
+
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
 		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};

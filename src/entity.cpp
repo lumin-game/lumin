@@ -87,6 +87,11 @@ void Entity::destroy() {
 	glDeleteShader(effect.program);
 }
 
+void Entity::update(Player* player) {
+	if (is_light_dynamic()) {
+		set_lit(CollisionManager::GetInstance().IsHitByLight(this, player, 300.f)); // magic constant from light_mesh haha
+	}
+}
 
 void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
@@ -211,7 +216,6 @@ std::vector<ParametricLine> Entity::calculate_static_equations() const {
 void Entity::set_lit(bool lit) {
 	m_is_lit = lit;
 	texture = lit ? &lit_texture : &unlit_texture;
-	std::cout << texture << std::endl;
 }
 
 bool Entity::get_lit() const {

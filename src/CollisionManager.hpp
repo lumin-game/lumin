@@ -43,10 +43,10 @@ public:
 	void operator=(CollisionManager const &) = delete;
 
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
-	void RegisterEntity(Entity* entity);
+	void RegisterEntity(const Entity* entity);
 
 	// Unregisters an entity. Should be called on destroy.
-	void UnregisterEntity(Entity* entity);
+	void UnregisterEntity(const Entity* entity);
 
 	// Given a box with param dimensions moving a distance of xDist, yDist
 	// Return the result of all collisions that will happen
@@ -55,9 +55,11 @@ public:
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
+	bool IsHitByLight(const Entity* entity, const Player* player, float lightRadius) const;
+
 private:
 	// Game entities : Light collision equations
-	std::map<Entity*, const ParametricLines> staticLightCollisionLines;
+	std::map<const Entity*, const ParametricLines> staticLightCollisionLines;
 
 	// List of box entities that have collision
 	std::vector<const Entity*> staticCollisionEntities;
