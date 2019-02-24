@@ -20,7 +20,7 @@ public:
 	// Renders the water
 	void draw(const mat3& projection)override;
 
-	void reset();
+  vec2 get_bounding_box()const;
 
 private:
 	static Texture level_screen_texture;

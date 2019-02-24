@@ -1,6 +1,7 @@
 #include "level_screen.hpp"
 
 #include <iostream>
+#include <cmath>
 
 Texture LevelScreen::level_screen_texture;
 
@@ -91,7 +92,6 @@ void LevelScreen::draw(const mat3& projection) {
   GLint transform_uloc = glGetUniformLocation(effect.program, "transform");
   GLint color_uloc = glGetUniformLocation(effect.program, "fcolor");
   GLint projection_uloc = glGetUniformLocation(effect.program, "projection");
-  GLint light_radius = glGetUniformLocation(effect.program, "lightRadius");
 
   // Setting vertices and indices
   glBindVertexArray(mesh.vao);
@@ -115,8 +115,14 @@ void LevelScreen::draw(const mat3& projection) {
   float color[] = { 1.f, 0.f, 0.f };
   glUniform3fv(color_uloc, 1, color);
   glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
-  glUniform1f(light_radius, 200.f);
 
   // Drawing!
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
+// returns the local bounding coordinates scaled by the current size of the background
+vec2 LevelScreen::get_bounding_box()const
+{
+	// fabs is to avoid negative scale due to the facing direction
+	return { std::fabs(m_scale.x) * level_screen_texture.width, std::fabs(m_scale.y) * level_screen_texture.height };
+}
+
