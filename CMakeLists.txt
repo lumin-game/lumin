@@ -37,9 +37,11 @@ set(SOURCE_FILES
 	src/player.cpp
 	src/player_mesh.cpp
 	src/light_mesh.cpp
+	src/movable_wall.cpp
   src/screen.cpp
 	src/world.cpp
 	src/CollisionManager.cpp
+	src/firefly.cpp
 
   src/project_path.hpp
 	src/common.hpp
@@ -49,10 +51,13 @@ set(SOURCE_FILES
 	src/player.hpp
 	src/player_mesh.hpp
 	src/light_mesh.hpp
+	src/movable_wall.hpp
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
-        src/switch.hpp)
+        src/switch.hpp
+	src/firefly.hpp
+	)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

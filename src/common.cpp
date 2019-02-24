@@ -248,9 +248,9 @@ bool Effect::load_from_file(const char* vs_path, const char* fs_path)
 
 void Effect::release()
 {
-	glDeleteProgram(program);
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	glDeleteProgram(program);
 }
 
 void Renderable::transform_begin()

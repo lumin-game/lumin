@@ -80,11 +80,9 @@ void Entity::destroy() {
 
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
-	glDeleteBuffers(1, &mesh.vao);
+	glDeleteVertexArrays(1, &mesh.vao);
 
-	glDeleteShader(effect.vertex);
-	glDeleteShader(effect.fragment);
-	glDeleteShader(effect.program);
+	effect.release();
 }
 
 void Entity::update(Player* player) {
@@ -163,8 +161,8 @@ vec2 Entity::get_bounding_box() const {
 	return { std::fabs(m_scale.x) * texture->width, std::fabs(m_scale.y) * texture->height };
 }
 
-std::vector<ParametricLine> Entity::calculate_static_equations() const {
-	std::vector<ParametricLine> outLines;
+ParametricLines Entity::calculate_static_equations() const {
+	ParametricLines outLines;
 
 	if (!is_light_collidable()) {
 		return outLines;
@@ -220,4 +218,9 @@ void Entity::set_lit(bool lit) {
 
 bool Entity::get_lit() const {
 	return m_is_lit;
+}
+
+ParametricLines Entity::calculate_dynamic_equations() const
+{
+	return ParametricLines();
 }

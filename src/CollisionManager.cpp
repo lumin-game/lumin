@@ -6,13 +6,13 @@
 
 void CollisionManager::RegisterEntity(const Entity* entity)
 {
-	if (staticLightCollisionLines.find(entity) != staticLightCollisionLines.end())
+	if (registeredEntities.find(entity) != registeredEntities.end())
 	{
-		// Already exists, remove the old one
 		UnregisterEntity(entity);
 	}
 
 	staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
+	registeredEntities.insert(entity);
 
 	if (entity->is_player_collidable())
 	{
@@ -22,7 +22,10 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 
 void CollisionManager::UnregisterEntity(const Entity* entity)
 {
+	registeredEntities.erase(entity);
+
 	staticLightCollisionLines.erase(entity);
+	dynamicLightCollisionLines.erase(entity);
 	for (auto iter = staticCollisionEntities.begin(); iter != staticCollisionEntities.end(); ++iter)
 	{
 		if (*iter == entity)
@@ -109,37 +112,57 @@ const ParametricLines CollisionManager::CalculateLightEquations(float xPos, floa
 	ParametricLines outEquations;
 	for (std::pair<const Entity*, ParametricLines> entry : staticLightCollisionLines)
 	{
-		const Entity* entity = entry.first;
-		// Center-to-center distance between two boxes
-		float distanceX = fmax(0.f, std::fabs(entity->get_position().x - xPos) - entity->get_bounding_box().x / 2);
-		float distanceY = fmax(0.f, std::fabs(entity->get_position().y - yPos) - entity->get_bounding_box().y / 2);
-		float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
-
-		if (distance < lightRadius)
-		{
-			for (ParametricLine staticLine : entry.second)
-			{
-				// Since only position is at play, (and no scaling)
-				// We only have to do a simple translation
-				ParametricLine collEq;
-				collEq.x_0 = staticLine.x_0 - xPos;
-				collEq.x_t = staticLine.x_t;
-				collEq.y_0 = staticLine.y_0 - yPos;
-				collEq.y_t = staticLine.y_t;
-
-				outEquations.push_back(collEq);
-			}
-		}
+		CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
+	}
+	for (std::pair<const Entity*, ParametricLines> entry : dynamicLightCollisionLines)
+	{
+		CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
 	}
 
 	return outEquations;
 }
 
+void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const
+{
+	const Entity* entity = entry.first;
+	// Center-to-center distance between two boxes
+	float distanceX = fmax(0.f, std::fabs(entity->get_position().x - xPos) - entity->get_bounding_box().x / 2);
+	float distanceY = fmax(0.f, std::fabs(entity->get_position().y - yPos) - entity->get_bounding_box().y / 2);
+	float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+
+	if (distance < lightRadius)
+	{
+		for (ParametricLine staticLine : entry.second)
+		{
+			// Since only position is at play, (and no scaling)
+			// We only have to do a simple translation
+			ParametricLine collEq;
+			collEq.x_0 = staticLine.x_0 - xPos;
+			collEq.x_t = staticLine.x_t;
+			collEq.y_0 = staticLine.y_0 - yPos;
+			collEq.y_t = staticLine.y_t;
+
+			outLines.push_back(collEq);
+		}
+	}
+}
+
 bool CollisionManager::IsHitByLight(const Entity* entity, const Player* player, float lightRadius) const {
 	// Center-to-center distance between two boxes
-	float distanceX = fmax(0.f, std::fabs(entity->get_position().x - player->get_position().x) - entity->get_bounding_box().x / 2);
-	float distanceY = fmax(0.f, std::fabs(entity->get_position().y - player->get_position().y) - entity->get_bounding_box().y / 2);
+	float distanceX = fmax(0.f, std::fabs(entity->get_position().x - player->get_position().x) -
+								entity->get_bounding_box().x / 2);
+	float distanceY = fmax(0.f, std::fabs(entity->get_position().y - player->get_position().y) -
+								entity->get_bounding_box().y / 2);
 	float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
 
 	return distance < lightRadius;
+}
+
+const void CollisionManager::UpdateDynamicLightEquations()
+{
+	dynamicLightCollisionLines.clear();
+	for (const Entity* entity : registeredEntities)
+	{
+		dynamicLightCollisionLines.emplace(entity, entity->calculate_dynamic_equations());
+	}
 }
