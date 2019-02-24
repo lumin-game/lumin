@@ -46,7 +46,7 @@ set(SOURCE_FILES
   src/project_path.hpp
 	src/common.hpp
   src/entity.hpp
-    src/glass.hpp
+  src/glass.hpp
 	src/wall.hpp
 	src/player.hpp
 	src/player_mesh.hpp
@@ -55,7 +55,7 @@ set(SOURCE_FILES
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
-        src/switch.hpp
+  src/switch.hpp
 	src/firefly.hpp
 	)
 

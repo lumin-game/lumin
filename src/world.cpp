@@ -82,13 +82,14 @@ bool World::init(vec2 screen) {
 	m_unlocked_levels = 1;
 
 	create_current_level();
+	m_screen.init();
 
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init() && m_screen.init();
+	return m_player.init();
 }
 
 void World::create_firefly(vec2 pos)
@@ -114,12 +115,11 @@ void World::destroy()
 		entity->destroy();
 	}
 	m_entities.clear();
-
 	for (Firefly* firefly : m_fireflies) {
 		firefly->destroy();
 	}
 	m_fireflies.clear();
-
+	m_screen.destroy();
 	glfwDestroyWindow(m_window);
 }
 
@@ -364,6 +364,9 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		else if (key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(true);
 		}
+		else if (key == GLFW_KEY_M) {
+			m_screen.set_render_menu(true);
+		}
 	}
 
 	if (action == GLFW_RELEASE) {
@@ -375,6 +378,9 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		}
 		else if (key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(false);
+		}
+		else if (key == GLFW_KEY_M) {
+			m_screen.set_render_menu(false);
 		}
 	}
 
@@ -399,6 +405,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_player.destroy();
 		create_current_level();
 		m_player.init();
+		m_screen.reset();
 	}
 
 	// Exit Game
