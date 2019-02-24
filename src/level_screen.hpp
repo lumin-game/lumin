@@ -20,10 +20,6 @@ public:
 	// Renders the water
 	void draw(const mat3& projection)override;
 
-	bool get_render_level_screen();
-
-	void set_render_level_screen(bool m_is_m_pressed);
-
 	void reset();
 
 private:

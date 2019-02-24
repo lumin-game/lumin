@@ -123,6 +123,7 @@ void World::destroy()
 	}
 	m_fireflies.clear();
 	m_screen.destroy();
+	m_level_screen.destroy();
 	glfwDestroyWindow(m_window);
 }
 
@@ -189,7 +190,6 @@ void World::draw() {
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
-
 	// Drawing entities
 	m_player.draw(projection_2D, ww, hh);
 
@@ -411,6 +411,8 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_player.destroy();
 		create_current_level();
 		m_player.init();
+		m_level_screen.destroy();
+		m_level_screen.init();
 	}
 
 	// Exit Game
