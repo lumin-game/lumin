@@ -1,10 +1,8 @@
 #pragma once
 
 #include "common.hpp"
-#include "level_screen.hpp"
 
-
-class Screen : public Renderable
+class LevelScreen : public Renderable
 {
 public:
 	struct ParentData
@@ -22,13 +20,14 @@ public:
 	// Renders the water
 	void draw(const mat3& projection)override;
 
-	bool render_screen();
+	bool get_render_level_screen();
 
-	void draw_screen();
+	void set_render_level_screen(bool m_is_m_pressed);
 
+	void reset();
 
 private:
-	bool m_render_level_screen;
+	static Texture level_screen_texture;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	ParentData m_parent;
 };

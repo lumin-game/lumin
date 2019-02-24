@@ -81,8 +81,11 @@ bool World::init(vec2 screen) {
 
 	m_unlocked_levels = 1;
 
+	m_should_load_level_screen = false;
+
 	create_current_level();
 	m_screen.init();
+	m_level_screen.init();
 
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
@@ -224,6 +227,9 @@ void World::draw() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
 
+	if (m_should_load_level_screen) {
+		m_level_screen.draw(projection_2D);
+	} 
 	m_screen.draw(projection_2D);
 
 	//////////////////
@@ -365,7 +371,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 			m_player.setRightPressed(true);
 		}
 		else if (key == GLFW_KEY_M) {
-			m_screen.set_render_menu(true);
+			m_should_load_level_screen = true;
 		}
 	}
 
@@ -380,7 +386,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 			m_player.setRightPressed(false);
 		}
 		else if (key == GLFW_KEY_M) {
-			m_screen.set_render_menu(false);
+			m_should_load_level_screen = false;
 		}
 	}
 
@@ -405,7 +411,6 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		m_player.destroy();
 		create_current_level();
 		m_player.init();
-		m_screen.reset();
 	}
 
 	// Exit Game

@@ -7,6 +7,7 @@
 #include "entity.hpp"
 #include "screen.hpp"
 #include "firefly.hpp"
+#include "level_screen.hpp"
 
 // stlib
 #include <vector>
@@ -64,6 +65,7 @@ private:
 
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
+	LevelScreen m_level_screen;
 
 	unsigned int m_points;
 
@@ -83,4 +85,6 @@ private:
 	// C++ rng
 	std::default_random_engine m_rng;
 	std::uniform_real_distribution<float> m_dist; // default 0..1
+
+	bool m_should_load_level_screen;
 };

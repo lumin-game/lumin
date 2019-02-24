@@ -38,6 +38,7 @@ set(SOURCE_FILES
 	src/player_mesh.cpp
 	src/light_mesh.cpp
 	src/movable_wall.cpp
+  src/level_screen.cpp
   src/screen.cpp
 	src/world.cpp
 	src/CollisionManager.cpp
@@ -52,6 +53,7 @@ set(SOURCE_FILES
 	src/player_mesh.hpp
 	src/light_mesh.hpp
 	src/movable_wall.hpp
+  src/level_screen.hpp
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
