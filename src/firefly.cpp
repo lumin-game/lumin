@@ -20,7 +20,7 @@ vec2 Firefly::SingleFirefly::CalculateForce(std::vector<SingleFirefly>& fireflie
 		{
 			vec2 difference = position - firefly.position;
 			float distance = difference.Magnitude();
-			if (std::abs(distance) < FLT_EPSILON)
+			if (std::abs(distance) < 0.000001)
 			{
 				continue;
 			}
