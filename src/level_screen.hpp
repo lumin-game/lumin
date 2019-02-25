@@ -5,12 +5,6 @@
 class LevelScreen : public Renderable
 {
 public:
-	struct ParentData
-	{
-		vec2 m_position;
-		vec2 m_screen_pos;
-	};
-public:
 	// Creates all the associated render resources and default transform
 	bool init();
 
@@ -25,5 +19,5 @@ public:
 private:
 	static Texture level_screen_texture;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
-	ParentData m_parent;
+	vec2 m_position;
 };
