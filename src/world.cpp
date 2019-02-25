@@ -320,9 +320,6 @@ void World::create_current_level() {
 	m_wall->set_movement_properties(3, 0, 0.2, true, true);
 	m_entities.emplace_back(m_wall);
 	m_movableWalls.emplace_back(m_wall);
-
-
-
 }
 
 // Just to print the grid (testing purposes)
@@ -384,6 +381,18 @@ void World::load_level_screen(int key_pressed_level) {
 			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
 		}
 	}
+}
+
+// TODO: Once door is implemented, door can call this method
+void World::update_level() {
+	if (m_current_level < m_max_level) {
+		m_current_level++;
+		reset_game();
+	} else {
+		// TODO: Maybe project a screen displaying that user has completed all levels?
+		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
+	}
+	m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 }
 
 // On key callback
