@@ -7,6 +7,7 @@
 #include "entity.hpp"
 #include "screen.hpp"
 #include "firefly.hpp"
+#include "switch.hpp"
 #include "level_screen.hpp"
 
 // stlib
@@ -86,6 +87,8 @@ private:
 	std::vector<Entity*> m_entities;
 	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
+	std::vector<Switch*> m_switches;
+	
 
 	Mix_Music* m_background_music;
 
