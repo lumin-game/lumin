@@ -125,6 +125,7 @@ void World::destroy()
 	for (Firefly* firefly : m_fireflies) {
 		firefly->destroy();
 	}
+	m_exit_door->destroy();
 	m_fireflies.clear();
 	m_screen.destroy();
 	m_level_screen.destroy();
@@ -425,6 +426,7 @@ void World::reset_game() {
 	}
 	m_fireflies.clear();
 	m_player.destroy();
+	m_exit_door->destroy();
 	create_current_level();
 	m_player.init();
 	m_should_load_level_screen = false;
