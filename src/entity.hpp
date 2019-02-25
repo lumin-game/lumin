@@ -1,7 +1,9 @@
 #pragma once
 
 #include "common.hpp"
+#include "player.hpp"
 #include <vector>
+#include <iostream>
 
 struct EntityColor {
 	float r, g, b, a;
@@ -12,9 +14,11 @@ public:
 	// Things the subclass need to implement
 	virtual ~Entity() = default;
 
-	virtual const char* get_texture_path() = 0;
+	virtual char* get_texture_path() const = 0;
+	virtual char* get_lit_texture_path() const = 0;
 	virtual bool is_player_collidable() const = 0;
 	virtual bool is_light_collidable() const = 0;
+	virtual bool is_light_dynamic() const = 0;
 	virtual EntityColor get_color() const = 0;
 
 	// Creates all the associated render resources and default transform
@@ -22,6 +26,9 @@ public:
 
 	// Releases all the associated resources
 	void destroy();
+
+	// Update logic for entities
+	void update(Player* player);
 
 	// Renders the entity using the texture
 	void draw(const mat3& projection) override;
@@ -44,9 +51,15 @@ public:
 	virtual ParametricLines calculate_static_equations() const;
 	virtual ParametricLines calculate_dynamic_equations() const;
 
+	void set_lit(bool lit);
+	bool get_lit() const;
+
 private:
-	Texture texture;
+	Texture* texture; // pointer to the active texture
+	Texture unlit_texture;
+	Texture lit_texture;
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Screen coordinates
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
+	bool m_is_lit = false;
 };

@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "switch.hpp"
 #include "movable_wall.hpp"
 #include "CollisionManager.hpp"
 #include "firefly.hpp"
@@ -76,16 +77,24 @@ bool World::init(vec2 screen) {
 	// Initialize the screen texture
 	m_screen_tex.create_from_screen(m_window);
 
-	m_current_speed = 1.f;
+	m_current_level = 1;
 
-	create_base_level();
+	m_unlocked_levels = 1;
+
+	m_max_level = 5;
+
+	m_should_load_level_screen = false;
+
+	create_current_level();
+	m_screen.init();
+	m_level_screen.init();
 
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init() && m_screen.init();
+	return m_player.init();
 }
 
 void World::create_firefly(vec2 pos)
@@ -111,12 +120,12 @@ void World::destroy()
 		entity->destroy();
 	}
 	m_entities.clear();
-
 	for (Firefly* firefly : m_fireflies) {
 		firefly->destroy();
 	}
 	m_fireflies.clear();
-
+	m_screen.destroy();
+	m_level_screen.destroy();
 	glfwDestroyWindow(m_window);
 }
 
@@ -183,11 +192,13 @@ void World::draw() {
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
-
 	// Drawing entities
 	m_player.draw(projection_2D, ww, hh);
 
 	for (Entity* entity: m_entities) {
+		// Call update function on all entities
+		entity->update(&m_player);
+
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
 		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
@@ -205,6 +216,9 @@ void World::draw() {
 
 	/////////////////////
 	// Truely render to the screen
+	if (m_should_load_level_screen) {
+		m_level_screen.draw(projection_2D);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -251,6 +265,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 		case FOG:
 			// TODO: add fog entity
 			break;
+		case SWITCH:
+			level_entity = (Switch*) new Switch();
+			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
 			shouldSpawnEntity = false;
@@ -274,10 +291,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 	return false;
 }
 
-void World::create_base_level() {
-	// base level is represented by a 0-indexed 10x8 matrix
-	std::ifstream in(levels_path("level_3.txt"));
-    std::vector<std::vector<char>> grid;
+void World::create_current_level() {
+	std::ifstream in(levels_path("level_" + std::to_string(m_current_level) + ".txt"));
+	std::vector<std::vector<char>> grid;
 
 	if(!in) {
 		std::cerr << "Cannot open file." << std::endl;
@@ -325,6 +341,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[DARKWALL] = '+';
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
+	tile_map[SWITCH] = '1';
 	tile_map[FIREFLY] = '*';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
@@ -338,8 +355,38 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	}
 }
 
+void World::reset_game() {
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+	for (Entity* entity : m_entities) {
+		delete entity;
+	}
+	m_entities.clear();
+	for (Firefly* firefly : m_fireflies) {
+		firefly->destroy();
+	}
+	m_fireflies.clear();
+	m_player.destroy();
+	create_current_level();
+	m_player.init();
+	m_should_load_level_screen = false;
+}
+
+void World::load_level_screen(int key_pressed_level) {
+	if (m_current_level == key_pressed_level) {
+		m_should_load_level_screen = false;
+	} else {
+		if (m_unlocked_levels >= key_pressed_level) {
+			m_current_level = key_pressed_level;
+			reset_game();
+		} else {
+			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
+		}
+	}
+}
+
 // On key callback
-void World::on_key(GLFWwindow*, int key, int, int action, int mod)
+void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// HANDLE PLAYER MOVEMENT HERE
@@ -353,6 +400,11 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		}
 		else if (key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(true);
+		}
+		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
+		// this can be modified later after incorporating UI buttons
+		else if (key == GLFW_KEY_M) {
+			m_should_load_level_screen = !m_should_load_level_screen;
 		}
 	}
 
@@ -368,28 +420,27 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		}
 	}
 
+	if (m_should_load_level_screen) {
+		if (key == GLFW_KEY_1) {
+			load_level_screen(1);
+		} else if (key == GLFW_KEY_2) {
+			load_level_screen(2);
+		} else if (key == GLFW_KEY_3) {
+			load_level_screen(3);
+		} else if (key == GLFW_KEY_4) {
+			load_level_screen(4);
+		} else if (key == GLFW_KEY_5) {
+			load_level_screen(5);
+		}
+	}
+
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		for (Entity* entity : m_entities) {
-			delete entity;
-		}
-		m_entities.clear();
-
-		for (Firefly* firefly : m_fireflies) {
-			delete firefly;
-		}
-		m_fireflies.clear();
-
-		m_player.destroy();
-		create_base_level();
-		m_player.init();
-		m_current_speed = 1.f;
+		reset_game();
 	}
 
 	// Exit Game
@@ -397,12 +448,4 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		destroy();
 		exit(0);
 	}
-
-	// Control the current speed with `<` `>`
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) &&  key == GLFW_KEY_COMMA)
-		m_current_speed -= 0.1f;
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
-		m_current_speed += 0.1f;
-
-	m_current_speed = fmax(0.f, m_current_speed);
 }

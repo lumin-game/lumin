@@ -121,7 +121,7 @@ bool Texture::create_from_screen(GLFWwindow const * const window) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 
-    glfwGetFramebufferSize(const_cast<GLFWwindow *>(window), &width, &height);
+  glfwGetFramebufferSize(const_cast<GLFWwindow *>(window), &width, &height);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

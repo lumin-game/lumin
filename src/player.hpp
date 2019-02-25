@@ -1,6 +1,5 @@
 #pragma once
 
-#include "entity.hpp"
 #include "player_mesh.hpp"
 #include "light_mesh.hpp"
 #include "common.hpp"

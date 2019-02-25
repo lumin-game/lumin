@@ -3,6 +3,8 @@
 // stlib
 #include <fstream> // stdout, stderr..
 #include <vector>
+#include <cmath>
+#include <cstdlib>
 
 // glfw
 #define NOMINMAX
@@ -37,7 +39,7 @@ struct vec2
 	vec2 Direction() const
 	{
 		float distance = Magnitude();
-		if (std::abs(distance) < FLT_EPSILON)
+		if (std::abs(distance) < 0.000001)
 		{
 			return { 0.f, 0.f };
 		}
@@ -166,6 +168,6 @@ struct ParametricLine
 	float y_t;
 };
 
-enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG, FIREFLY };
+enum StaticTile { WALL, GLASS, LIGHTWALL, DARKWALL, FOG, SWITCH, FIREFLY };
 
 typedef std::vector<ParametricLine> ParametricLines;

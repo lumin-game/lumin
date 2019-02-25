@@ -3,10 +3,23 @@
 #include <iostream>
 
 bool Screen::init() {
+  return render_screen();
+}
 
-	// Since we are not going to apply transformation to this screen geometry
-	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
-	// Make the size slightly larger then the screen to crop the boundary
+void Screen::destroy() {
+	glDeleteBuffers(1, &mesh.vbo);
+
+	glDeleteShader(effect.vertex);
+	glDeleteShader(effect.fragment);
+	glDeleteShader(effect.program);
+}
+
+void Screen::draw(const mat3& projection) {
+  return draw_screen();
+}
+
+
+bool Screen::render_screen(){
 	static const GLfloat screen_vertex_buffer_data[] = {
 		-1.05f, -1.05f, 0.0f,
 		1.05f, -1.05f, 0.0f,
@@ -30,17 +43,10 @@ bool Screen::init() {
 	// Loading shaders
 	if (!effect.load_from_file(shader_path("screen.vs.glsl"), shader_path("screen.fs.glsl")))
 		return false;
-
 	return true;
 }
 
-void Screen::destroy() {
-	glDeleteBuffers(1, &mesh.vbo);
-
-	effect.release();
-}
-
-void Screen::draw(const mat3& projection) {
+void Screen::draw_screen(){
 	// Enabling alpha channel for textures
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);

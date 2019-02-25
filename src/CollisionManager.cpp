@@ -1,6 +1,21 @@
 #include <memory>
 #include <cmath>
+#include <iostream>
 #include "CollisionManager.hpp"
+
+
+void CollisionManager::RegisterLight(const LightMesh* light)
+{
+	if (lightSources.find(light) == lightSources.end())
+	{
+		lightSources.emplace(light);
+	}
+}
+
+void CollisionManager::UnregisterLight(const LightMesh* light)
+{
+	lightSources.erase(light);
+}
 
 
 void CollisionManager::RegisterEntity(const Entity* entity)
@@ -10,12 +25,9 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 		UnregisterEntity(entity);
 	}
 
+	staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
 	registeredEntities.insert(entity);
 
-	if (entity->is_light_collidable())
-	{
-		staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
-	}
 	if (entity->is_player_collidable())
 	{
 		staticCollisionEntities.push_back(entity);
@@ -147,6 +159,98 @@ void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, P
 			outLines.push_back(collEq);
 		}
 	}
+}
+
+bool CollisionManager::IsHitByLight(const Entity* entity) const {
+
+	vec2 entityPos = entity->get_position();
+
+	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
+	{
+		bool hasCollision = false;
+		const LightMesh* light = *it;
+		vec2 lightPos = light->get_position();
+
+		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x) - entity->get_bounding_box().x / 2);
+		float distanceY = fmax(0.f, std::fabs(entityPos.y - lightPos.y) - entity->get_bounding_box().y / 2);
+		float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+
+		if (distance < light->getLightRadius())
+		{
+			vec2 entityToLight = lightPos - entityPos;
+			ParametricLine rayTrace;
+			rayTrace.x_0 = 0.f;
+			rayTrace.x_t = entityToLight.x;
+			rayTrace.y_0 = 0.f;
+			rayTrace.y_t = entityToLight.y;
+
+			const ParametricLines blockingEquations = CalculateLightEquations(entityPos.x, entityPos.y, light->getLightRadius());
+			for (const ParametricLine& blockingLine : blockingEquations)
+			{
+				if (LinesCollide(rayTrace, blockingLine))
+				{
+					hasCollision = true;
+					break;
+				}
+			}
+
+			if (hasCollision == false)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2) const
+{
+	// Given
+	// line1 : x1 = a1 + b1*t1, y1 = c1 + d1*t1
+	// line2 : x2 = a2 + b2*t2, y2 = c2 + d2*t2
+	// A collision means a pair of t1 and t2 that are both 0 < t < 1
+
+	// Algebra gives:
+	// t2 = (c1 - c2 + d1*a2/b1 - d1*a1/b1) / (d2 - d1*b2/b1)
+	// t1 = (a2 + b2 * t2) / b1
+
+	// However we must consider the case where b1 == 0
+	// In that case we use the alternate equations
+	// t2 = (a1-a2)/b2
+	// t1 = (c2 - c1 + d2*t2) / d1
+
+	float epsilon = 0.0001f;
+	float a1 = line1.x_0;
+	float b1 = line1.x_t;
+	float c1 = line1.y_0;
+	float d1 = line1.y_t;
+	float a2 = line2.x_0;
+	float b2 = line2.x_t;
+	float c2 = line2.y_0;
+	float d2 = line2.y_t;
+
+	if (-epsilon < b1 && b1 < epsilon) // when b1 == 0
+	{
+		float t2 = (a1 - a2) / b2;
+		float t1 = (c2 - c1 + d2*t2) / d1;
+
+		if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		float t2 = (c1 - c2 + d1 * a2 / b1 - d1 * a1 / b1) / (d2 - d1 * b2 / b1);
+		float t1 = (a2 + b2 * t2) / b1;
+		if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
+		{
+			return true;
+		}	
+	}
+
+	return false;
 }
 
 const void CollisionManager::UpdateDynamicLightEquations()
