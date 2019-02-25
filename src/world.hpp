@@ -8,6 +8,7 @@
 #include "screen.hpp"
 #include "firefly.hpp"
 #include "level_screen.hpp"
+#include "pause_screen.hpp"
 
 // stlib
 #include <vector>
@@ -70,6 +71,7 @@ private:
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
 	LevelScreen m_level_screen;
+	PauseScreen m_pause_screen;
 
 	unsigned int m_points;
 
@@ -94,4 +96,5 @@ private:
 	std::uniform_real_distribution<float> m_dist; // default 0..1
 
 	bool m_should_load_level_screen;
+	bool m_paused;
 };
