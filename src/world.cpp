@@ -151,6 +151,11 @@ bool World::update(float elapsed_ms)
 		firefly->update(elapsed_ms);
 	}
 
+	for (Switch* swit: m_switches)
+	{
+		swit->update();
+	}
+
 	return true;
 }
 
@@ -314,6 +319,29 @@ void World::create_current_level() {
 
 	//Need to spawn movable tiles here for now because the level generator can't handle them until we can add params for blocks
 	//because there's no way to encode it's movement destination within the text file currently
+
+	if (m_current_level == 2) {
+		MovableWall *m_wall_1 = new MovableWall();
+		m_wall_1->init(13 * 64, 3 * 64);
+		m_wall_1->set_movement_properties(0.f, -1.f, 0.2, false, false);
+		m_entities.emplace_back(m_wall_1);
+		m_movableWalls.emplace_back(m_wall_1);
+
+		MovableWall *m_wall_2 = new MovableWall();
+		m_wall_2->init(13 * 64, 5 * 64);
+		m_wall_2->set_movement_properties(0.f, 1.f, 0.2, false, false);
+		m_entities.emplace_back(m_wall_2);
+		m_movableWalls.emplace_back(m_wall_2);
+
+		Switch *m_switch = new Switch();
+		m_switch->init(11 * 64, 1 * 64);
+		m_entities.emplace_back(m_switch);
+		m_switches.emplace_back(m_switch);
+
+		m_switch->register_movable_wall(m_wall_1);
+		m_switch->register_movable_wall(m_wall_2);
+	}
+
 
 	/*
 	MovableWall *m_wall = new MovableWall();

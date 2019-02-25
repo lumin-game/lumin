@@ -8,7 +8,7 @@ class MovableWall : public Wall {
 public:
 	~MovableWall() override { Entity::destroy(); }
 
-	void set_movement_properties(int move_blocks_X, int move_blocks_Y, float speed, bool moving_immediately, bool loop_movement);
+	void set_movement_properties(float move_blocks_X, float move_blocks_Y, float speed, bool moving_immediately, bool loop_movement);
 
 	void trigger_movement(bool moving);
 
