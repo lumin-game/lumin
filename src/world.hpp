@@ -7,7 +7,9 @@
 #include "entity.hpp"
 #include "screen.hpp"
 #include "firefly.hpp"
+#include "switch.hpp"
 #include "level_screen.hpp"
+#include "pause_screen.hpp"
 
 // stlib
 #include <vector>
@@ -72,6 +74,7 @@ private:
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
 	LevelScreen m_level_screen;
+	PauseScreen m_pause_screen;
 
 	unsigned int m_points;
 
@@ -88,6 +91,8 @@ private:
 	std::vector<Entity*> m_entities;
 	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
+	std::vector<Switch*> m_switches;
+	
 
 	Mix_Music* m_background_music;
 
@@ -96,4 +101,5 @@ private:
 	std::uniform_real_distribution<float> m_dist; // default 0..1
 
 	bool m_should_load_level_screen;
+	bool m_paused;
 };

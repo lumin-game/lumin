@@ -61,6 +61,10 @@ public:
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
 	bool IsHitByLight(const Entity* entity) const;
+	bool IsHitByLight(const vec2 entityPos) const;
+
+	vec2 getClosestVisibleLightSource(const vec2 entityPos) const;
+
 
 	const void UpdateDynamicLightEquations();
 

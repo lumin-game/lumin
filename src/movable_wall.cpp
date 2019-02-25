@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-void MovableWall::set_movement_properties(int move_blocks_X, int move_blocks_Y, float speed, bool moving_immediately, bool loop_movement) {
+void MovableWall::set_movement_properties(float move_blocks_X, float move_blocks_Y, float speed, bool moving_immediately, bool loop_movement) {
 	const uint32_t BLOCK_SIZE = 64;
 	
 	initial_position = get_position();
