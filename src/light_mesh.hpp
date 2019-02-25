@@ -25,6 +25,10 @@ public:
 
 	void SetParentData(ParentData data) { m_parent = data; }
 
+	vec2 get_position() const;
+
+	float getLightRadius() const;
+
 private:
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;

@@ -43,6 +43,10 @@ public:
 	CollisionManager(CollisionManager const &) = delete;
 	void operator=(CollisionManager const &) = delete;
 
+	// Registers a light
+	void RegisterLight(const LightMesh* light);
+	void UnregisterLight(const LightMesh* light);
+
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
 	void RegisterEntity(const Entity* entity);
 
@@ -56,9 +60,11 @@ public:
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
-	bool IsHitByLight(const Entity* entity, const Player* player, float lightRadius) const;
+	bool IsHitByLight(const Entity* entity) const;
 
 	const void UpdateDynamicLightEquations();
+
+	bool LinesCollide(ParametricLine line1, ParametricLine line2) const;
 
 private:
 	std::set<const Entity*> registeredEntities;
@@ -69,6 +75,9 @@ private:
 
 	// List of box entities that have collision
 	std::vector<const Entity*> staticCollisionEntities;
+	
+	// List of light in the level
+	std::set<const LightMesh*> lightSources;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 };
