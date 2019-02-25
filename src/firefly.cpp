@@ -1,4 +1,5 @@
 #include "firefly.hpp"
+#include "CollisionManager.hpp"
 #include <random>
 
 vec2 Firefly::SingleFirefly::CalculateForce(std::vector<SingleFirefly>& fireflies) const
@@ -186,6 +187,55 @@ void Firefly::destroy()
 
 void Firefly::update(float ms)
 {
+	const float VELOCITY_STEP = 0.025f;
+	const float VELOCITY_SLOWING_STEP = 0.04f;
+
+	if (CollisionManager::GetInstance().IsHitByLight(m_position)) { // Follow closest light source if one is in sight
+		vec2 destLight = CollisionManager::GetInstance().getClosestVisibleLightSource(m_position);
+
+		if (destLight.x > m_position.x) {
+			m_velocity.x += VELOCITY_STEP * (ms/100);
+		}
+		else if (destLight.x < m_position.x) {
+			m_velocity.x -= VELOCITY_STEP * (ms / 100);
+		}
+
+		if (destLight.y > m_position.y) {
+			m_velocity.y += VELOCITY_STEP * (ms / 100);
+		}
+		else if (destLight.y < m_position.y) {
+			m_velocity.y -= VELOCITY_STEP * (ms / 100);
+		}
+	}
+	else { // Slow fireflies down if a light is not in sight
+		if (m_velocity.y > 0) {
+			m_velocity.y -= fmin(m_velocity.y, VELOCITY_SLOWING_STEP * (ms / 100));
+		}
+		else if (m_velocity.y < 0) {
+			m_velocity.y -= fmax(m_velocity.y, -VELOCITY_SLOWING_STEP * (ms / 100));
+		}
+
+		if (m_velocity.x > 0) {
+			m_velocity.x -= fmin(m_velocity.x, VELOCITY_SLOWING_STEP * (ms / 100));
+		}
+		else if (m_velocity.x < 0) {
+			m_velocity.x -= fmax(m_velocity.x, -VELOCITY_SLOWING_STEP * (ms / 100));
+		}
+	}
+	float xDist = m_velocity.x * ms;
+	float yDist = m_velocity.y * ms;
+
+	CollisionManager::CollisionResult collisionResult = CollisionManager::GetInstance().BoxTrace(10, 10, m_position.x, m_position.y, xDist, yDist);
+
+	m_position.x = collisionResult.resultXPos;
+	m_position.y = collisionResult.resultYPos;
+
+	if (collisionResult.hitGround || collisionResult.hitCeiling)
+	{
+		m_velocity.y = 0.f;
+	}
+	//TODO eventually also check for hits on X direction and set m_vel.x to 0 if they happen
+
 	for (SingleFirefly& firefly : fireflies)
 	{
 		firefly.update(ms, fireflies);

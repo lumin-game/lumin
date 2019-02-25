@@ -44,6 +44,7 @@ set(SOURCE_FILES
 	src/world.cpp
 	src/CollisionManager.cpp
 	src/firefly.cpp
+	src/switch.cpp
 
   src/project_path.hpp
 	src/common.hpp
