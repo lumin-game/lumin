@@ -6,17 +6,21 @@
 
 
 bool Entity::init(int x_pos, int y_pos) {
-	// Load shared texture
-	if (!texture.is_valid()) {
-		if (!texture.load_from_file(get_texture_path())) {
-			fprintf(stderr, "Failed to load entity texture!");
-			return false;
-		}
+	if (!unlit_texture.load_from_file(get_texture_path())) {
+		fprintf(stderr, "Failed to load entity texture!");
+		return false;
 	}
 
+	if (get_lit_texture_path() != nullptr && !lit_texture.load_from_file(get_lit_texture_path())) {
+		fprintf(stderr, "Failed to load lit entity texture!");
+		return false;
+	}
+
+	texture = &unlit_texture;
+
 	// The position corresponds to the center of the texture
-	float wr = texture.width * 0.5f;
-	float hr = texture.height * 0.5f;
+	float wr = texture->width * 0.5f;
+	float hr = texture->height * 0.5f;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, -0.02f };
@@ -81,6 +85,11 @@ void Entity::destroy() {
 	effect.release();
 }
 
+void Entity::update(Player* player) {
+	if (is_light_dynamic()) {
+		set_lit(CollisionManager::GetInstance().IsHitByLight(this, player, 300.f)); // magic constant from light_mesh haha
+	}
+}
 
 void Entity::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
@@ -117,7 +126,7 @@ void Entity::draw(const mat3& projection) {
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture.id);
+	glBindTexture(GL_TEXTURE_2D, texture->id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -149,7 +158,7 @@ void Entity::set_screen_pos(vec2 position){
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 Entity::get_bounding_box() const {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * texture.width, std::fabs(m_scale.y) * texture.height };
+	return { std::fabs(m_scale.x) * texture->width, std::fabs(m_scale.y) * texture->height };
 }
 
 ParametricLines Entity::calculate_static_equations() const {
@@ -202,8 +211,16 @@ ParametricLines Entity::calculate_static_equations() const {
 	return outLines;
 }
 
+void Entity::set_lit(bool lit) {
+	m_is_lit = lit;
+	texture = lit ? &lit_texture : &unlit_texture;
+}
+
+bool Entity::get_lit() const {
+	return m_is_lit;
+}
+
 ParametricLines Entity::calculate_dynamic_equations() const
 {
 	return ParametricLines();
 }
-

@@ -56,6 +56,8 @@ public:
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
+	bool IsHitByLight(const Entity* entity, const Player* player, float lightRadius) const;
+
 	const void UpdateDynamicLightEquations();
 
 private:

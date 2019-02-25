@@ -55,6 +55,7 @@ set(SOURCE_FILES
   src/screen.hpp
 	src/world.hpp
 	src/CollisionManager.hpp
+        src/switch.hpp
 	src/firefly.hpp
 	)
 

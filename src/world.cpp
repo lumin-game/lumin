@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "switch.hpp"
 #include "movable_wall.hpp"
 #include "CollisionManager.hpp"
 #include "firefly.hpp"
@@ -188,6 +189,9 @@ void World::draw() {
 	m_player.draw(projection_2D, ww, hh);
 
 	for (Entity* entity: m_entities) {
+		// Call update function on all entities
+		entity->update(&m_player);
+
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
 		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
@@ -250,6 +254,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			break;
 		case FOG:
 			// TODO: add fog entity
+			break;
+		case SWITCH:
+			level_entity = (Switch*) new Switch();
 			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
@@ -326,6 +333,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[DARKWALL] = '+';
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
+	tile_map[SWITCH] = '1';
 	tile_map[FIREFLY] = '*';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {

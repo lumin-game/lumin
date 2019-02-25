@@ -1,5 +1,6 @@
 #include <memory>
 #include <cmath>
+#include <iostream>
 #include "CollisionManager.hpp"
 
 
@@ -10,12 +11,9 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 		UnregisterEntity(entity);
 	}
 
+	staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
 	registeredEntities.insert(entity);
 
-	if (entity->is_light_collidable())
-	{
-		staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
-	}
 	if (entity->is_player_collidable())
 	{
 		staticCollisionEntities.push_back(entity);
@@ -147,6 +145,31 @@ void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, P
 			outLines.push_back(collEq);
 		}
 	}
+}
+
+bool CollisionManager::IsHitByLight(const Entity* entity, const Player* player, float lightRadius) const {
+	vec2 ep = entity->get_position();
+	vec2 pp = player->get_position();
+
+	float distanceX = fmax(0.f, std::fabs(ep.x - pp.x) - entity->get_bounding_box().x / 2);
+	float distanceY = fmax(0.f, std::fabs(ep.y - pp.y) - entity->get_bounding_box().y / 2);
+	float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+
+	if (distance > lightRadius) {
+		return false;
+	}
+
+	ParametricLine ray;
+	ray.x_0 = ep.x;
+	ray.y_0 = ep.y;
+	ray.x_t = pp.x - ray.x_0;
+	ray.y_t = pp.y - ray.y_0;
+
+	for (ParametricLine pl : CalculateLightEquations(entity->get_position().x, entity->get_position().y, 300.0f)) {
+		// TODO: check for collisions between ray and various pls
+	}
+
+	return true;
 }
 
 const void CollisionManager::UpdateDynamicLightEquations()
