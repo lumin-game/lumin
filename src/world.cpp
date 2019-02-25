@@ -84,10 +84,12 @@ bool World::init(vec2 screen) {
 	m_max_level = 5;
 
 	m_should_load_level_screen = false;
+	m_paused = false;
 
 	create_current_level();
 	m_screen.init();
 	m_level_screen.init();
+	m_pause_screen.init();
 
 	// Maybe not great to pass in 'this'
 	// But player (specifically the lightMesh) needs access to static equations
@@ -126,36 +128,37 @@ void World::destroy()
 	m_fireflies.clear();
 	m_screen.destroy();
 	m_level_screen.destroy();
+	m_pause_screen.destroy();
 	glfwDestroyWindow(m_window);
 }
 
 // Update our game world
 bool World::update(float elapsed_ms)
 {
-	int w, h;
-	glfwGetFramebufferSize(m_window, &w, &h);
-	vec2 screen = { (float)w, (float)h };
+	if (!m_paused) {
+		int w, h;
+		glfwGetFramebufferSize(m_window, &w, &h);
+		vec2 screen = { (float)w, (float)h };
 
-	// First move the world (entities)
-	for (MovableWall* mov_wall : m_movableWalls) {
-		mov_wall->update(elapsed_ms);
+		// First move the world (entities)
+		for (MovableWall* mov_wall : m_movableWalls) {
+			mov_wall->update(elapsed_ms);
+		}
+
+		// Then handle light equations
+		CollisionManager::GetInstance().UpdateDynamicLightEquations();
+
+		m_player.update(elapsed_ms);
+
+		for (Firefly* firefly : m_fireflies)
+		{
+			firefly->update(elapsed_ms);
+		}
+		for (Switch* swit : m_switches)
+		{
+			swit->update();
+		}
 	}
-
-	// Then handle light equations
-	CollisionManager::GetInstance().UpdateDynamicLightEquations();
-
-	m_player.update(elapsed_ms);
-
-	for (Firefly* firefly : m_fireflies)
-	{
-		firefly->update(elapsed_ms);
-	}
-
-	for (Switch* swit: m_switches)
-	{
-		swit->update();
-	}
-
 	return true;
 }
 
@@ -223,6 +226,9 @@ void World::draw() {
 	// Truely render to the screen
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(projection_2D);
+	}
+	if (m_paused) {
+		m_pause_screen.draw(projection_2D);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -433,6 +439,9 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
 			m_should_load_level_screen = !m_should_load_level_screen;
+		}
+		else if (key == GLFW_KEY_P) {
+			m_paused = !m_paused;
 		}
 	}
 
