@@ -67,6 +67,7 @@ private:
 	std::vector<SingleFirefly> fireflies;
 	vec2 m_scale;
 	vec2 m_position;
+	vec2 m_velocity;
 	vec2 m_screen_pos;
 	LightMesh lightMesh;
 };
