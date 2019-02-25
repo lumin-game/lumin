@@ -424,7 +424,7 @@ void World::update_level() {
 	if (m_current_level < m_max_level) {
 		m_current_level++;
 		reset_game();
-	} else {
+	} else if (m_current_level == m_max_level){
 		// TODO: Maybe project a screen displaying that user has completed all levels?
 		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
 	}
