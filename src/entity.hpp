@@ -58,11 +58,13 @@ private:
     // pointer to the active texture
 	Texture unlit_texture;
 	Texture lit_texture;
-	vec2 m_position; // Window coordinates
-    // Screen coordinates
-	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
+    // Window coordinates
+    // 1.f in each dimension. 1.f is as big as the associated texture
 	bool m_is_lit = false;
 protected:
     vec2 m_screen_pos;
     Texture* texture;
+// Screen coordinates
+vec2 m_scale;
+    vec2 m_position;
 };
