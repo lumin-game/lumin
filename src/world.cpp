@@ -370,11 +370,15 @@ void World::reset_game() {
 }
 
 void World::load_level_screen(int key_pressed_level) {
-	if (m_current_level != key_pressed_level && m_unlocked_levels >= key_pressed_level){
-		m_current_level = key_pressed_level;
-		reset_game();
+	if (m_current_level == key_pressed_level) {
+		m_should_load_level_screen = false;
 	} else {
-		fprintf(stderr, "Sorry, you need to unlock more levels to switch to level 3.");
+		if (m_unlocked_levels >= key_pressed_level) {
+			m_current_level = key_pressed_level;
+			reset_game();
+		} else {
+			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
+		}
 	}
 }
 
@@ -415,8 +419,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 
 	if (m_should_load_level_screen) {
 		if (key == GLFW_KEY_1) {
-			m_current_level = 1;
-			reset_game();
+			load_level_screen(1);
 		} else if (key == GLFW_KEY_2) {
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
