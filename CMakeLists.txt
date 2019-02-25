@@ -64,7 +64,7 @@ set(SOURCE_FILES
         src/switch.hpp
         src/firefly.hpp
         src/door.hpp
-        src/door.cpp src/door.hpp src/switchable_entity.cpp src/switchable_entity.hpp)
+        src/door.cpp src/door.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
