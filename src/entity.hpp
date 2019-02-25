@@ -55,11 +55,14 @@ public:
 	bool get_lit() const;
 
 private:
-	Texture* texture; // pointer to the active texture
+    // pointer to the active texture
 	Texture unlit_texture;
 	Texture lit_texture;
 	vec2 m_position; // Window coordinates
-	vec2 m_screen_pos; // Screen coordinates
+    // Screen coordinates
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	bool m_is_lit = false;
+protected:
+    vec2 m_screen_pos;
+    Texture* texture;
 };

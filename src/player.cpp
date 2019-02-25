@@ -154,8 +154,3 @@ void Player::setRightPressed(bool tf) {
 	m_is_right_pressed = tf;
 	playerMesh.turn_right();
 }
-
-void Player::setPlayerPosition(vec2 pos) {
-	m_position = pos;
-	m_screen_pos = m_position;
-}
