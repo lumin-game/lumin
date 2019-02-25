@@ -128,6 +128,7 @@ void World::destroy()
 	m_fireflies.clear();
 	m_screen.destroy();
 	m_level_screen.destroy();
+	m_pause_screen.destroy();
 	glfwDestroyWindow(m_window);
 }
 
