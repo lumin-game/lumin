@@ -167,6 +167,7 @@ bool CollisionManager::IsHitByLight(const Entity* entity) const {
 
 	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
 	{
+		bool hasCollision = false;
 		const LightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
@@ -183,17 +184,19 @@ bool CollisionManager::IsHitByLight(const Entity* entity) const {
 			rayTrace.y_0 = 0.f;
 			rayTrace.y_t = entityToLight.y;
 
-			const ParametricLines blockingEquations = CalculateLightEquations(lightPos.x, lightPos.y, light->getLightRadius());
+			const ParametricLines blockingEquations = CalculateLightEquations(entityPos.x, entityPos.y, light->getLightRadius());
 			for (const ParametricLine& blockingLine : blockingEquations)
 			{
 				if (LinesCollide(rayTrace, blockingLine))
 				{
-					continue;
+					hasCollision = true;
+					break;
 				}
-				else
-				{
-					return true;
-				}
+			}
+
+			if (hasCollision == false)
+			{
+				return true;
 			}
 		}
 	}
