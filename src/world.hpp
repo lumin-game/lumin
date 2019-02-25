@@ -57,6 +57,8 @@ private:
 
 	void load_level_screen(int key_pressed_level);
 
+	void update_level();
+
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
 

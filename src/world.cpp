@@ -419,6 +419,18 @@ void World::load_level_screen(int key_pressed_level) {
 	}
 }
 
+// TODO: Once door is implemented, door can call this method
+void World::update_level() {
+	if (m_current_level < m_max_level) {
+		m_current_level++;
+		reset_game();
+	} else if (m_current_level == m_max_level){
+		// TODO: Maybe project a screen displaying that user has completed all levels?
+		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
+	}
+	m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
+}
+
 // On key callback
 void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 {
