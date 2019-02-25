@@ -363,6 +363,10 @@ void World::reset_game() {
 		delete entity;
 	}
 	m_entities.clear();
+	for (Firefly* firefly : m_fireflies) {
+		firefly->destroy();
+	}
+	m_fireflies.clear();
 	m_player.destroy();
 	create_current_level();
 	m_player.init();
