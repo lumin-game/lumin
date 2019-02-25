@@ -79,7 +79,7 @@ bool World::init(vec2 screen) {
 
 	m_current_level = 1;
 
-	m_unlocked_levels = 1;
+	m_unlocked_levels = 3; // door is not implemented yet so we're not able to progress to other levels unless this is set > 1
 
 	m_max_level = 5;
 
@@ -427,6 +427,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
 			load_level_screen(3);
+			m_player.setPlayerPosition({400.f, 800.f});
 		} else if (key == GLFW_KEY_4) {
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {
