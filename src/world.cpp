@@ -276,7 +276,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 
 void World::create_base_level() {
 	// base level is represented by a 0-indexed 10x8 matrix
-	std::ifstream in(levels_path("level_2.txt"));
+	std::ifstream in(levels_path("level_3.txt"));
     std::vector<std::vector<char>> grid;
 
 	if(!in) {
@@ -299,14 +299,13 @@ void World::create_base_level() {
 	//Need to spawn movable tiles here for now because the level generator can't handle them until we can add params for blocks
 	//because there's no way to encode it's movement destination within the text file currently
 
+	/*
 	MovableWall *m_wall = new MovableWall();
 	m_wall->init(3 * 64, 2 * 64);
 	m_wall->set_movement_properties(3, 0, 0.2, true, true);
 	m_entities.emplace_back(m_wall);
 	m_movableWalls.emplace_back(m_wall);
-
-
-
+	*/
 }
 
 // Just to print the grid (testing purposes)
