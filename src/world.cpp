@@ -81,6 +81,8 @@ bool World::init(vec2 screen) {
 
 	m_unlocked_levels = 1;
 
+	m_max_level = 5;
+
 	m_should_load_level_screen = false;
 
 	create_current_level();
@@ -354,8 +356,30 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	}
 }
 
+void World::reset_game() {
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+	for (Entity* entity : m_entities) {
+		delete entity;
+	}
+	m_entities.clear();
+	m_player.destroy();
+	create_current_level();
+	m_player.init();
+	m_should_load_level_screen = false;
+}
+
+void World::load_level_screen(int key_pressed_level) {
+	if (m_current_level != key_pressed_level && m_unlocked_levels >= key_pressed_level){
+		m_current_level = key_pressed_level;
+		reset_game();
+	} else {
+		fprintf(stderr, "Sorry, you need to unlock more levels to switch to level 3.");
+	}
+}
+
 // On key callback
-void World::on_key(GLFWwindow*, int key, int, int action, int mod)
+void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// HANDLE PLAYER MOVEMENT HERE
@@ -370,8 +394,10 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		else if (key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(true);
 		}
+		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
+		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
-			m_should_load_level_screen = true;
+			m_should_load_level_screen = !m_should_load_level_screen;
 		}
 	}
 
@@ -385,8 +411,20 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 		else if (key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(false);
 		}
-		else if (key == GLFW_KEY_M) {
-			m_should_load_level_screen = false;
+	}
+
+	if (m_should_load_level_screen) {
+		if (key == GLFW_KEY_1) {
+			m_current_level = 1;
+			reset_game();
+		} else if (key == GLFW_KEY_2) {
+			load_level_screen(2);
+		} else if (key == GLFW_KEY_3) {
+			load_level_screen(3);
+		} else if (key == GLFW_KEY_4) {
+			load_level_screen(4);
+		} else if (key == GLFW_KEY_5) {
+			load_level_screen(5);
 		}
 	}
 
@@ -396,21 +434,7 @@ void World::on_key(GLFWwindow*, int key, int, int action, int mod)
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		for (Entity* entity : m_entities) {
-			delete entity;
-		}
-		m_entities.clear();
-
-		for (Firefly* firefly : m_fireflies) {
-			delete firefly;
-		}
-		m_fireflies.clear();
-
-		m_player.destroy();
-		create_current_level();
-		m_player.init();
+		reset_game();
 	}
 
 	// Exit Game

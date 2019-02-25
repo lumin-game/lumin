@@ -51,6 +51,10 @@ private:
 
 	void create_level(std::vector<std::vector<char>>& grid);
 
+	void reset_game();
+
+	void load_level_screen(int key_pressed_level);
+
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
 
@@ -73,6 +77,9 @@ private:
 
 	// number of levels that user has unlocked
 	unsigned int m_unlocked_levels;
+
+	// max level of the game
+	unsigned int m_max_level;
 
 	// Game entities
 	Player m_player;
