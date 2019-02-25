@@ -135,27 +135,29 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms)
 {
-	int w, h;
-	glfwGetFramebufferSize(m_window, &w, &h);
-	vec2 screen = { (float)w, (float)h };
+	if (!m_paused) {
+		int w, h;
+		glfwGetFramebufferSize(m_window, &w, &h);
+		vec2 screen = { (float)w, (float)h };
 
-	// First move the world (entities)
-	for (MovableWall* mov_wall : m_movableWalls) {
-		mov_wall->update(elapsed_ms);
-	}
+		// First move the world (entities)
+		for (MovableWall* mov_wall : m_movableWalls) {
+			mov_wall->update(elapsed_ms);
+		}
 
-	// Then handle light equations
-	CollisionManager::GetInstance().UpdateDynamicLightEquations();
+		// Then handle light equations
+		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 
-	m_player.update(elapsed_ms);
+		m_player.update(elapsed_ms);
 
-	for (Firefly* firefly : m_fireflies)
-	{
-		firefly->update(elapsed_ms);
-	}
-	for (Switch* swit: m_switches)
-	{
-		swit->update();
+		for (Firefly* firefly : m_fireflies)
+		{
+			firefly->update(elapsed_ms);
+		}
+		for (Switch* swit : m_switches)
+		{
+			swit->update();
+		}
 	}
 	return true;
 }
