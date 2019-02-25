@@ -153,8 +153,7 @@ bool World::update(float elapsed_ms)
 
 		if (m_exit_door != nullptr) {
             if (m_exit_door->get_player_in(m_player.get_position()) && m_exit_door->get_lit()) {
-                std::cout << "next level" << std::endl;
-                load_level_screen(m_current_level + 1);
+                update_level();
             }
         }
 
@@ -445,7 +444,6 @@ void World::load_level_screen(int key_pressed_level) {
 	}
 }
 
-// TODO: Once door is implemented, door can call this method
 void World::update_level() {
 	if (m_current_level < m_max_level) {
 		m_current_level++;
