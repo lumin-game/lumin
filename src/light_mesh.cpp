@@ -57,12 +57,16 @@ bool LightMesh::init()
 	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
 		return false;
 
+	CollisionManager::GetInstance().RegisterLight(this);
+
 	return true;
 }
 
 // Releases all graphics resources
 void LightMesh::destroy()
 {
+	CollisionManager::GetInstance().UnregisterLight(this);
+
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -133,4 +137,14 @@ void LightMesh::draw(const mat3& projection)
 
 	// Drawing!
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+}
+
+vec2 LightMesh::get_position() const
+{
+	return m_parent.m_position;
+}
+
+float LightMesh::getLightRadius() const
+{
+	return m_lightRadius;
 }

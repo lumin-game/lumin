@@ -87,7 +87,7 @@ void Entity::destroy() {
 
 void Entity::update(Player* player) {
 	if (is_light_dynamic()) {
-		set_lit(CollisionManager::GetInstance().IsHitByLight(this, player, 300.f)); // magic constant from light_mesh haha
+		set_lit(CollisionManager::GetInstance().IsHitByLight(this)); // magic constant from light_mesh haha
 	}
 }
 
