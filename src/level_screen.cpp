@@ -58,7 +58,7 @@ bool LevelScreen::init() {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
 	m_scale = { 1.0, 1.0 };
-	m_position = { 0, 0 }; // modify this later
+	m_position = { 600, 400 }; // modify this later
 
   return true;
 }
@@ -114,8 +114,8 @@ void LevelScreen::draw(const mat3& projection) {
 
   // Setting uniform values to the currently bound program
   glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
-  float color[] = { 1.f, 0.f, 0.f };
-  glUniform3fv(color_uloc, 1, color);
+  float color[4] = { 1.f, 1.f, 1.f, 1.f };
+  glUniform4fv(color_uloc, 1, color);
   glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 
   // Drawing!
