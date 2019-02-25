@@ -36,6 +36,8 @@ public:
 
 	void setZPressed(bool tf);
 
+	void setPlayerPosition(vec2 pos);
+
 private:
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Position on screen

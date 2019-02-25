@@ -151,8 +151,7 @@ bool World::update(float elapsed_ms)
 		m_player.update(elapsed_ms);
 
 		if (m_exit_door != nullptr) {
-//            if (m_exit_door->get_player_in(m_player.get_position()) && m_exit_door->get_lit()) {
-            if (m_exit_door->get_player_in(m_player.get_position())) {
+            if (m_exit_door->get_player_in(m_player.get_position()) && m_exit_door->get_lit()) {
                 std::cout << "next level" << std::endl;
                 load_level_screen(m_current_level + 1);
             }
@@ -302,6 +301,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			// assumes there will only be one exit door per level
 			m_exit_door = (Door*) new Door();
 			m_exit_door->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE);
+			if (m_current_level == 1) {
+				m_exit_door->set_lit(true);
+			}
 			break;
 	}
 
@@ -366,6 +368,7 @@ void World::create_current_level() {
 
 		m_switch->register_movable_wall(m_wall_1);
 		m_switch->register_movable_wall(m_wall_2);
+		m_switch->register_door(m_exit_door);
 	}
 
 
@@ -498,7 +501,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
 			load_level_screen(3);
-// 			m_player.setPlayerPosition({400.f, 800.f});
+ 			m_player.setPlayerPosition({400.f, 800.f});
 		} else if (key == GLFW_KEY_4) {
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {
