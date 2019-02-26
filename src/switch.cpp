@@ -6,8 +6,8 @@
 void Switch::register_movable_wall(MovableWall* wall) {
 	m_movableWalls.emplace_back(wall);
 }
-void Switch::register_door() {
-	// Doors are not currently implemented so do nothing here
+void Switch::register_door(Door* door) {
+	m_door = door;
 }
 
 void Switch::update() {
@@ -25,6 +25,10 @@ void Switch::update() {
 void Switch::trigger_switch_on() {
 	for (MovableWall* mov_wall : m_movableWalls) {
 		mov_wall->trigger_movement(true);
+	}
+
+	if (m_door != nullptr) {
+		m_door->set_lit(true);
 	}
 }
 

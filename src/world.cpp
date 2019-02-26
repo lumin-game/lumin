@@ -125,6 +125,7 @@ void World::destroy()
 	for (Firefly* firefly : m_fireflies) {
 		firefly->destroy();
 	}
+	m_exit_door->destroy();
 	m_fireflies.clear();
 	m_screen.destroy();
 	m_level_screen.destroy();
@@ -149,6 +150,13 @@ bool World::update(float elapsed_ms)
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 
 		m_player.update(elapsed_ms);
+
+		if (m_exit_door != nullptr) {
+            if (m_exit_door->get_player_in(m_player.get_position()) && m_exit_door->get_lit()) {
+                update_level();
+            }
+        }
+
 
 		for (Firefly* firefly : m_fireflies)
 		{
@@ -222,6 +230,12 @@ void World::draw() {
 		firefly->draw(projection_2D);
 	}
 
+	float screen_pos_x = m_exit_door->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
+	float screen_pos_y = m_exit_door->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
+	vec2 screen_pos = {screen_pos_x, screen_pos_y};
+	m_exit_door->set_screen_pos(screen_pos);
+	m_exit_door->draw(projection_2D);
+
 	/////////////////////
 	// Truely render to the screen
 	if (m_should_load_level_screen) {
@@ -283,6 +297,14 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
 			shouldSpawnEntity = false;
 			break;
+		case DOOR:
+			// assumes there will only be one exit door per level
+			m_exit_door = (Door*) new Door();
+			m_exit_door->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE);
+			if (m_current_level == 1) {
+				m_exit_door->set_lit(true);
+			}
+			break;
 	}
 
 	if (!shouldSpawnEntity)
@@ -320,7 +342,7 @@ void World::create_current_level() {
 	}
 
 	in.close();
-	
+
 	create_level(grid);
 
 	//Need to spawn movable tiles here for now because the level generator can't handle them until we can add params for blocks
@@ -346,6 +368,7 @@ void World::create_current_level() {
 
 		m_switch->register_movable_wall(m_wall_1);
 		m_switch->register_movable_wall(m_wall_2);
+		m_switch->register_door(m_exit_door);
 	}
 
 
@@ -377,6 +400,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[FOG] = '~';
 	tile_map[SWITCH] = '1';
 	tile_map[FIREFLY] = '*';
+	tile_map[DOOR] = '|';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
@@ -401,6 +425,7 @@ void World::reset_game() {
 	}
 	m_fireflies.clear();
 	m_player.destroy();
+	m_exit_door->destroy();
 	create_current_level();
 	m_player.init();
 	m_should_load_level_screen = false;
@@ -419,7 +444,6 @@ void World::load_level_screen(int key_pressed_level) {
 	}
 }
 
-// TODO: Once door is implemented, door can call this method
 void World::update_level() {
 	if (m_current_level < m_max_level) {
 		m_current_level++;
@@ -472,11 +496,12 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	if (m_should_load_level_screen) {
 		if (key == GLFW_KEY_1) {
 			load_level_screen(1);
+			m_exit_door->set_lit(true);
 		} else if (key == GLFW_KEY_2) {
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
 			load_level_screen(3);
-			m_player.setPlayerPosition({400.f, 800.f});
+ 			m_player.setPlayerPosition({400.f, 800.f});
 		} else if (key == GLFW_KEY_4) {
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {

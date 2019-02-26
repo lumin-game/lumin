@@ -121,6 +121,18 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 	return collisionResults;
 }
 
+const bool CollisionManager::DoorTrace(vec2 bounding_box, vec2 door_pos, float door_width, float door_height, vec2 player_pos) const {
+	// Center-to-center distance between two boxes
+	float distanceX = std::fabs(door_pos.x - player_pos.x);
+	float distanceY = std::fabs(door_pos.y - player_pos.y);
+
+	// Margin is how much distance can be between the two centers before collision
+	float xMargin = (bounding_box.x + door_width) / 2;
+	float yMargin = (bounding_box.y + door_height) / 2;
+
+	return distanceX < xMargin && distanceY < yMargin;
+}
+
 const ParametricLines CollisionManager::CalculateLightEquations(float xPos, float yPos, float lightRadius) const
 {
 	ParametricLines outEquations;

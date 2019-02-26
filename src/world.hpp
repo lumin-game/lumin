@@ -92,6 +92,7 @@ private:
 	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
 	std::vector<Switch*> m_switches;
+	Door* m_exit_door;
 	
 
 	Mix_Music* m_background_music;

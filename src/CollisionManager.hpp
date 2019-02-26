@@ -57,6 +57,10 @@ public:
 	// Return the result of all collisions that will happen
 	const CollisionResult BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist, bool unstoppable = false) const;
 
+	// Check whether door and player are colliding
+	// Return true if they are
+	const bool DoorTrace(vec2 bounding_box, vec2 door_pos, float door_width, float door_height, vec2 player_pos) const;
+
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
