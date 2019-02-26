@@ -164,7 +164,10 @@ bool World::update(float elapsed_ms)
 		}
 		for (Switch* swit : m_switches)
 		{
-			swit->update();
+			if (swit)
+			{
+				swit->update();
+			}
 		}
 	}
 	return true;
@@ -301,6 +304,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			// assumes there will only be one exit door per level
 			m_exit_door = (Door*) new Door();
 			m_exit_door->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE);
+			shouldSpawnEntity = false;
 			if (m_current_level == 1) {
 				m_exit_door->set_lit(true);
 			}
@@ -424,6 +428,8 @@ void World::reset_game() {
 		firefly->destroy();
 	}
 	m_fireflies.clear();
+	m_switches.clear();
+	m_movableWalls.clear();
 	m_player.destroy();
 	m_exit_door->destroy();
 	create_current_level();
@@ -501,7 +507,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
 			load_level_screen(3);
- 			m_player.setPlayerPosition({400.f, 800.f});
+ 			m_player.setPlayerPosition({800.f, 800.f});
 		} else if (key == GLFW_KEY_4) {
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {

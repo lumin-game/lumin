@@ -131,7 +131,7 @@ void LightMesh::draw(const mat3& projection)
 	// Send our list of collision equations as a vec4.
 	if (collisionEquations.size() > 0)
 	{
-		glUniform4fv(collision_eqs, 4 * collisionEquations.size(), (float*)&collisionEquations[0]);
+		glUniform4fv(collision_eqs, collisionEquations.size(), (float*)&collisionEquations[0]);
 		glUniform1i(collision_eqs_count, collisionEquations.size());
 	}
 
