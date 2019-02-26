@@ -11,12 +11,15 @@ void MovableWall::set_movement_properties(float move_blocks_X, float move_blocks
 	move_dest_Y = initial_position.y + (move_blocks_Y * BLOCK_SIZE);
 	move_speed = speed;
 	is_moving = moving_immediately;
+	can_move = true;
 	movement_loops = loop_movement;
 	moving_forward = true;
 }
 
 void MovableWall::trigger_movement(bool moving) {
-	is_moving = moving;
+	if (can_move) { 
+		is_moving = moving;
+	}
 }
 
 void MovableWall::update(float ms) {
@@ -56,6 +59,7 @@ void MovableWall::update(float ms) {
 			}
 			else {
 				is_moving = false;
+				can_move = false; // if movement completes on a block that doesn't repeat movement, don't let it be triggered to move again
 			}
 		}
 		else {

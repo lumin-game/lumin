@@ -25,4 +25,5 @@ private:
 	bool movement_loops;
 	bool moving_forward;
 	vec2 initial_position;
+	bool can_move;
 };
