@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "fog.hpp"
 #include "switch.hpp"
 #include "movable_wall.hpp"
 #include "CollisionManager.hpp"
@@ -79,7 +80,7 @@ bool World::init(vec2 screen) {
 
 	m_current_level = 1;
 
-	m_unlocked_levels = 3; // door is not implemented yet so we're not able to progress to other levels unless this is set > 1
+	m_unlocked_levels = 4; // door is not implemented yet so we're not able to progress to other levels unless this is set > 1
 
 	m_max_level = 5;
 
@@ -275,7 +276,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			// TODO: add light wall entity
 			break;
 		case FOG:
-			// TODO: add fog entity
+			level_entity = (Fog*) new Fog();
 			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
