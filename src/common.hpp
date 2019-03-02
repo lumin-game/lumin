@@ -46,17 +46,17 @@ struct vec2
 		return *this * (1 / distance);
 	}
 
-	vec2 operator+ (vec2 other) const
+	vec2 operator+ (const vec2& other) const
 	{
 		return { x + other.x, y + other.y };
 	}
 
-	vec2 operator- (vec2 other) const
+	vec2 operator- (const vec2& other) const
 	{
 		return { x - other.x, y - other.y };
 	}
 
-	void operator+= (vec2 other)
+	void operator+= (const vec2& other)
 	{
 		x += other.x;
 		y += other.y;

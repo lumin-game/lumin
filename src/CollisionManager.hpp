@@ -64,15 +64,18 @@ public:
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
+	// Returns a list of all the vertices of light-blocking objects that are found within a light's radius
+	const std::vector<vec2> CalculateVertices(float xPos, float yPos, float lightRadius) const;
+
 	bool IsHitByLight(const Entity* entity) const;
 	bool IsHitByLight(const vec2 entityPos) const;
 
 	vec2 getClosestVisibleLightSource(const vec2 entityPos) const;
 
-
 	const void UpdateDynamicLightEquations();
 
 	bool LinesCollide(ParametricLine line1, ParametricLine line2) const;
+	bool LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const;
 
 private:
 	std::set<const Entity*> registeredEntities;
@@ -88,4 +91,5 @@ private:
 	std::set<const LightMesh*> lightSources;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
+	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;
 };
