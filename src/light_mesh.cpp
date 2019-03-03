@@ -215,8 +215,6 @@ int LightMesh::UpdateVertices()
 		indices.push_back(0); // origin
 		indices.push_back(count - 1); // previously processed vertex
 		indices.push_back(count); // currently added vertex
-
-		lastPoint = hitPoint;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
