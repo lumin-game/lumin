@@ -173,6 +173,42 @@ void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, P
 	}
 }
 
+const std::vector<vec2> CollisionManager::CalculateVertices(float xPos, float yPos, float lightRadius) const
+{
+	std::vector<vec2> outVertices;
+	for (const Entity* entity : registeredEntities)
+	{
+		CalculateVerticesForEntry(entity, outVertices, xPos, yPos, lightRadius);
+	}
+	return outVertices;
+}
+
+void CollisionManager::CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outSet, float xPos, float yPos, float lightRadius) const
+{
+	const float xDiff = entity->get_position().x - xPos;
+	const float yDiff = entity->get_position().y - yPos;
+	const float xRadius = entity->get_bounding_box().x / 2;
+	const float yRadius = entity->get_bounding_box().y / 2;
+	float distanceX = fmax(0.f, std::fabs(xDiff) - xRadius);
+	float distanceY = fmax(0.f, std::fabs(yDiff) - yRadius);
+	float distanceSqr = distanceX * distanceX + distanceY * distanceY;
+
+	vec2 posToEntity = { xDiff, yDiff };
+
+	if (distanceSqr < ((lightRadius) * lightRadius))
+	{
+		vec2 topRight = { posToEntity.x + xRadius, posToEntity.y - yRadius };
+		vec2 topLeft = { posToEntity.x - xRadius, posToEntity.y - yRadius };
+		vec2 bottomRight = { posToEntity.x + xRadius, posToEntity.y + yRadius };
+		vec2 bottomLeft = { posToEntity.x - xRadius, posToEntity.y + yRadius };
+
+		outSet.push_back(topRight);
+		outSet.push_back(topLeft);
+		outSet.push_back(bottomRight);
+		outSet.push_back(bottomLeft);
+	}
+}
+
 bool CollisionManager::IsHitByLight(const vec2 entityPos) const {
 
 	//cycle through all lightsources
@@ -306,6 +342,12 @@ vec2 CollisionManager::getClosestVisibleLightSource(const vec2 entityPos) const 
 
 bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2) const
 {
+	vec2 collisionPos;
+	return LinesCollide(line1, line2, collisionPos);
+}
+
+bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const
+{
 	// Given
 	// line1 : x1 = a1 + b1*t1, y1 = c1 + d1*t1
 	// line2 : x2 = a2 + b2*t2, y2 = c2 + d2*t2
@@ -337,6 +379,7 @@ bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2) 
 
 		if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 		{
+			collisionPos = { a1 + b1 * t1, c1 + d1 * t1 };
 			return true;
 		}
 	}
@@ -346,8 +389,9 @@ bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2) 
 		float t1 = (a2 + b2 * t2) / b1;
 		if (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1)
 		{
+			collisionPos = { a1 + b1 * t1, c1 + d1 * t1 };
 			return true;
-		}	
+		}
 	}
 
 	return false;
