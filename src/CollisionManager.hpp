@@ -59,7 +59,7 @@ public:
 
 	// Check whether door and player are colliding
 	// Return true if they are
-	const bool DoorTrace(vec2 bounding_box, vec2 door_pos, float door_width, float door_height, vec2 player_pos) const;
+	bool BoxCollide(vec2 box1Pos, vec2 box1Bound, vec2 box2Pos, vec2 box2Bound) const;
 
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
@@ -67,10 +67,9 @@ public:
 	// Returns a list of all the vertices of light-blocking objects that are found within a light's radius
 	const std::vector<vec2> CalculateVertices(float xPos, float yPos, float lightRadius) const;
 
-	bool IsHitByLight(const Entity* entity) const;
 	bool IsHitByLight(const vec2 entityPos) const;
 
-	vec2 getClosestVisibleLightSource(const vec2 entityPos) const;
+	bool findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const;
 
 	const void UpdateDynamicLightEquations();
 

@@ -11,7 +11,7 @@ void Switch::register_door(Door* door) {
 }
 
 void Switch::update() {
-	bool hitByLight = CollisionManager::GetInstance().IsHitByLight(this);
+	bool hitByLight = CollisionManager::GetInstance().IsHitByLight(get_position());
 	if (hitByLight && !switchedOn) {
 		trigger_switch_on();
 		switchedOn = true;

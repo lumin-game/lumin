@@ -117,7 +117,7 @@ int LightMesh::UpdateVertices()
 
 	// For each vertex, add two more lines slightly to the left and right
 	// https://ncase.me/sight-and-light/
-	for (const vec2 corner : cornerPoints)
+	for (const vec2& corner : cornerPoints)
 	{
 		const float smallRadian = 0.0001f;
 		const float angle = std::atan2(corner.y, corner.x);
@@ -160,7 +160,7 @@ int LightMesh::UpdateVertices()
 
 	// For each point, rayTrace from origin to it. The result will be one vertex for our polygon
 	std::vector<vec2> polyVertices;
-	for (const vec2 corner : orderedPoints)
+	for (const vec2& corner : orderedPoints)
 	{
 		ParametricLine rayTrace;
 		rayTrace.x_0 = 0.f;
@@ -169,7 +169,7 @@ int LightMesh::UpdateVertices()
 		rayTrace.y_t = corner.y;
 
 		vec2 hitPos = { rayTrace.x_t, rayTrace.y_t };
-		for (const ParametricLine lightEq : lightEquations)
+		for (const ParametricLine& lightEq : lightEquations)
 		{
 			// Make sure we use the collision that is the closest to the light origin.
 			vec2 collisionLocation;
@@ -203,7 +203,7 @@ int LightMesh::UpdateVertices()
 	vertices.push_back(vertex);
 
 	// Loop
-	for (const vec2 hitPoint : polyVertices)
+	for (const vec2& hitPoint : polyVertices)
 	{
 		// We only have to add one vertex per point. However we need to add one triangle per vertex added.
 		const int count = vertices.size();
