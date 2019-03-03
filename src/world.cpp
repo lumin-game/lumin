@@ -200,7 +200,7 @@ void World::draw() {
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 	// Drawing entities
-	m_player.draw(projection_2D, ww, hh);
+	m_player.predraw(projection_2D, ww, hh);
 
 	for (Entity* entity: m_entities) {
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
@@ -223,6 +223,8 @@ void World::draw() {
 	vec2 screen_pos = {screen_pos_x, screen_pos_y};
 	m_exit_door->set_screen_pos(screen_pos);
 	m_exit_door->draw(projection_2D);
+
+	m_player.draw(projection_2D, ww, hh);
 
 	/////////////////////
 	// Truely render to the screen

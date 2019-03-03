@@ -20,6 +20,8 @@ public:
 	void update(float ms);
 
 	// Renders the player
+	void predraw(const mat3& projection, const float screen_w, const float screen_h);
+
 	void draw(const mat3& projection, const float screen_w, const float screen_h);
 
 	// Returns the current player position
