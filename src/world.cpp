@@ -330,19 +330,62 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 
 void World::create_current_level() {
 	std::ifstream in(levels_path("level_" + std::to_string(m_current_level) + ".txt"));
-	std::vector<std::vector<char>> grid;
 
 	if(!in) {
 		std::cerr << "Cannot open file." << std::endl;
 		return;
 	}
 
+	std::vector<std::vector<char>> grid;
+	std::map<char, std::pair<int, int>> entities;
+
 	std::string row;
+	int y = 0;
+
 	while (std::getline(in, row)) {
-		std::string rowS(row.c_str());
-		std::vector<char> charVector(rowS.begin(), rowS.end());
-		// Dynamically sized vector<char>
-		grid.push_back(charVector);
+		std::vector<char> charVector(row.begin(), row.end());
+
+		// Ignore empty lines in the level file
+		if (!charVector.empty()) {
+
+			if (charVector[0] == '?') {
+				// Parse entity declaration
+				const char name = charVector[1];
+				const char type = charVector[2];
+
+				switch (type) {
+					case '/': {
+						Switch *m_switch = new Switch();
+						std::pair<int, int> coord = entities.find(name)->second;
+						m_switch->init(coord.first * 64, coord.second * 64);
+						m_entities.emplace_back(m_switch);
+						m_switches.emplace_back(m_switch);
+						break;
+					}
+
+					default:
+						fprintf(stderr, "Unknown entity declaration in level file: %c: %c", name, type);
+						break;
+				}
+
+			} else if (charVector[0] == '=') {
+				// TODO: Parse entity relationship
+
+			} else {
+				// Keep track of dynamic entities
+				for (int x = 0; x < charVector.size(); x++) {
+					const char c = charVector[x];
+					if (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z')) {
+						const std::pair<int, int> coord = std::make_pair(x, y);
+						entities.insert(std::pair<char, std::pair<int, int>>(c, coord));
+					}
+				}
+
+				// Push entire row into grid vector
+				grid.push_back(charVector);
+				y++;
+			}
+		}
 	}
 
 	in.close();
@@ -365,13 +408,12 @@ void World::create_current_level() {
 		m_entities.emplace_back(m_wall_2);
 		m_movableWalls.emplace_back(m_wall_2);
 
-		Switch *m_switch = new Switch();
-		m_switch->init(11 * 64, 1 * 64);
-		m_entities.emplace_back(m_switch);
-		m_switches.emplace_back(m_switch);
-
+		Switch *m_switch = m_switches[0];
 		m_switch->register_movable_wall(m_wall_1);
 		m_switch->register_movable_wall(m_wall_2);
+		m_switch->register_door(m_exit_door);
+	} else if (m_current_level == 3) {
+		Switch *m_switch = m_switches[0];
 		m_switch->register_door(m_exit_door);
 	}
 
