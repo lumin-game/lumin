@@ -16,6 +16,8 @@ public:
 
 	void activate() override { trigger_movement(true); }
 
+	bool is_light_dynamic() const override { return true; }
+
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
 

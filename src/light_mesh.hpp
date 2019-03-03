@@ -30,6 +30,9 @@ public:
 	float getLightRadius() const;
 
 private:
+	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
+	int UpdateVertices();
+
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;
 

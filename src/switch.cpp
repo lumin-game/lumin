@@ -3,7 +3,7 @@
 
 
 void Switch::update() {
-	bool hitByLight = CollisionManager::GetInstance().IsHitByLight(this);
+	bool hitByLight = CollisionManager::GetInstance().IsHitByLight(get_position());
 	if (hitByLight && !switchedOn) {
 		activate();
 		switchedOn = true;

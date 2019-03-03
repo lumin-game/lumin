@@ -14,7 +14,7 @@ public:
     char* get_lit_texture_path() const override {
         return textures_path("door_open.png");
     }
-    bool is_player_collidable() const override { return true; }
+    bool is_player_collidable() const override { return false; }
     bool is_light_collidable() const override { return false; }
     bool is_light_dynamic() const override { return false; }
 

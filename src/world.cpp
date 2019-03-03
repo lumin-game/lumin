@@ -181,12 +181,7 @@ void World::draw() {
 
 	// Getting size of window
 	int w, h;
-	glfwGetFramebufferSize(m_window, &w, &h);
-
-	// Check for discrepancy between window/frame buffer (high DPI display)
-	int ww, hh;
-	glfwGetWindowSize(m_window, &ww, &hh);
-	float retinaScale = (float) (w / ww);
+	glfwGetWindowSize(m_window, &w, &h);
 
 	/////////////////////////////////////
 	// First render to the custom framebuffer
@@ -203,8 +198,8 @@ void World::draw() {
 	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
 	float left = 0.f;// *-0.5;
 	float top = 0.f;// (float)h * -0.5;
-	float right = (float)w / retinaScale;
-	float bottom = (float)h / retinaScale;
+	float right = (float)w;
+	float bottom = (float)h;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
@@ -212,7 +207,7 @@ void World::draw() {
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 	// Drawing entities
-	m_player.draw(projection_2D, ww, hh);
+	m_player.draw(projection_2D, w, h);
 
 	for (Entity* entity: m_entities) {
 		// Call update function on all entities
@@ -456,7 +451,7 @@ void World::reset_game() {
 	}
 	m_entities.clear();
 	for (Firefly* firefly : m_fireflies) {
-		firefly->destroy();
+		delete firefly;
 	}
 	m_fireflies.clear();
 	m_switches.clear();
