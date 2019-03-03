@@ -43,7 +43,7 @@ void CollisionManager::UnregisterEntity(const Entity* entity)
 
 	staticLightCollisionLines.erase(entity);
 	dynamicLightCollisionLines.erase(entity);
-	for (auto& iter = staticCollisionEntities.begin(); iter != staticCollisionEntities.end(); ++iter)
+	for (auto iter = staticCollisionEntities.begin(); iter != staticCollisionEntities.end(); ++iter)
 	{
 		if (*iter == entity)
 		{
