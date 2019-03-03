@@ -19,9 +19,9 @@ public:
 	// ms represents the number of milliseconds elapsed from the previous update() call
 	void update(float ms);
 
-	// Renders the player
 	void calculate_screen_pos(const float screen_w, const float screen_h);
 
+    // Renders the player
 	void draw(const mat3& projection);
 
 	// Returns the current player position

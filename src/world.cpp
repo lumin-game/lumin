@@ -80,7 +80,7 @@ bool World::init(vec2 screen) {
 
 	m_current_level = 1;
 
-	m_unlocked_levels = 4; // door is not implemented yet so we're not able to progress to other levels unless this is set > 1
+	m_unlocked_levels = 4;
 
 	m_max_level = 5;
 
