@@ -105,14 +105,13 @@ void Player::update(float ms)
 	}
 }
 
-void Player::predraw(const mat3& projection, const float screen_w, const float screen_h)
-{
+void Player::calculate_screen_pos(const float screen_w, const float screen_h){
 	// make sure player shows up in the middle half of the screen in both x and y directions
     m_screen_pos.x = std::clamp(m_screen_pos.x + m_screen_x_movement, screen_w * 1 / 4, screen_w * 3 / 4);
     m_screen_pos.y = std::clamp(m_screen_pos.y + m_screen_y_movement, screen_h * 1 / 4, screen_h * 3 / 4);
 }
 
-void Player::draw(const mat3& projection, const float screen_w, const float screen_h)
+void Player::draw(const mat3& projection)
 {
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
