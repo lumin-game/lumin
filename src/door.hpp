@@ -15,11 +15,13 @@ public:
         return textures_path("door_open.png");
     }
     bool is_player_collidable() const override { return true; }
-
     bool is_light_collidable() const override { return false; }
-
     bool is_light_dynamic() const override { return false; }
 
+    void activate() override { set_lit(true); };
+    void deactivate() override {};
+
+    // Offset door texture to align with ground
     void set_screen_pos(vec2 position) {
         m_screen_pos.x = position.x;
         m_screen_pos.y = position.y - texture->height/2 + 124;

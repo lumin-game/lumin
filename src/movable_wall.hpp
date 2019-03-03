@@ -14,6 +14,8 @@ public:
 
 	void update(float ms);
 
+	void activate() override { trigger_movement(true); }
+
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
 

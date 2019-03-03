@@ -3,6 +3,7 @@
 // internal
 #include "movable_wall.hpp"
 #include "common.hpp"
+#include "door.hpp"
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"

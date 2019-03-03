@@ -279,10 +279,10 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 	bool shouldSpawnEntity = true;
 	switch (tile) {
 		case WALL:
-			level_entity = (Wall*) new Wall();
+			level_entity = new Wall();
 			break;
 		case GLASS:
-			level_entity = (Glass*) new Glass();
+			level_entity = new Glass();
 			break;
 		case DARKWALL:
 			// TODO: add dark wall entity
@@ -293,21 +293,9 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 		case FOG:
 			// TODO: add fog entity
 			break;
-		case SWITCH:
-			level_entity = (Switch*) new Switch();
-			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
 			shouldSpawnEntity = false;
-			break;
-		case DOOR:
-			// assumes there will only be one exit door per level
-			m_exit_door = (Door*) new Door();
-			m_exit_door->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE);
-			shouldSpawnEntity = false;
-			if (m_current_level == 1) {
-				m_exit_door->set_lit(true);
-			}
 			break;
 	}
 
@@ -337,7 +325,8 @@ void World::create_current_level() {
 	}
 
 	std::vector<std::vector<char>> grid;
-	std::map<char, std::pair<int, int>> entities;
+	std::map<char, std::pair<int, int>> entityLocs;
+	std::map<char, Entity*> entities;
 
 	std::string row;
 	int y = 0;
@@ -354,30 +343,67 @@ void World::create_current_level() {
 				const char type = charVector[2];
 
 				switch (type) {
+					// Switch
 					case '/': {
-						Switch *m_switch = new Switch();
-						std::pair<int, int> coord = entities.find(name)->second;
+						auto *m_switch = new Switch();
+						std::pair<int, int> coord = entityLocs.find(name)->second;
 						m_switch->init(coord.first * 64, coord.second * 64);
+
+						entities.insert(std::pair<char, Entity*>(name, m_switch));
 						m_entities.emplace_back(m_switch);
 						m_switches.emplace_back(m_switch);
 						break;
 					}
 
+					// Moving platform
+					case '_': {
+						auto *wall = new MovableWall();
+						std::pair<int, int> coord = entityLocs.find(name)->second;
+						wall->init(coord.first * 64, coord.second * 64);
+						wall->set_movement_properties(0.f, -3.f, 0.2, false, false);
+
+						entities.insert(std::pair<char, Entity*>(name, wall));
+						m_entities.emplace_back(wall);
+						m_movableWalls.emplace_back(wall);
+						break;
+					}
+
+					case '|': {
+						// Assume single exit door per level
+						m_exit_door = new Door();
+						std::pair<int, int> coord = entityLocs.find(name)->second;
+						m_exit_door->init(coord.first * 64, coord.second * 64);
+
+						// Open door; if later on we link it to a switch,
+						// we turn its default state to off.
+						m_exit_door->set_lit(true);
+						break;
+					}
+
 					default:
-						fprintf(stderr, "Unknown entity declaration in level file: %c: %c", name, type);
+						fprintf(stderr, "Unknown entity declaration in level file: %c: %c\n", name, type);
 						break;
 				}
 
 			} else if (charVector[0] == '=') {
-				// TODO: Parse entity relationship
+				// Parse entity relationship
+				Entity* entity_1 = entities.find(charVector[1])->second;
 
+				if (charVector[2] == '|') {
+					// Handle door differently
+					entity_1->register_entity(m_exit_door);
+					m_exit_door->set_lit(false);
+				} else {
+					Entity* entity_2 = entities.find(charVector[2])->second;
+					entity_1->register_entity(entity_2);
+				}
 			} else {
 				// Keep track of dynamic entities
 				for (int x = 0; x < charVector.size(); x++) {
 					const char c = charVector[x];
 					if (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z')) {
 						const std::pair<int, int> coord = std::make_pair(x, y);
-						entities.insert(std::pair<char, std::pair<int, int>>(c, coord));
+						entityLocs.insert(std::pair<char, std::pair<int, int>>(c, coord));
 					}
 				}
 
@@ -389,42 +415,7 @@ void World::create_current_level() {
 	}
 
 	in.close();
-
 	create_level(grid);
-
-	//Need to spawn movable tiles here for now because the level generator can't handle them until we can add params for blocks
-	//because there's no way to encode it's movement destination within the text file currently
-
-	if (m_current_level == 2) {
-		MovableWall *m_wall_1 = new MovableWall();
-		m_wall_1->init(13 * 64, 3 * 64);
-		m_wall_1->set_movement_properties(0.f, -1.f, 0.2, false, false);
-		m_entities.emplace_back(m_wall_1);
-		m_movableWalls.emplace_back(m_wall_1);
-
-		MovableWall *m_wall_2 = new MovableWall();
-		m_wall_2->init(13 * 64, 5 * 64);
-		m_wall_2->set_movement_properties(0.f, 1.f, 0.2, false, false);
-		m_entities.emplace_back(m_wall_2);
-		m_movableWalls.emplace_back(m_wall_2);
-
-		Switch *m_switch = m_switches[0];
-		m_switch->register_movable_wall(m_wall_1);
-		m_switch->register_movable_wall(m_wall_2);
-		m_switch->register_door(m_exit_door);
-	} else if (m_current_level == 3) {
-		Switch *m_switch = m_switches[0];
-		m_switch->register_door(m_exit_door);
-	}
-
-
-	/*
-	MovableWall *m_wall = new MovableWall();
-	m_wall->init(3 * 64, 2 * 64);
-	m_wall->set_movement_properties(3, 0, 0.2, true, true);
-	m_entities.emplace_back(m_wall);
-	m_movableWalls.emplace_back(m_wall);
-	*/
 }
 
 // Just to print the grid (testing purposes)
@@ -444,9 +435,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[DARKWALL] = '+';
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
-	tile_map[SWITCH] = '1';
 	tile_map[FIREFLY] = '*';
-	tile_map[DOOR] = '|';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
