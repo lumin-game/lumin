@@ -190,9 +190,8 @@ void Firefly::update(float ms)
 	const float VELOCITY_STEP = 0.025f;
 	const float VELOCITY_SLOWING_STEP = 0.04f;
 
-	if (CollisionManager::GetInstance().IsHitByLight(m_position)) { // Follow closest light source if one is in sight
-		vec2 destLight = CollisionManager::GetInstance().getClosestVisibleLightSource(m_position);
-
+	vec2 destLight;
+	if (CollisionManager::GetInstance().findClosestVisibleLightSource(m_position, destLight)) { // Follow closest light source if one is in sight
 		if (destLight.x > m_position.x) {
 			m_velocity.x += VELOCITY_STEP * (ms/100);
 		}

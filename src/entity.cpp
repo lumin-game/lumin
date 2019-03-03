@@ -87,7 +87,7 @@ void Entity::destroy() {
 
 void Entity::update(Player* player) {
 	if (is_light_dynamic()) {
-		set_lit(CollisionManager::GetInstance().IsHitByLight(this)); // magic constant from light_mesh haha
+		set_lit(CollisionManager::GetInstance().IsHitByLight(get_position())); // magic constant from light_mesh haha
 	}
 }
 
@@ -168,7 +168,6 @@ ParametricLines Entity::calculate_static_equations() const {
 		return outLines;
 	}
 
-
 	// Create 4 lines for each each of the box and returns them
 	vec2 boundingBox = get_bounding_box();
 	float xHalf = boundingBox.x / 2;
@@ -222,5 +221,6 @@ bool Entity::get_lit() const {
 
 ParametricLines Entity::calculate_dynamic_equations() const
 {
+	// By default entities have no dynamic equations
 	return ParametricLines();
 }
