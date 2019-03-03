@@ -21,7 +21,7 @@ public:
 
 	void calculate_screen_pos(const float screen_w, const float screen_h);
 
-    // Renders the player
+	// Renders the player
 	void draw(const mat3& projection);
 
 	// Returns the current player position
