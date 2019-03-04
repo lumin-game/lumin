@@ -52,6 +52,7 @@ set(SOURCE_FILES
         src/entity.hpp
         src/glass.hpp
         src/wall.hpp
+        src/fog.hpp
         src/player.hpp
         src/player_mesh.hpp
         src/light_mesh.hpp

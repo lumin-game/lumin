@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "wall.hpp"
 #include "glass.hpp"
+#include "fog.hpp"
 #include "switch.hpp"
 #include "movable_wall.hpp"
 #include "CollisionManager.hpp"
@@ -79,7 +80,7 @@ bool World::init(vec2 screen) {
 
 	m_current_level = 1;
 
-	m_unlocked_levels = 3; // door is not implemented yet so we're not able to progress to other levels unless this is set > 1
+	m_unlocked_levels = 4;
 
 	m_max_level = 5;
 
@@ -199,7 +200,7 @@ void World::draw() {
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 	// Drawing entities
-	m_player.draw(projection_2D, ww, hh);
+	m_player.calculate_screen_pos(ww, hh);
 
 	for (Entity* entity: m_entities) {
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
@@ -222,6 +223,8 @@ void World::draw() {
 	vec2 screen_pos = {screen_pos_x, screen_pos_y};
 	m_exit_door->set_screen_pos(screen_pos);
 	m_exit_door->draw(projection_2D);
+
+	m_player.draw(projection_2D);
 
 	/////////////////////
 	// Truely render to the screen
@@ -275,7 +278,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			// TODO: add light wall entity
 			break;
 		case FOG:
-			// TODO: add fog entity
+			level_entity = (Fog*) new Fog();
 			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
