@@ -1,6 +1,5 @@
 #pragma once
 
-#include "entity.hpp"
 #include "player_mesh.hpp"
 #include "lightbeam_mesh.hpp"
 #include "common.hpp"
@@ -20,8 +19,10 @@ public:
 	// ms represents the number of milliseconds elapsed from the previous update() call
 	void update(float ms);
 
+	void calculate_screen_pos(const float screen_w, const float screen_h);
+
 	// Renders the player
-	void draw(const mat3& projection, const float screen_w, const float screen_h);
+	void draw(const mat3& projection);
 
 	// Returns the current player position
 	vec2 get_position()const;
@@ -36,6 +37,8 @@ public:
 	void setRightPressed(bool tf);
 
 	void setZPressed(bool tf);
+
+	void setPlayerPosition(vec2 pos);
 
 private:
 	vec2 m_position; // Window coordinates

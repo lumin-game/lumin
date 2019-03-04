@@ -1,12 +1,9 @@
 #pragma once
 
 #include "common.hpp"
-#include "level_screen.hpp"
 
-
-class Screen : public Renderable
+class LevelScreen : public Renderable
 {
-public:
 public:
 	// Creates all the associated render resources and default transform
 	bool init();
@@ -17,12 +14,10 @@ public:
 	// Renders the water
 	void draw(const mat3& projection)override;
 
-	bool render_screen();
-
-	void draw_screen();
-
+  vec2 get_bounding_box()const;
 
 private:
-	bool m_render_level_screen;
+	static Texture level_screen_texture;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
+	vec2 m_position;
 };

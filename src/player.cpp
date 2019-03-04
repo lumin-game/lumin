@@ -21,8 +21,8 @@ bool Player::init()
 	m_scale.x = 0.5f;
 	m_scale.y = 0.5f;
 
-	playerWidth = (int) (playerMesh.GetPlayerWidth() * m_scale.x);
-	playerHeight = (int) (playerMesh.GetPlayerHeight() * m_scale.y);
+	playerWidth = (int)(playerMesh.GetPlayerWidth() * m_scale.x);
+	playerHeight = (int)(playerMesh.GetPlayerHeight() * m_scale.y);
 
 	m_position = { 100.f, 50.f };
 	m_screen_pos = m_position;
@@ -105,13 +105,15 @@ void Player::update(float ms)
 	}
 }
 
-void Player::draw(const mat3& projection, const float screen_w, const float screen_h)
-{
+void Player::calculate_screen_pos(const float screen_w, const float screen_h){
 	// make sure player shows up in the middle half of the screen in both x and y directions
     m_screen_pos.x = std::clamp(m_screen_pos.x + m_screen_x_movement, screen_w * 1 / 4, screen_w * 3 / 4);
     m_screen_pos.y = std::clamp(m_screen_pos.y + m_screen_y_movement, screen_h * 1 / 4, screen_h * 3 / 4);
+}
 
-	LightBeamMesh::ParentData lightData;
+void Player::draw(const mat3& projection)
+{
+	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 	lightData.m_screen_pos = m_screen_pos;
 
@@ -153,4 +155,9 @@ void Player::setLeftPressed(bool tf) {
 void Player::setRightPressed(bool tf) {
 	m_is_right_pressed = tf;
 	playerMesh.turn_right();
+}
+
+void Player::setPlayerPosition(vec2 pos) {
+	m_position = pos;
+	m_screen_pos = m_position;
 }
