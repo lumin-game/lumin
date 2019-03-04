@@ -4,6 +4,7 @@
 #include "player.hpp"
 #include <vector>
 #include <iostream>
+#include <set>
 
 struct EntityColor {
 	float r, g, b, a;
@@ -21,6 +22,9 @@ public:
 	virtual bool is_light_dynamic() const = 0;
 	virtual EntityColor get_color() const = 0;
 
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
+
 	// Creates all the associated render resources and default transform
 	bool init(int x_pos, int y_pos);
 
@@ -28,7 +32,7 @@ public:
 	void destroy();
 
 	// Update logic for entities
-	void update(Player* player);
+	virtual void update(float elapsed_ms);
 
 	// Renders the entity using the texture
 	void draw(const mat3& projection) override;
@@ -54,11 +58,15 @@ public:
 	void set_lit(bool lit);
 	bool get_lit() const;
 
+	// Register an entity relationship
+	void register_entity(Entity* entity);
+
 private:
     // pointer to the active texture
 	Texture unlit_texture;
 	Texture lit_texture;
 	bool m_is_lit = false;
+
 protected:
     // Window coordinates
     vec2 m_screen_pos;
@@ -66,4 +74,5 @@ protected:
     // 1.f in each dimension. 1.f is as big as the associated texture
     vec2 m_scale;
     vec2 m_position;
+	std::set<Entity*> m_entities;
 };

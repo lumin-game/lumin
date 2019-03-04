@@ -11,5 +11,9 @@ public:
 	bool is_player_collidable() const override { return true; }
 	bool is_light_collidable() const override { return false; }
 	bool is_light_dynamic() const override { return false; }
+
+	void activate() override {};
+	void deactivate() override {};
+
 	EntityColor get_color() const override { return EntityColor({1.0, 1.0, 1.0, 1.0}); }
 };

@@ -3,6 +3,7 @@
 // internal
 #include "movable_wall.hpp"
 #include "common.hpp"
+#include "door.hpp"
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"
@@ -89,9 +90,7 @@ private:
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
-	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
-	std::vector<Switch*> m_switches;
 	Door* m_exit_door;
 	
 

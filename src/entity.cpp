@@ -85,9 +85,15 @@ void Entity::destroy() {
 	effect.release();
 }
 
-void Entity::update(Player* player) {
+void Entity::update(float elapsed_ms) {
 	if (is_light_dynamic()) {
-		set_lit(CollisionManager::GetInstance().IsHitByLight(get_position())); // magic constant from light_mesh haha
+		bool was_lit = m_is_lit;
+		set_lit(CollisionManager::GetInstance().IsHitByLight(get_position()));
+		if (m_is_lit && !was_lit) {
+			activate();
+		} else if (!m_is_lit && was_lit) {
+			deactivate();
+		}
 	}
 }
 
@@ -223,4 +229,8 @@ ParametricLines Entity::calculate_dynamic_equations() const
 {
 	// By default entities have no dynamic equations
 	return ParametricLines();
+}
+
+void Entity::register_entity(Entity* entity) {
+	m_entities.insert(entity);
 }
