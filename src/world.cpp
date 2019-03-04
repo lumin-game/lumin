@@ -475,13 +475,13 @@ void World::load_level_screen(int key_pressed_level) {
 }
 
 void World::update_level() {
-	if (m_current_level < m_max_level) {
+	// Assumption: max level is the highest level we have currently implemented
+	if (m_current_level <= m_max_level) {
 		m_current_level++;
 		reset_game();
-	} else if (m_current_level >= m_max_level){
+	} else if (m_current_level > m_max_level){
 		// TODO: Maybe project a screen displaying that user has completed all levels?
 		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
-		return;
 	}
 	m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 }
