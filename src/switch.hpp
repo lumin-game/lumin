@@ -16,9 +16,4 @@ public:
 
 	void activate() override;
 	void deactivate() override;
-
-	void update(float elapsed_ms);
-
-private:
-	bool switchedOn = false;
 };

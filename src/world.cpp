@@ -139,13 +139,7 @@ bool World::update(float elapsed_ms)
 	if (!m_paused) {
 		// First move the world (entities)
 		for (auto entity : m_entities) {
-			// Need to call subclass update method on moving walls
-			if (auto mw = dynamic_cast<MovableWall*>(entity) ) {
-				mw->update(elapsed_ms);
-			} else {
-				// Just do the generic update
-				entity->update(elapsed_ms);
-			}
+			entity->update(elapsed_ms);
 		}
 
 		// Then handle light equations

@@ -4,7 +4,11 @@
 
 void Switch::activate() {
 	for (auto* entity : m_entities) {
-		entity->activate();
+		if (entity != nullptr) {
+			entity->activate();
+		} else {
+			m_entities.erase(entity);
+		}
 	}
 }
 
