@@ -12,18 +12,18 @@ struct EntityColor {
 
 class Entity : public Renderable {
 public:
-	// Things the subclass need to implement
 	virtual ~Entity() = default;
 
-	virtual char* get_texture_path() const = 0;
-	virtual char* get_lit_texture_path() const = 0;
-	virtual bool is_player_collidable() const = 0;
-	virtual bool is_light_collidable() const = 0;
-	virtual bool is_light_dynamic() const = 0;
-	virtual EntityColor get_color() const = 0;
+	virtual const char* get_texture_path() const = 0;
 
-	virtual void activate() = 0;
-	virtual void deactivate() = 0;
+	virtual const char* get_lit_texture_path() const { return nullptr; }
+	virtual bool is_player_collidable() const { return false; }
+	virtual bool is_light_collidable() const { return false; }
+	virtual bool is_light_dynamic() const { return false; }
+	virtual EntityColor get_color() const { return EntityColor({1.0, 1.0, 1.0, 1.0}); }
+
+	virtual void activate() {};
+	virtual void deactivate() {};
 
 	// Creates all the associated render resources and default transform
 	bool init(int x_pos, int y_pos);
