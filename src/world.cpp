@@ -315,8 +315,8 @@ void World::create_current_level() {
 	}
 
 	std::vector<std::vector<char>> grid;
-	std::map<char, std::pair<int, int>> entityLocs;
-	std::map<char, Entity*> entities;
+	std::map<char, std::pair<int, int>> dynamicEntityLocs;
+	std::map<char, Entity*> dynamicEntities;
 
 	std::string row;
 	int y = 0;
@@ -336,10 +336,10 @@ void World::create_current_level() {
 					// Switch
 					case '/': {
 						auto *swtch = new Switch();
-						std::pair<int, int> coord = entityLocs.find(name)->second;
+						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
 						swtch->init(coord.first * 64, coord.second * 64);
 
-						entities.insert(std::pair<char, Entity*>(name, swtch));
+						dynamicEntities.insert(std::pair<char, Entity*>(name, swtch));
 						m_entities.push_back(swtch);
 						break;
 					}
@@ -347,11 +347,11 @@ void World::create_current_level() {
 					// Moving platform
 					case '_': {
 						auto *wall = new MovableWall();
-						std::pair<int, int> coord = entityLocs.find(name)->second;
+						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
 						wall->init(coord.first * 64, coord.second * 64);
 						wall->set_movement_properties(0.f, -3.f, 0.2, false, false);
 
-						entities.insert(std::pair<char, Entity*>(name, wall));
+						dynamicEntities.insert(std::pair<char, Entity*>(name, wall));
 						m_entities.push_back(wall);
 						break;
 					}
@@ -359,7 +359,7 @@ void World::create_current_level() {
 					case '|': {
 						// Assume single exit door per level
 						m_exit_door = new Door();
-						std::pair<int, int> coord = entityLocs.find(name)->second;
+						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
 						m_exit_door->init(coord.first * 64, coord.second * 64);
 
 						// Open door; if later on we link it to a switch,
@@ -375,23 +375,33 @@ void World::create_current_level() {
 
 			} else if (charVector[0] == '=') {
 				// Parse entity relationship
-				Entity* entity_1 = entities.find(charVector[1])->second;
+				if (dynamicEntities.find(charVector[1]) == dynamicEntities.end()) {
+					fprintf(stderr, "Couldn't parse first entity in relationship: %c\n", charVector[1]);
+					continue;
+				}
+
+				Entity* entity_1 = dynamicEntities.find(charVector[1])->second;
 
 				if (charVector[2] == '|') {
 					// Handle door differently
 					entity_1->register_entity(m_exit_door);
 					m_exit_door->set_lit(false);
 				} else {
-					Entity* entity_2 = entities.find(charVector[2])->second;
+					if (dynamicEntities.find(charVector[2]) == dynamicEntities.end()) {
+						fprintf(stderr, "Couldn't parse second entity in relationship: %c\n", charVector[2]);
+						continue;
+					}
+
+					Entity* entity_2 = dynamicEntities.find(charVector[2])->second;
 					entity_1->register_entity(entity_2);
 				}
 			} else {
-				// Keep track of dynamic entities
+				// Keep track of dynamic dynamicEntities
 				for (int x = 0; x < charVector.size(); x++) {
 					const char c = charVector[x];
 					if (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z')) {
 						const std::pair<int, int> coord = std::make_pair(x, y);
-						entityLocs.insert(std::pair<char, std::pair<int, int>>(c, coord));
+						dynamicEntityLocs.insert(std::pair<char, std::pair<int, int>>(c, coord));
 					}
 				}
 

@@ -232,5 +232,5 @@ ParametricLines Entity::calculate_dynamic_equations() const
 }
 
 void Entity::register_entity(Entity* entity) {
-	m_entities.push_back(entity);
+	m_entities.insert(entity);
 }

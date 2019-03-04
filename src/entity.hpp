@@ -4,6 +4,7 @@
 #include "player.hpp"
 #include <vector>
 #include <iostream>
+#include <set>
 
 struct EntityColor {
 	float r, g, b, a;
@@ -73,5 +74,5 @@ protected:
     // 1.f in each dimension. 1.f is as big as the associated texture
     vec2 m_scale;
     vec2 m_position;
-	std::vector<Entity*> m_entities;
+	std::set<Entity*> m_entities;
 };
