@@ -90,9 +90,7 @@ private:
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
-	std::vector<MovableWall*> m_movableWalls;
 	std::vector<Firefly*> m_fireflies;
-	std::vector<Switch*> m_switches;
 	Door* m_exit_door;
 	
 

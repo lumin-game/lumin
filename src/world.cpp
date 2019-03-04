@@ -137,13 +137,15 @@ void World::destroy()
 bool World::update(float elapsed_ms)
 {
 	if (!m_paused) {
-		int w, h;
-		glfwGetFramebufferSize(m_window, &w, &h);
-		vec2 screen = { (float)w, (float)h };
-
 		// First move the world (entities)
-		for (MovableWall* mov_wall : m_movableWalls) {
-			mov_wall->update(elapsed_ms);
+		for (auto entity : m_entities) {
+			// Need to call subclass update method on moving walls
+			if (auto mw = dynamic_cast<MovableWall*>(entity) ) {
+				mw->update(elapsed_ms);
+			} else {
+				// Just do the generic update
+				entity->update(elapsed_ms);
+			}
 		}
 
 		// Then handle light equations
@@ -157,17 +159,9 @@ bool World::update(float elapsed_ms)
             }
         }
 
-
 		for (Firefly* firefly : m_fireflies)
 		{
 			firefly->update(elapsed_ms);
-		}
-		for (Switch* swit : m_switches)
-		{
-			if (swit)
-			{
-				swit->update();
-			}
 		}
 	}
 	return true;
@@ -214,9 +208,6 @@ void World::draw() {
 	m_player.draw(projection_2D, ww, hh);
 
 	for (Entity* entity: m_entities) {
-		// Call update function on all entities
-		entity->update(&m_player);
-
 		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
 		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
@@ -308,7 +299,7 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 		return false;
 	}
 	if (level_entity->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE)) {
-		m_entities.emplace_back(level_entity);
+		m_entities.push_back(level_entity);
 		return true;
 	}
 	fprintf(stderr, "Failed to add %u tile", tile);
@@ -344,13 +335,12 @@ void World::create_current_level() {
 				switch (type) {
 					// Switch
 					case '/': {
-						auto *m_switch = new Switch();
+						auto *swtch = new Switch();
 						std::pair<int, int> coord = entityLocs.find(name)->second;
-						m_switch->init(coord.first * 64, coord.second * 64);
+						swtch->init(coord.first * 64, coord.second * 64);
 
-						entities.insert(std::pair<char, Entity*>(name, m_switch));
-						m_entities.emplace_back(m_switch);
-						m_switches.emplace_back(m_switch);
+						entities.insert(std::pair<char, Entity*>(name, swtch));
+						m_entities.push_back(swtch);
 						break;
 					}
 
@@ -362,8 +352,7 @@ void World::create_current_level() {
 						wall->set_movement_properties(0.f, -3.f, 0.2, false, false);
 
 						entities.insert(std::pair<char, Entity*>(name, wall));
-						m_entities.emplace_back(wall);
-						m_movableWalls.emplace_back(wall);
+						m_entities.push_back(wall);
 						break;
 					}
 
@@ -458,8 +447,6 @@ void World::reset_game() {
 		delete firefly;
 	}
 	m_fireflies.clear();
-	m_switches.clear();
-	m_movableWalls.clear();
 	m_player.destroy();
 	m_exit_door->destroy();
 	create_current_level();

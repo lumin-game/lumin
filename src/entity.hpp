@@ -31,7 +31,7 @@ public:
 	void destroy();
 
 	// Update logic for entities
-	void update(Player* player);
+	void update(float elapsed_ms);
 
 	// Renders the entity using the texture
 	void draw(const mat3& projection) override;

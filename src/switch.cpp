@@ -2,18 +2,6 @@
 #include "CollisionManager.hpp"
 
 
-void Switch::update() {
-	bool hitByLight = CollisionManager::GetInstance().IsHitByLight(get_position());
-	if (hitByLight && !switchedOn) {
-		activate();
-		switchedOn = true;
-	}
-	else if (!hitByLight && switchedOn) {
-		deactivate();
-		switchedOn = false;
-	}
-}
-
 void Switch::activate() {
 	for (auto* entity : m_entities) {
 		entity->activate();
