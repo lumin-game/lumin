@@ -285,7 +285,8 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			break;
 		case PLAYER:
 			m_player.init();
-		 	m_player.setPlayerPosition({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE - 50 });
+			// spawn player 1 tile higher to ensure that the player doesn't fall
+		 	m_player.setPlayerPosition({ (float) x_pos * BLOCK_SIZE, (float) (y_pos - 1) * BLOCK_SIZE });
 			shouldSpawnEntity = false;
 			break;
 	}
