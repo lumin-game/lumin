@@ -415,21 +415,21 @@ void World::print_grid(std::vector<std::vector<char>>& grid) {
 }
 
 void World::create_level(std::vector<std::vector<char>>& grid) {
-	std::map<StaticTile, char> tile_map;
-	tile_map[WALL] = '#';
-	tile_map[GLASS] = '$';
-	tile_map[DARKWALL] = '+';
-	tile_map[LIGHTWALL] = '-';
-	tile_map[FOG] = '~';
-	tile_map[FIREFLY] = '*';
-	tile_map[PLAYER] = '&';
+	std::map<char, StaticTile> tile_map = {
+		{'#', WALL},
+		{'$', GLASS},
+		{'+', DARKWALL},
+		{'-', LIGHTWALL},
+		{'~', FOG},
+		{'*', FIREFLY},
+		{'&', PLAYER}
+	};
 
-	for (std::size_t i = 0; i < grid.size(); i++) {
-		for (std::size_t j = 0; j < grid[i].size(); j++) {
-			for (auto const& x : tile_map) {
-				if (grid[i][j] == x.second) {
-					add_tile(j, i, x.first);
-				}
+	for (int y = 0; y < grid.size(); y++) {
+		for (int x = 0; x < grid[y].size(); x++) {
+			auto tile = tile_map.find(grid[y][x]);
+			if (tile != tile_map.end()) {
+				add_tile(x, y, tile->second);
 			}
 		}
 	}
