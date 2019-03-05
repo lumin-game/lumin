@@ -82,7 +82,7 @@ bool World::init(vec2 screen) {
 
 	m_current_level = 1;
 
-	m_unlocked_levels = 4;
+	m_unlocked_levels = 5;
 
 	m_max_level = 5;
 
