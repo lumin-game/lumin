@@ -4,7 +4,7 @@
 
 class World;
 
-class LightBeamMesh : public Renderable
+class RadiusLightMesh : public Renderable
 {
 public:
 	struct ParentData
@@ -25,7 +25,14 @@ public:
 
 	void SetParentData(ParentData data) { m_parent = data; }
 
+	vec2 get_position() const;
+
+	float getLightRadius() const;
+
 private:
+	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
+	int UpdateVertices();
+
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;
 

@@ -14,7 +14,7 @@
 bool Player::init()
 {
 	playerMesh.init();
-	lightbeamMesh.init();
+	lightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
@@ -42,7 +42,7 @@ bool Player::init()
 void Player::destroy()
 {
 	playerMesh.destroy();
-	lightbeamMesh.destroy();
+	lightMesh.destroy();
 }
 
 // Called on each frame by World::update()
@@ -113,12 +113,12 @@ void Player::calculate_screen_pos(const float screen_w, const float screen_h){
 
 void Player::draw(const mat3& projection)
 {
-	LightMesh::ParentData lightData;
+	RadiusLightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 	lightData.m_screen_pos = m_screen_pos;
 
-	lightbeamMesh.SetParentData(lightData);
-	lightbeamMesh.draw(projection);
+	lightMesh.SetParentData(lightData);
+	lightMesh.draw(projection);
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;

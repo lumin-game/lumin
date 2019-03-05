@@ -1,7 +1,7 @@
 #pragma once
 
 #include "player_mesh.hpp"
-#include "lightbeam_mesh.hpp"
+#include "radiuslight_mesh.hpp"
 #include "common.hpp"
 
 class World;
@@ -62,5 +62,5 @@ private:
 	int playerHeight;
 
 	PlayerMesh playerMesh;
-	LightBeamMesh lightbeamMesh;
+	RadiusLightMesh lightMesh;
 };

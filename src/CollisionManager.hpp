@@ -4,6 +4,8 @@
 #include <set>
 #include "entity.hpp"
 #include "common.hpp"
+#include "radiuslight_mesh.hpp"
+#include "laserlight_mesh.hpp"
 
 // Manages collisions
 class CollisionManager
@@ -43,9 +45,13 @@ public:
 	CollisionManager(CollisionManager const &) = delete;
 	void operator=(CollisionManager const &) = delete;
 
-	// Registers a light
-	void RegisterLight(const LightMesh* light);
-	void UnregisterLight(const LightMesh* light);
+	// Registers a radius light
+	void RegisterRadiusLight(const RadiusLightMesh* light);
+	void UnregisterRadiusLight(const RadiusLightMesh* light);
+	
+	// Registers a laser light
+	void RegisterLaserLight(const LaserLightMesh* light);
+	void UnregisterLaserLight(const LaserLightMesh* light);
 
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
 	void RegisterEntity(const Entity* entity);
@@ -87,7 +93,7 @@ private:
 	std::vector<const Entity*> staticCollisionEntities;
 	
 	// List of light in the level
-	std::set<const LightMesh*> lightSources;
+	std::set<const RadiusLightMesh*> lightSources;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;

@@ -253,7 +253,7 @@ void Firefly::draw(const mat3& projection)
 		firefly.draw(projection);
 	}
 
-	LightMesh::ParentData lightData;
+	RadiusLightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 	lightData.m_screen_pos = m_screen_pos;
 	lightMesh.SetParentData(lightData);

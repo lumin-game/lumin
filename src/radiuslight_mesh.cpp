@@ -1,5 +1,5 @@
   // Header
-#include "light_mesh.hpp"
+#include "radiuslight_mesh.hpp"
 #include "CollisionManager.hpp"
 
 // stlib
@@ -14,7 +14,7 @@
 
 #define PI 3.14159265
 
-bool LightMesh::init()
+bool RadiusLightMesh::init()
 {
 	m_lightRadius = 300.f;
 
@@ -31,15 +31,15 @@ bool LightMesh::init()
 	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterLight(this);
+	CollisionManager::GetInstance().RegisterRadiusLight(this);
 
 	return true;
 }
 
 // Releases all graphics resources
-void LightMesh::destroy()
+void RadiusLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterLight(this);
+	CollisionManager::GetInstance().UnregisterRadiusLight(this);
 
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
@@ -48,7 +48,7 @@ void LightMesh::destroy()
 	effect.release();
 }
 
-void LightMesh::draw(const mat3& projection)
+void RadiusLightMesh::draw(const mat3& projection)
 {
 	transform_begin();
 
@@ -103,7 +103,7 @@ void LightMesh::draw(const mat3& projection)
 	glDrawElements(GL_TRIANGLES, toRender, GL_UNSIGNED_SHORT, nullptr);
 }
 
-int LightMesh::UpdateVertices()
+int RadiusLightMesh::UpdateVertices()
 {
 	// Update our collision equations based on where we are in the world
 	// CollisionManager is friend
@@ -225,12 +225,12 @@ int LightMesh::UpdateVertices()
 	return indices.size();
 }
 
-vec2 LightMesh::get_position() const
+vec2 RadiusLightMesh::get_position() const
 {
 	return m_parent.m_position;
 }
 
-float LightMesh::getLightRadius() const
+float RadiusLightMesh::getLightRadius() const
 {
 	return m_lightRadius;
 }

@@ -36,7 +36,8 @@ set(SOURCE_FILES
         src/entity.cpp
         src/player.cpp
         src/player_mesh.cpp
-        src/light_mesh.cpp
+        src/radiuslight_mesh.cpp
+        src/laserlight_mesh.cpp
         src/movable_wall.cpp
         src/level_screen.cpp
         src/pause_screen.cpp
@@ -55,7 +56,8 @@ set(SOURCE_FILES
         src/fog.hpp
         src/player.hpp
         src/player_mesh.hpp
-        src/light_mesh.hpp
+        src/radiuslight_mesh.hpp
+        src/laserlight_mesh.hpp
         src/movable_wall.hpp
         src/level_screen.hpp
         src/pause_screen.hpp
