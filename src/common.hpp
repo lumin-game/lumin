@@ -169,7 +169,7 @@ struct ParametricLine
 };
 
 enum StaticTile
-{ 
+{
 	WALL,
 	GLASS,
 	LIGHTWALL,

@@ -6,14 +6,12 @@
 
 class MovableWall : public Wall {
 public:
-	~MovableWall() override { Entity::destroy(); }
-
 	void update(float ms) override;
-	void activate() override { trigger_movement(true); }
+	void activate() override;
+
 	bool is_light_dynamic() const override { return true; }
 
-	void set_movement_properties(float move_blocks_X, float move_blocks_Y, float speed, bool moving_immediately, bool loop_movement);
-	void trigger_movement(bool moving);
+	void set_movement_properties(float deltaX, float deltaY, float speed, bool moving_immediately, bool loop_movement);
 
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
@@ -21,6 +19,8 @@ public:
 private:
 	float move_dest_X;
 	float move_dest_Y;
+	float move_blocks_X;
+	float move_blocks_Y;
 	float move_speed;
 	bool is_moving;
 	bool movement_loops;

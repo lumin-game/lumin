@@ -91,8 +91,7 @@ private:
 	Player m_player;
 	std::vector<Entity*> m_entities;
 	std::vector<Firefly*> m_fireflies;
-	Door* m_exit_door;
-	
+
 
 	Mix_Music* m_background_music;
 

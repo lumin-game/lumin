@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#define BLOCK_SIZE 64
+
 // Same as static in c, local to compilation unit
 namespace {
 	namespace {
@@ -119,13 +121,13 @@ void World::destroy()
 
 	m_player.destroy();
 	for (Entity* entity : m_entities) {
-		entity->destroy();
+	    delete entity;
 	}
 	m_entities.clear();
+
 	for (Firefly* firefly : m_fireflies) {
-		firefly->destroy();
+		delete firefly;
 	}
-	m_exit_door->destroy();
 	m_fireflies.clear();
 	m_screen.destroy();
 	m_level_screen.destroy();
@@ -134,12 +136,19 @@ void World::destroy()
 }
 
 // Update our game world
-bool World::update(float elapsed_ms)
-{
+bool World::update(float elapsed_ms) {
 	if (!m_paused) {
 		// First move the world (entities)
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
+
+			// If one of our entities is a door, check for player collision
+			if (Door* door = dynamic_cast<Door*>(entity)) {
+			    if (door->get_lit() && door->is_player_inside(&m_player)) {
+			    	update_level();
+			    	return true;
+			    }
+			}
 		}
 
 		// Then handle light equations
@@ -147,17 +156,11 @@ bool World::update(float elapsed_ms)
 
 		m_player.update(elapsed_ms);
 
-		if (m_exit_door != nullptr) {
-            if (m_exit_door->get_player_in(m_player.get_position()) && m_exit_door->get_lit()) {
-                update_level();
-            }
-        }
-
-		for (Firefly* firefly : m_fireflies)
-		{
+		for (Firefly* firefly : m_fireflies) {
 			firefly->update(elapsed_ms);
 		}
 	}
+
 	return true;
 }
 
@@ -174,7 +177,7 @@ void World::draw() {
 	// Check for discrepancy between window/frame buffer (high DPI display)
 	int ww, hh;
 	glfwGetWindowSize(m_window, &ww, &hh);
-	float retinaScale = (float) (w / ww);
+	auto retinaScale = (float) (w / ww);
 
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
@@ -217,12 +220,6 @@ void World::draw() {
 		firefly->draw(projection_2D);
 	}
 
-	float screen_pos_x = m_exit_door->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
-	float screen_pos_y = m_exit_door->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
-	vec2 screen_pos = {screen_pos_x, screen_pos_y};
-	m_exit_door->set_screen_pos(screen_pos);
-	m_exit_door->draw(projection_2D);
-
 	m_player.draw(projection_2D);
 
 	/////////////////////
@@ -260,9 +257,8 @@ bool World::is_over()const
 }
 
 bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
-    const uint32_t BLOCK_SIZE = 64;
-	Entity *level_entity = NULL;
-	bool shouldSpawnEntity = true;
+	Entity *level_entity = nullptr;
+
 	switch (tile) {
 		case WALL:
 			level_entity = new Wall();
@@ -277,23 +273,16 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			// TODO: add light wall entity
 			break;
 		case FOG:
-			level_entity = (Fog*) new Fog();
+			level_entity = new Fog();
 			break;
 		case FIREFLY:
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
-			shouldSpawnEntity = false;
-			break;
+			return true;
 		case PLAYER:
 			m_player.init();
 			// spawn player 1 tile higher to ensure that the player doesn't fall
 		 	m_player.setPlayerPosition({ (float) x_pos * BLOCK_SIZE, (float) (y_pos - 1) * BLOCK_SIZE });
-			shouldSpawnEntity = false;
-			break;
-	}
-
-	if (!shouldSpawnEntity)
-	{
-		return true;
+		 	return true;
 	}
 
 	if (!level_entity) {
@@ -334,46 +323,38 @@ void World::create_current_level() {
 				const char name = charVector[1];
 				const char type = charVector[2];
 
+				Entity* entity;
+
 				switch (type) {
 					// Switch
-					case '/': {
-						auto *swtch = new Switch();
-						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
-						swtch->init(coord.first * 64, coord.second * 64);
-
-						dynamicEntities.insert(std::pair<char, Entity*>(name, swtch));
-						m_entities.push_back(swtch);
+					case '/':
+					    entity = new Switch();
 						break;
-					}
 
 					// Moving platform
-					case '_': {
-						auto *wall = new MovableWall();
-						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
-						wall->init(coord.first * 64, coord.second * 64);
-						wall->set_movement_properties(0.f, -3.f, 0.2, false, false);
-
-						dynamicEntities.insert(std::pair<char, Entity*>(name, wall));
-						m_entities.push_back(wall);
+					case '_':
+					    entity = new MovableWall();
+					    // TODO: set properties of movable wall dynamically in level file
+						((MovableWall*) entity)->set_movement_properties(0.f, -3.f, 0.2, false, false);
 						break;
-					}
 
-					case '|': {
-						// Assume single exit door per level
-						m_exit_door = new Door();
-						std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
-						m_exit_door->init(coord.first * 64, coord.second * 64);
+					case '|':
+						entity = new Door();
 
-						// Open door; if later on we link it to a switch,
-						// we turn its default state to off.
-						m_exit_door->set_lit(true);
+						// Make default state of door open; if we later link it to a switch,
+						// we turn its default state to off as part of the linking process.
+						entity->set_lit(true);
 						break;
-					}
 
 					default:
 						fprintf(stderr, "Unknown entity declaration in level file: %c: %c\n", name, type);
-						break;
+						continue;
 				}
+
+				std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
+				entity->init(coord.first * BLOCK_SIZE, coord.second * BLOCK_SIZE);
+				dynamicEntities.insert(std::pair<char, Entity*>(name, entity));
+				m_entities.push_back(entity);
 
 			} else if (charVector[0] == '=') {
 				// Parse entity relationship
@@ -384,19 +365,24 @@ void World::create_current_level() {
 
 				Entity* entity_1 = dynamicEntities.find(charVector[1])->second;
 
-				if (charVector[2] == '|') {
-					// Handle door differently
-					entity_1->register_entity(m_exit_door);
-					m_exit_door->set_lit(false);
-				} else {
-					if (dynamicEntities.find(charVector[2]) == dynamicEntities.end()) {
-						fprintf(stderr, "Couldn't parse second entity in relationship: %c\n", charVector[2]);
-						continue;
-					}
-
-					Entity* entity_2 = dynamicEntities.find(charVector[2])->second;
-					entity_1->register_entity(entity_2);
+				if (dynamicEntities.find(charVector[2]) == dynamicEntities.end()) {
+					fprintf(stderr, "Couldn't parse second entity in relationship: %c\n", charVector[2]);
+					continue;
 				}
+
+				Entity* entity_2 = dynamicEntities.find(charVector[2])->second;
+
+				if (!entity_1 || !entity_2) {
+					continue;
+				}
+
+				entity_1->register_entity(entity_2);
+
+				// Door logic!
+				if (Door* door = dynamic_cast<Door*>(entity_2)) {
+				    door->set_lit(false);
+				}
+
 			} else {
 				// Keep track of dynamic dynamicEntities
 				for (int x = 0; x < charVector.size(); x++) {
@@ -461,7 +447,6 @@ void World::reset_game() {
 	}
 	m_fireflies.clear();
 	m_player.destroy();
-	m_exit_door->destroy();
 	create_current_level();
 	m_player.init();
 	m_should_load_level_screen = false;
@@ -498,7 +483,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_Z) {
+		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
 			m_player.setZPressed(true);
 		}
 		else if (key == GLFW_KEY_LEFT) {
@@ -518,7 +503,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_Z) {
+		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
 			m_player.setZPressed(false);
 		}
 		else if (key == GLFW_KEY_LEFT) {
@@ -532,7 +517,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	if (m_should_load_level_screen) {
 		if (key == GLFW_KEY_1) {
 			load_level_screen(1);
-			m_exit_door->set_lit(true);
 		} else if (key == GLFW_KEY_2) {
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
