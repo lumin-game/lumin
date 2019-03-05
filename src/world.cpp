@@ -88,7 +88,6 @@ bool World::init(vec2 screen) {
 	m_paused = false;
 
 	create_current_level();
-	m_screen.init();
 	m_level_screen.init();
 	m_pause_screen.init();
 
@@ -97,7 +96,7 @@ bool World::init(vec2 screen) {
 	// Maybe the solution here is a collision manager object or something
 	// Or make world a singleton oof
 	// TODO: figure out a better way to handle light's dependency on walls
-	return m_player.init();
+	return m_screen.init();
 }
 
 void World::create_firefly(vec2 pos)
@@ -284,6 +283,11 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
 			shouldSpawnEntity = false;
 			break;
+		case PLAYER:
+			m_player.init();
+		 	m_player.setPlayerPosition({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE - 50 });
+			shouldSpawnEntity = false;
+			break;
 	}
 
 	if (!shouldSpawnEntity)
@@ -292,14 +296,14 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 	}
 
 	if (!level_entity) {
-		fprintf(stderr, "Level entity is not set");
+		fprintf(stderr, "Level entity is not set \n");
 		return false;
 	}
 	if (level_entity->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE)) {
 		m_entities.push_back(level_entity);
 		return true;
 	}
-	fprintf(stderr, "Failed to add %u tile", tile);
+	fprintf(stderr, "Failed to add %u tile \n", tile);
 	return false;
 }
 
@@ -307,7 +311,7 @@ void World::create_current_level() {
 	std::ifstream in(levels_path("level_" + std::to_string(m_current_level) + ".txt"));
 
 	if(!in) {
-		std::cerr << "Cannot open file." << std::endl;
+		std::cerr << "Cannot open file. \n" << std::endl;
 		return;
 	}
 
@@ -431,6 +435,7 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 	tile_map[LIGHTWALL] = '-';
 	tile_map[FOG] = '~';
 	tile_map[FIREFLY] = '*';
+	tile_map[PLAYER] = '&';
 
 	for (std::size_t i = 0; i < grid.size(); i++) {
 		for (std::size_t j = 0; j < grid[i].size(); j++) {
@@ -531,7 +536,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			load_level_screen(2);
 		} else if (key == GLFW_KEY_3) {
 			load_level_screen(3);
- 			m_player.setPlayerPosition({800.f, 800.f});
 		} else if (key == GLFW_KEY_4) {
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {
