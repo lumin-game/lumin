@@ -334,8 +334,6 @@ void World::create_current_level() {
 					// Moving platform
 					case '_':
 					    entity = new MovableWall();
-					    // TODO: set properties of movable wall dynamically in level file
-						((MovableWall*) entity)->set_movement_properties(0.f, -3.f, 0.2, false, false);
 						break;
 
 					case '|':
@@ -358,29 +356,73 @@ void World::create_current_level() {
 
 			} else if (charVector[0] == '=') {
 				// Parse entity relationship
-				if (dynamicEntities.find(charVector[1]) == dynamicEntities.end()) {
+				auto entity1 = dynamicEntities.find(charVector[1]);
+				auto entity2 = dynamicEntities.find(charVector[2]);
+
+				if (entity1 == dynamicEntities.end()) {
 					fprintf(stderr, "Couldn't parse first entity in relationship: %c\n", charVector[1]);
 					continue;
 				}
 
-				Entity* entity_1 = dynamicEntities.find(charVector[1])->second;
-
-				if (dynamicEntities.find(charVector[2]) == dynamicEntities.end()) {
+				if (entity2 == dynamicEntities.end()) {
 					fprintf(stderr, "Couldn't parse second entity in relationship: %c\n", charVector[2]);
 					continue;
 				}
 
-				Entity* entity_2 = dynamicEntities.find(charVector[2])->second;
-
-				if (!entity_1 || !entity_2) {
+				if (!entity1->second || !entity2->second) {
 					continue;
 				}
 
-				entity_1->register_entity(entity_2);
+				(entity1->second)->register_entity(entity2->second);
 
 				// Door logic!
-				if (Door* door = dynamic_cast<Door*>(entity_2)) {
-				    door->set_lit(false);
+				if (Door *door = dynamic_cast<Door *>(entity2->second)) {
+					door->set_lit(false);
+				}
+
+			} else if (charVector[0] == '@') {
+				// Parse entity property declaration
+				const char name = charVector[1];
+				auto entity = dynamicEntities.find(name);
+
+				if (entity == dynamicEntities.end()) {
+					fprintf(stderr, "Couldn't create relationship for entity '%c'\n", name);
+					continue;
+				}
+
+				if (!entity->second) {
+					continue;
+				}
+
+				// Moving platform movement declaration
+				if (MovableWall *mw = dynamic_cast<MovableWall*>(entity->second)) {
+					const char dir = charVector[2];
+					float dx = 0.f;
+					float dy = 0.f;
+
+					switch (dir) {
+						case '^':
+							dy = -1.f;
+							break;
+						case '>':
+							dx = 1.f;
+							break;
+						case 'v':
+							dy = 1.f;
+							break;
+						case '<':
+							dx = -1.f;
+							break;
+					}
+
+					const int dist = charVector[3] - '0';
+
+					const char moveType = charVector[3];
+					bool moveImmediate = false;
+					bool loopMovement = false;
+
+					// TODO: map different movement types to the 4th character in the declaration
+					mw->set_movement_properties(dx * dist, dy * dist, 0.2, moveImmediate, loopMovement);
 				}
 
 			} else {
