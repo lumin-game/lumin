@@ -91,7 +91,11 @@ bool World::init(vec2 screen) {
 	m_level_screen.init();
 	m_pause_screen.init();
 	m_unlocked_level_screen.init();
-	m_unlocked_level_screen.set_screen_position({600, 400});
+	
+	// if m_unlocked_levels >= 2, level 1 has been complete
+	if (m_unlocked_levels >= 2) {
+		m_unlocked_level_screen.set_screen_position({300, 370});
+	}
 
 	return m_screen.init();
 }

@@ -23,7 +23,6 @@ bool UnlockedLevelScreen::init() {
   // TODO: ensure that texture size is the same
   float wr = unlocked_level_screen_texture.width * 0.5f;
   float hr = unlocked_level_screen_texture.height * 0.5f;
-  std::cout << wr << " " << hr << std::endl;
 
   vertices[0].position = { -wr, +hr, 0.f };
 	vertices[1].position = { +wr, +hr, 0.f };
