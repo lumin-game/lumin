@@ -90,11 +90,10 @@ bool World::init(vec2 screen) {
 	create_current_level();
 	m_level_screen.init();
 	m_pause_screen.init();
-	m_unlocked_level_sparkle.init();
-	
-	// if m_unlocked_levels >= 2, level 1 has been complete
-	if (m_unlocked_levels >= 2) {
-		m_unlocked_level_sparkle.set_screen_position({300, 370});
+
+	for (int i = 0; i < MAX_LEVEL; ++i) {
+			m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
+			m_unlocked_level_sparkles[i].init();
 	}
 
 	return m_screen.init();
@@ -119,6 +118,9 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
+		m_unlocked_level_sparkles[i].destroy();
+	}
 	glfwDestroyWindow(m_window);
 }
 
@@ -201,7 +203,39 @@ void World::draw() {
 	// Truely render to the screen
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(projection_2D);
-		m_unlocked_level_sparkle.draw(projection_2D);
+		vec2 initial_screen_pos = { 300, 370 };
+		float offset = 225;
+		for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
+			if (m_unlocked_levels >= 2) {
+				m_unlocked_level_sparkles[0].set_screen_position(initial_screen_pos);
+				m_unlocked_level_sparkles[0].draw(projection_2D);
+			}
+			if (m_unlocked_levels >= 3) {
+				m_unlocked_level_sparkles[1].set_screen_position(initial_screen_pos, { offset, 0 });
+				m_unlocked_level_sparkles[1].draw(projection_2D);
+			}
+			if (m_unlocked_levels >= 4) {
+				m_unlocked_level_sparkles[2].set_screen_position(initial_screen_pos, { offset * 2, 0 });
+				m_unlocked_level_sparkles[2].draw(projection_2D);
+			}
+			if (m_unlocked_levels >= 5) {
+				m_unlocked_level_sparkles[3].set_screen_position(initial_screen_pos, { offset * 3, 0 });
+				m_unlocked_level_sparkles[3].draw(projection_2D);
+			}
+			if (m_unlocked_levels >= 6) {
+				m_unlocked_level_sparkles[4].set_screen_position(initial_screen_pos, { 0, offset });
+				m_unlocked_level_sparkles[4].draw(projection_2D);
+			}
+			// TODO: enable this once more levels are set. Right now MAX_LEVEL = 5. 
+			/*
+			m_unlocked_level_sparkles[5].set_screen_position(initial_screen_pos, { offset, offset });
+			m_unlocked_level_sparkles[5].draw(projection_2D);
+			m_unlocked_level_sparkles[6].set_screen_position(initial_screen_pos, { offset * 2, offset });
+			m_unlocked_level_sparkles[6].draw(projection_2D);
+			m_unlocked_level_sparkles[7].set_screen_position(initial_screen_pos, { offset * 3, offset });
+			m_unlocked_level_sparkles[7].draw(projection_2D);
+			*/
+		}
 	}
 	if (m_paused) {
 		m_pause_screen.draw(projection_2D);

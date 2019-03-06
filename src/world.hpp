@@ -75,7 +75,7 @@ private:
 	Screen m_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
-	UnlockedLevelSparkle m_unlocked_level_sparkle;
+	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 
 	unsigned int m_current_level;
 
