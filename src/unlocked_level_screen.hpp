@@ -14,7 +14,10 @@ public:
 	// Renders the water
 	void draw(const mat3& projection)override;
 
+	void set_screen_position(vec2 position);
+
   vec2 get_bounding_box()const;
+
 
 private:
   TexturedVertex vertices[4];

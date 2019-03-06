@@ -91,6 +91,7 @@ bool World::init(vec2 screen) {
 	m_level_screen.init();
 	m_pause_screen.init();
 	m_unlocked_level_screen.init();
+	m_unlocked_level_screen.set_screen_position({600, 400});
 
 	return m_screen.init();
 }

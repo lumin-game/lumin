@@ -60,7 +60,7 @@ bool UnlockedLevelScreen::init() {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
 	m_scale = { 1.0, 1.0 };
-	m_position = { 600, 400 }; // modify this later
+	// m_position = position; // modify this later
 
   return true;
 }
@@ -118,6 +118,11 @@ void UnlockedLevelScreen::draw(const mat3& projection) {
   // Drawing!
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
+
+void UnlockedLevelScreen::set_screen_position(vec2 position) {
+	m_position = position;
+}
+
 // returns the local bounding coordinates scaled by the current size of the background
 vec2 UnlockedLevelScreen::get_bounding_box()const
 {
