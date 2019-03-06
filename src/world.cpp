@@ -90,11 +90,11 @@ bool World::init(vec2 screen) {
 	create_current_level();
 	m_level_screen.init();
 	m_pause_screen.init();
-	m_unlocked_level_screen.init();
+	m_unlocked_level_sparkle.init();
 	
 	// if m_unlocked_levels >= 2, level 1 has been complete
 	if (m_unlocked_levels >= 2) {
-		m_unlocked_level_screen.set_screen_position({300, 370});
+		m_unlocked_level_sparkle.set_screen_position({300, 370});
 	}
 
 	return m_screen.init();
@@ -201,7 +201,7 @@ void World::draw() {
 	// Truely render to the screen
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(projection_2D);
-		m_unlocked_level_screen.draw(projection_2D);
+		m_unlocked_level_sparkle.draw(projection_2D);
 	}
 	if (m_paused) {
 		m_pause_screen.draw(projection_2D);

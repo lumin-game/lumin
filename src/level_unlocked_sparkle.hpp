@@ -2,7 +2,7 @@
 
 #include "common.hpp"
 
-class UnlockedLevelScreen : public Renderable
+class UnlockedLevelSparkle : public Renderable
 {
 public:
 	// Creates all the associated render resources and default transform
@@ -21,7 +21,7 @@ public:
 
 private:
   TexturedVertex vertices[4];
-	static Texture unlocked_level_screen_texture;
+	static Texture unlocked_level_sparkle_texture;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	vec2 m_position;
 };

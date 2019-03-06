@@ -11,7 +11,7 @@
 #include "switch.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
-#include "unlocked_level_screen.hpp"
+#include "level_unlocked_sparkle.hpp"
 
 // stlib
 #include <vector>
@@ -75,7 +75,7 @@ private:
 	Screen m_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
-	UnlockedLevelScreen m_unlocked_level_screen;
+	UnlockedLevelSparkle m_unlocked_level_sparkle;
 
 	unsigned int m_current_level;
 

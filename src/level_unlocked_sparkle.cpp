@@ -1,18 +1,18 @@
-#include "unlocked_level_screen.hpp"
+#include "level_unlocked_sparkle.hpp"
 
 #include <iostream>
 #include <cmath>
 
-Texture UnlockedLevelScreen::unlocked_level_screen_texture;
+Texture UnlockedLevelSparkle::unlocked_level_sparkle_texture;
 
-bool UnlockedLevelScreen::init() {
+bool UnlockedLevelSparkle::init() {
 
 	// Since we are not going to apply transformation to this screen geometry
 	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
 	// Make the size slightly larger then the screen to crop the boundary
-  if (!unlocked_level_screen_texture.is_valid())
+  if (!unlocked_level_sparkle_texture.is_valid())
   {
-    if (!unlocked_level_screen_texture.load_from_file(textures_path("level_unlocked.png")))
+    if (!unlocked_level_sparkle_texture.load_from_file(textures_path("level_unlocked.png")))
     {
       fprintf(stderr, "Failed to load level screen texture!");
       return false;
@@ -21,8 +21,8 @@ bool UnlockedLevelScreen::init() {
 
   // The position corresponds to the center of the texture
   // TODO: ensure that texture size is the same
-  float wr = unlocked_level_screen_texture.width * 0.5f;
-  float hr = unlocked_level_screen_texture.height * 0.5f;
+  float wr = unlocked_level_sparkle_texture.width * 0.5f;
+  float hr = unlocked_level_sparkle_texture.height * 0.5f;
 
   vertices[0].position = { -wr, +hr, 0.f };
 	vertices[1].position = { +wr, +hr, 0.f };
@@ -65,7 +65,7 @@ bool UnlockedLevelScreen::init() {
 }
 
 
-void UnlockedLevelScreen::destroy() {
+void UnlockedLevelSparkle::destroy() {
   glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -73,7 +73,7 @@ void UnlockedLevelScreen::destroy() {
 	effect.release();
 }
 
-void UnlockedLevelScreen::draw(const mat3& projection) {
+void UnlockedLevelSparkle::draw(const mat3& projection) {
   transform_begin();
   transform_scale(m_scale);
   transform_translate(m_position);
@@ -106,7 +106,7 @@ void UnlockedLevelScreen::draw(const mat3& projection) {
 
   // Enabling and binding texture to slot 0
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, unlocked_level_screen_texture.id);
+  glBindTexture(GL_TEXTURE_2D, unlocked_level_sparkle_texture.id);
 
   // Setting uniform values to the currently bound program
   glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -118,14 +118,14 @@ void UnlockedLevelScreen::draw(const mat3& projection) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-void UnlockedLevelScreen::set_screen_position(vec2 position) {
+void UnlockedLevelSparkle::set_screen_position(vec2 position) {
 	m_position = position;
 }
 
 // returns the local bounding coordinates scaled by the current size of the background
-vec2 UnlockedLevelScreen::get_bounding_box()const
+vec2 UnlockedLevelSparkle::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * unlocked_level_screen_texture.width, std::fabs(m_scale.y) * unlocked_level_screen_texture.height };
+	return { std::fabs(m_scale.x) * unlocked_level_sparkle_texture.width, std::fabs(m_scale.y) * unlocked_level_sparkle_texture.height };
 }
 
