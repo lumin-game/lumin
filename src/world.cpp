@@ -90,6 +90,7 @@ bool World::init(vec2 screen) {
 	create_current_level();
 	m_level_screen.init();
 	m_pause_screen.init();
+	m_unlocked_level_screen.init();
 
 	return m_screen.init();
 }
@@ -195,6 +196,7 @@ void World::draw() {
 	// Truely render to the screen
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(projection_2D);
+		m_unlocked_level_screen.draw(projection_2D);
 	}
 	if (m_paused) {
 		m_pause_screen.draw(projection_2D);

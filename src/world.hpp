@@ -11,6 +11,7 @@
 #include "switch.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
+#include "unlocked_level_screen.hpp"
 
 // stlib
 #include <vector>
@@ -74,6 +75,7 @@ private:
 	Screen m_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
+	UnlockedLevelScreen m_unlocked_level_screen;
 
 	unsigned int m_current_level;
 
@@ -83,7 +85,6 @@ private:
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
-
 	Mix_Music* m_background_music;
 
 	// C++ rng

@@ -1,18 +1,18 @@
-#include "level_screen.hpp"
+#include "unlocked_level_screen.hpp"
 
 #include <iostream>
 #include <cmath>
 
-Texture LevelScreen::level_screen_texture;
+Texture UnlockedLevelScreen::unlocked_level_screen_texture;
 
-bool LevelScreen::init() {
+bool UnlockedLevelScreen::init() {
 
 	// Since we are not going to apply transformation to this screen geometry
 	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
 	// Make the size slightly larger then the screen to crop the boundary
-  if (!level_screen_texture.is_valid())
+  if (!unlocked_level_screen_texture.is_valid())
   {
-    if (!level_screen_texture.load_from_file(textures_path("level_selection_screen.png")))
+    if (!unlocked_level_screen_texture.load_from_file(textures_path("level_unlocked.png")))
     {
       fprintf(stderr, "Failed to load level screen texture!");
       return false;
@@ -20,17 +20,19 @@ bool LevelScreen::init() {
   }
 
   // The position corresponds to the center of the texture
-  float wr = level_screen_texture.width * 0.5f;
-  float hr = level_screen_texture.height * 0.5f;
+  // TODO: ensure that texture size is the same
+  float wr = unlocked_level_screen_texture.width * 0.5f;
+  float hr = unlocked_level_screen_texture.height * 0.5f;
+  std::cout << wr << " " << hr << std::endl;
 
-  TexturedVertex vertices[4];
   vertices[0].position = { -wr, +hr, 0.f };
-	vertices[0].texcoord = { 0.f, 1.f };//top left
 	vertices[1].position = { +wr, +hr, 0.f };
-	vertices[1].texcoord = { 1.f, 1.f };//top right
 	vertices[2].position = { +wr, -hr, 0.f };
-	vertices[2].texcoord = { 1.f, 0.f };//bottom right
 	vertices[3].position = { -wr, -hr, 0.f };
+
+	vertices[0].texcoord = { 0.f, 1.f };//top left
+	vertices[1].texcoord = { 1.f, 1.f };//top right
+	vertices[2].texcoord = { 1.f, 0.f };//bottom right
 	vertices[3].texcoord = { 0.f, 0.f };//bottom left
 
   // counterclockwise as it's the default opengl front winding direction
@@ -63,7 +65,8 @@ bool LevelScreen::init() {
   return true;
 }
 
-void LevelScreen::destroy() {
+
+void UnlockedLevelScreen::destroy() {
   glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -71,14 +74,8 @@ void LevelScreen::destroy() {
 	effect.release();
 }
 
-void LevelScreen::draw(const mat3& projection) {
+void UnlockedLevelScreen::draw(const mat3& projection) {
   transform_begin();
-  // see Transformations and Rendering in the specification pdf
-  // the following functions are available:
-  // transform_translate()
-  // transform_rotate()
-  // transform_scale()
-
   transform_scale(m_scale);
   transform_translate(m_position);
   transform_end();
@@ -110,7 +107,7 @@ void LevelScreen::draw(const mat3& projection) {
 
   // Enabling and binding texture to slot 0
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, level_screen_texture.id);
+  glBindTexture(GL_TEXTURE_2D, unlocked_level_screen_texture.id);
 
   // Setting uniform values to the currently bound program
   glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -122,9 +119,9 @@ void LevelScreen::draw(const mat3& projection) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 // returns the local bounding coordinates scaled by the current size of the background
-vec2 LevelScreen::get_bounding_box()const
+vec2 UnlockedLevelScreen::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * level_screen_texture.width, std::fabs(m_scale.y) * level_screen_texture.height };
+	return { std::fabs(m_scale.x) * unlocked_level_screen_texture.width, std::fabs(m_scale.y) * unlocked_level_screen_texture.height };
 }
 
