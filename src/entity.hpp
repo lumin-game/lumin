@@ -26,16 +26,16 @@ public:
 	virtual void deactivate() {};
 
 	// Creates all the associated render resources and default transform
-	bool init(int x_pos, int y_pos);
+	virtual bool init(int x_pos, int y_pos);
 
 	// Releases all the associated resources
-	void destroy();
+	virtual void destroy();
 
 	// Update logic for entities
 	virtual void update(float elapsed_ms);
 
 	// Renders the entity using the texture
-	void draw(const mat3& projection) override;
+	virtual void draw(const mat3& projection) override;
 
 	// Returns the current entity position
 	vec2 get_position() const;

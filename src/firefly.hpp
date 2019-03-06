@@ -2,9 +2,9 @@
 #include <vector>
 #include <common.hpp>
 #include <light_mesh.hpp>
+#include "entity.hpp"
 
-class Firefly
-{
+class Firefly : public Entity {
 private:
 	const int FIREFLY_COUNT = 12;
 	const float FIREFLY_DISTRIBUTION = 30.f;
@@ -23,11 +23,8 @@ private:
 
 		ParentData parent;
 
-		SingleFirefly(float x, float y)
-		{
-			position = { x, y };
-			velocity = { 0.f, 0.f };
-			init();
+		SingleFirefly(float x, float y) {
+			init(x, y);
 		}
 
 		void destroy();
@@ -35,7 +32,7 @@ private:
 		void draw(const mat3& projection) override;
 
 	private:
-		bool init();
+		bool init(float x_pos, float y_pos);
 
 		vec2 position;
 		vec2 velocity;
@@ -44,30 +41,20 @@ private:
 	};
 
 public:
-	~Firefly() { destroy(); }
+	const char* get_texture_path() const override { return nullptr; }
 
-public:
 	// Creates all the associated render resources and default transform
-	bool init();
+	bool init(int x_pos, int y_pos) override;
 
 	// Releases all associated resources
-	void destroy();
+	void destroy() override;
 
-	// Update player position
-	// ms represents the number of milliseconds elapsed from the previous update() call
-	void update(float ms);
+	void update(float ms) override;
 
-	void draw(const mat3& projection);
-
-	vec2 get_position() const;
-	void set_position(vec2 position);
-	void set_screen_pos(vec2 screenPos);
+	void draw(const mat3& projection) override;
 
 private:
 	std::vector<SingleFirefly> fireflies;
-	vec2 m_scale;
-	vec2 m_position;
 	vec2 m_velocity;
-	vec2 m_screen_pos;
 	LightMesh lightMesh;
 };

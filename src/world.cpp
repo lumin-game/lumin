@@ -16,6 +16,7 @@
 #include <iostream>
 
 #define BLOCK_SIZE 64
+#define MAX_LEVEL 5
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -26,7 +27,7 @@ namespace {
 	}
 }
 
-World::World() : m_points(0) {
+World::World() {
 	// Seeding rng with random device
 	m_rng = std::default_random_engine(std::random_device()());
 }
@@ -81,10 +82,7 @@ bool World::init(vec2 screen) {
 	m_screen_tex.create_from_screen(m_window);
 
 	m_current_level = 1;
-
 	m_unlocked_levels = 5;
-
-	m_max_level = 5;
 
 	m_should_load_level_screen = false;
 	m_paused = false;
@@ -93,20 +91,7 @@ bool World::init(vec2 screen) {
 	m_level_screen.init();
 	m_pause_screen.init();
 
-	// Maybe not great to pass in 'this'
-	// But player (specifically the lightMesh) needs access to static equations
-	// Maybe the solution here is a collision manager object or something
-	// Or make world a singleton oof
-	// TODO: figure out a better way to handle light's dependency on walls
 	return m_screen.init();
-}
-
-void World::create_firefly(vec2 pos)
-{
-	Firefly* firefly = new Firefly();
-	firefly->init();
-	firefly->set_position(pos);
-	m_fireflies.push_back(firefly);
 }
 
 // Releases all the associated resources
@@ -119,16 +104,12 @@ void World::destroy()
 
 	Mix_CloseAudio();
 
-	m_player.destroy();
 	for (Entity* entity : m_entities) {
 	    delete entity;
 	}
 	m_entities.clear();
 
-	for (Firefly* firefly : m_fireflies) {
-		delete firefly;
-	}
-	m_fireflies.clear();
+	m_player.destroy();
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
@@ -155,10 +136,6 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 
 		m_player.update(elapsed_ms);
-
-		for (Firefly* firefly : m_fireflies) {
-			firefly->update(elapsed_ms);
-		}
 	}
 
 	return true;
@@ -210,14 +187,6 @@ void World::draw() {
 		vec2 screen_pos = {screen_pos_x, screen_pos_y};
 		entity->set_screen_pos(screen_pos);
 		entity->draw(projection_2D);
-	}
-
-	for (Firefly* firefly : m_fireflies) {
-		float screen_pos_x = firefly->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
-		float screen_pos_y = firefly->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
-		vec2 screen_pos = { screen_pos_x, screen_pos_y };
-		firefly->set_screen_pos(screen_pos);
-		firefly->draw(projection_2D);
 	}
 
 	m_player.draw(projection_2D);
@@ -276,8 +245,8 @@ bool World::add_tile(int x_pos, int y_pos, StaticTile tile) {
 			level_entity = new Fog();
 			break;
 		case FIREFLY:
-			create_firefly({ (float) x_pos * BLOCK_SIZE, (float) y_pos * BLOCK_SIZE });
-			return true;
+			level_entity = new Firefly();
+            break;
 		case PLAYER:
 			m_player.init();
 			// spawn player 1 tile higher to ensure that the player doesn't fall
@@ -480,14 +449,12 @@ void World::create_level(std::vector<std::vector<char>>& grid) {
 void World::reset_game() {
 	int w, h;
 	glfwGetWindowSize(m_window, &w, &h);
+
 	for (Entity* entity : m_entities) {
 		delete entity;
 	}
 	m_entities.clear();
-	for (Firefly* firefly : m_fireflies) {
-		delete firefly;
-	}
-	m_fireflies.clear();
+
 	m_player.destroy();
 	create_current_level();
 	m_player.init();
@@ -508,10 +475,10 @@ void World::load_level_screen(int key_pressed_level) {
 }
 
 void World::update_level() {
-	if (m_current_level < m_max_level) {
+	if (m_current_level < MAX_LEVEL) {
 		m_current_level++;
 		reset_game();
-	} else if (m_current_level == m_max_level){
+	} else if (m_current_level == MAX_LEVEL){
 		// TODO: Maybe project a screen displaying that user has completed all levels?
 		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
 	}
