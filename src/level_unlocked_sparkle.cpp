@@ -20,7 +20,6 @@ bool UnlockedLevelSparkle::init() {
   }
 
   // The position corresponds to the center of the texture
-  // TODO: ensure that texture size is the same
   float wr = unlocked_level_sparkle_texture.width * 0.5f;
   float hr = unlocked_level_sparkle_texture.height * 0.5f;
 
@@ -59,7 +58,6 @@ bool UnlockedLevelSparkle::init() {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
 	m_scale = { 1.0, 1.0 };
-	// m_position = position; // modify this later
 
   return true;
 }

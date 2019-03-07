@@ -82,7 +82,8 @@ bool World::init(vec2 screen) {
 	m_screen_tex.create_from_screen(m_window);
 
 	m_current_level = 1;
-	m_unlocked_levels = 5;
+	// Unlocked levels set to MAX_LEVEL for now for testing purposes
+	m_unlocked_levels = MAX_LEVEL;
 
 	m_should_load_level_screen = false;
 	m_paused = false;
@@ -204,37 +205,15 @@ void World::draw() {
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(projection_2D);
 		vec2 initial_screen_pos = { 300, 370 };
+		// Offset is the distance calculated between each level boxes
 		float offset = 225;
-		for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
-			if (m_unlocked_levels >= 2) {
-				m_unlocked_level_sparkles[0].set_screen_position(initial_screen_pos);
-				m_unlocked_level_sparkles[0].draw(projection_2D);
-			}
-			if (m_unlocked_levels >= 3) {
-				m_unlocked_level_sparkles[1].set_screen_position(initial_screen_pos, { offset, 0 });
-				m_unlocked_level_sparkles[1].draw(projection_2D);
-			}
-			if (m_unlocked_levels >= 4) {
-				m_unlocked_level_sparkles[2].set_screen_position(initial_screen_pos, { offset * 2, 0 });
-				m_unlocked_level_sparkles[2].draw(projection_2D);
-			}
-			if (m_unlocked_levels >= 5) {
-				m_unlocked_level_sparkles[3].set_screen_position(initial_screen_pos, { offset * 3, 0 });
-				m_unlocked_level_sparkles[3].draw(projection_2D);
-			}
-			if (m_unlocked_levels >= 6) {
-				m_unlocked_level_sparkles[4].set_screen_position(initial_screen_pos, { 0, offset });
-				m_unlocked_level_sparkles[4].draw(projection_2D);
-			}
-			// TODO: enable this once more levels are set. Right now MAX_LEVEL = 5. 
-			/*
-			m_unlocked_level_sparkles[5].set_screen_position(initial_screen_pos, { offset, offset });
-			m_unlocked_level_sparkles[5].draw(projection_2D);
-			m_unlocked_level_sparkles[6].set_screen_position(initial_screen_pos, { offset * 2, offset });
-			m_unlocked_level_sparkles[6].draw(projection_2D);
-			m_unlocked_level_sparkles[7].set_screen_position(initial_screen_pos, { offset * 3, offset });
-			m_unlocked_level_sparkles[7].draw(projection_2D);
-			*/
+		// There are 4 boxes per row right now
+		int num_col = 4;
+		for (int i = 0; i < m_unlocked_levels; ++i) {
+			int x = i % num_col;
+			int y = i / num_col;
+			m_unlocked_level_sparkles[i].set_screen_position(initial_screen_pos, { offset * x, offset * y });
+			m_unlocked_level_sparkles[i].draw(projection_2D);
 		}
 	}
 	if (m_paused) {
@@ -565,16 +544,10 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	}
 
 	if (m_should_load_level_screen) {
-		if (key == GLFW_KEY_1) {
-			load_level_screen(1);
-		} else if (key == GLFW_KEY_2) {
-			load_level_screen(2);
-		} else if (key == GLFW_KEY_3) {
-			load_level_screen(3);
-		} else if (key == GLFW_KEY_4) {
-			load_level_screen(4);
-		} else if (key == GLFW_KEY_5) {
-			load_level_screen(5);
+		for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
+			if (key == i) {
+				load_level_screen(i - GLFW_KEY_1 + 1);
+			}
 		}
 	}
 
