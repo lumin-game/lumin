@@ -25,8 +25,8 @@ public:
 	virtual void activate() {};
 	virtual void deactivate() {};
 
-	// Creates all the associated render resources and default transform
-	virtual bool init(int x_pos, int y_pos);
+	// Creates all the associated render reso+urces and default transform
+	virtual bool init(float x_pos, float y_pos);
 
 	// Releases all the associated resources
 	virtual void destroy();

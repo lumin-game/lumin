@@ -318,6 +318,10 @@ void World::create_current_level() {
 						continue;
 				}
 
+				if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
+				{
+					continue;
+				}
 				std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
 				entity->init(coord.first * BLOCK_SIZE, coord.second * BLOCK_SIZE);
 				dynamicEntities.insert(std::pair<char, Entity*>(name, entity));
@@ -365,33 +369,86 @@ void World::create_current_level() {
 
 				// Moving platform movement declaration
 				if (MovableWall *mw = dynamic_cast<MovableWall*>(entity->second)) {
-					const char dir = charVector[2];
-					float dx = 0.f;
-					float dy = 0.f;
 
-					switch (dir) {
-						case '^':
-							dy = -1.f;
-							break;
-						case '>':
-							dx = 1.f;
-							break;
-						case 'v':
-							dy = 1.f;
-							break;
-						case '<':
-							dx = -1.f;
-							break;
+					if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
+					{
+						continue;
+					}
+					std::pair<int, int> start = dynamicEntityLocs.find(name)->second;
+					vec2 initialBlockLocation = { start.first, start.second };
+
+					row.erase(0, row.find(" ") + 1);
+
+					bool moveImmediate = row.find("M") < row.size();
+					bool loopMovement = row.find("L") < row.size();;
+					bool reverseOnLoop = row.find("R") < row.size();;
+					bool shouldCurve = false;
+
+					std::vector<vec2> blockLocations;
+					std::vector<vec2> blockCurves;
+
+					std::string curve = "~";
+					std::string openParen = "(";
+					std::string closeParen = ")";
+
+					int curveInd = row.find(curve);
+					if (curveInd < row.size())
+					{
+						shouldCurve = true;
+						std::string curveDefinition = row.substr(curveInd, row.size() - curveInd);
+						row.erase(curveInd, row.size());
+
+						int index = curveDefinition.find(openParen);
+						while (index < curveDefinition.size())
+						{
+							int end = curveDefinition.find(closeParen);
+							if (end >= curveDefinition.size())
+							{
+								fprintf(stderr, "Syntax malformat in MovableWall path declaration!");
+								continue;
+							}
+
+							std::string coord = curveDefinition.substr(index + 1, end - index - 1);
+							int comma = coord.find(",");
+							std::string xBlockStr = coord.substr(0, comma);
+							std::string yBlockStr = coord.substr(comma + 1, coord.size() - comma);
+
+							int xBlock = stoi(xBlockStr);
+							int yBlock = stoi(yBlockStr);
+
+							blockCurves.push_back(initialBlockLocation + vec2({ (float)xBlock, (float)yBlock }));
+
+							curveDefinition.erase(0, end + 1);
+							index = curveDefinition.find(openParen);
+						}
 					}
 
-					const int dist = charVector[3] - '0';
+					int index = row.find(openParen);				
+					while (index < row.size())
+					{
+						int end = row.find(closeParen);
+						if (end >= row.size())
+						{
+							fprintf(stderr, "Syntax malformat in MovableWall path declaration!");
+							continue;
+						}
 
-					const char moveType = charVector[3];
-					bool moveImmediate = false;
-					bool loopMovement = false;
+						std::string coord = row.substr(index + 1, end - index - 1);
+						int comma = coord.find(",");
+						std::string xBlockStr = coord.substr(0, comma);
+						std::string yBlockStr = coord.substr(comma + 1, coord.size() - comma);
+
+						int xBlock = stoi(xBlockStr);
+						int yBlock = stoi(yBlockStr);
+
+						blockLocations.push_back(initialBlockLocation + vec2({ (float) xBlock, (float) yBlock }));
+
+						row.erase(0, end + 1);
+						index = row.find(openParen);
+					}
 
 					// TODO: map different movement types to the 4th character in the declaration
-					mw->set_movement_properties(dx * dist, dy * dist, 0.2, moveImmediate, loopMovement);
+					mw->set_movement_properties(shouldCurve, blockLocations, blockCurves, 0.2, moveImmediate, loopMovement, reverseOnLoop);
 				}
 
 			} else {
@@ -534,6 +591,8 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			load_level_screen(4);
 		} else if (key == GLFW_KEY_5) {
 			load_level_screen(5);
+		} else if (key == GLFW_KEY_T) {
+			load_level_screen(-1);
 		}
 	}
 

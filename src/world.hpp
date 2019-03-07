@@ -75,10 +75,10 @@ private:
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
 
-	unsigned int m_current_level;
+	int m_current_level;
 
 	// number of levels that user has unlocked
-	unsigned int m_unlocked_levels;
+	int m_unlocked_levels;
 
 	// Game entities
 	Player m_player;

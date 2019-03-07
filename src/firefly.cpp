@@ -150,7 +150,7 @@ void Firefly::SingleFirefly::draw(const mat3& projection)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-bool Firefly::init(int x_pos, int y_pos) {
+bool Firefly::init(float x_pos, float y_pos) {
 	m_scale.x = 1.f;
 	m_scale.y = 1.f;
 
