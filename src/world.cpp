@@ -93,8 +93,8 @@ bool World::init(vec2 screen) {
 	m_pause_screen.init();
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
-			m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
-			m_unlocked_level_sparkles[i].init();
+		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
+		m_unlocked_level_sparkles[i].init();
 	}
 
 	return m_screen.init();
@@ -131,19 +131,16 @@ bool World::update(float elapsed_ms) {
 		// First move the world (entities)
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
-
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
-			    if (door->get_lit() && door->is_player_inside(&m_player)) {
-			    	update_level();
-			    	return true;
-			    }
+				if (door->get_lit() && door->is_player_inside(&m_player)) {
+					update_level();
+					return true;
+				}
 			}
 		}
-
 		// Then handle light equations
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
-
 		m_player.update(elapsed_ms);
 	}
 
