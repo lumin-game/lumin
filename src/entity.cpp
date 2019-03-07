@@ -16,7 +16,7 @@ bool Entity::init(int x_pos, int y_pos) {
 		return false;
 	}
 
-	texture = &unlit_texture;
+	texture = m_is_lit ? &lit_texture : &unlit_texture;
 
 	// The position corresponds to the center of the texture
 	float wr = texture->width * 0.5f;

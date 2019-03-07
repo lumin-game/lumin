@@ -23,8 +23,6 @@ bool Player::init()
 
 	playerWidth = (int)(playerMesh.GetPlayerWidth() * m_scale.x);
 	playerHeight = (int)(playerMesh.GetPlayerHeight() * m_scale.y);
-
-	m_position = { 100.f, 50.f };
 	m_screen_pos = m_position;
 	m_screen_x_movement = 0.f;
 	m_screen_y_movement = 0.f;

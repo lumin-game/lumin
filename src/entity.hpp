@@ -12,7 +12,7 @@ struct EntityColor {
 
 class Entity : public Renderable {
 public:
-	virtual ~Entity() = default;
+	virtual ~Entity() { Entity::destroy(); };
 
 	virtual const char* get_texture_path() const = 0;
 
@@ -26,16 +26,16 @@ public:
 	virtual void deactivate() {};
 
 	// Creates all the associated render resources and default transform
-	bool init(int x_pos, int y_pos);
+	virtual bool init(int x_pos, int y_pos);
 
 	// Releases all the associated resources
-	void destroy();
+	virtual void destroy();
 
 	// Update logic for entities
 	virtual void update(float elapsed_ms);
 
 	// Renders the entity using the texture
-	void draw(const mat3& projection) override;
+	virtual void draw(const mat3& projection) override;
 
 	// Returns the current entity position
 	vec2 get_position() const;
@@ -47,7 +47,7 @@ public:
 	vec2 get_screen_pos() const;
 
 	// Sets the new entity screen position
-	void set_screen_pos(vec2 position);
+	virtual void set_screen_pos(vec2 position);
 
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box() const;
@@ -62,7 +62,6 @@ public:
 	void register_entity(Entity* entity);
 
 private:
-    // pointer to the active texture
 	Texture unlit_texture;
 	Texture lit_texture;
 	bool m_is_lit = false;
@@ -70,7 +69,10 @@ private:
 protected:
     // Window coordinates
     vec2 m_screen_pos;
+
+	// pointer to the active texture
     Texture* texture;
+
     // 1.f in each dimension. 1.f is as big as the associated texture
     vec2 m_scale;
     vec2 m_position;

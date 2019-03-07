@@ -3,12 +3,11 @@
 
 #include <iostream>
 
-void MovableWall::set_movement_properties(float move_blocks_X, float move_blocks_Y, float speed, bool moving_immediately, bool loop_movement) {
-	const uint32_t BLOCK_SIZE = 64;
-	
-	initial_position = get_position();
-	move_dest_X = initial_position.x + (move_blocks_X * BLOCK_SIZE);
-	move_dest_Y = initial_position.y + (move_blocks_Y * BLOCK_SIZE);
+#define BLOCK_SIZE 64
+
+void MovableWall::set_movement_properties(float deltaX, float deltaY, float speed, bool moving_immediately, bool loop_movement) {
+	move_blocks_X = deltaX;
+	move_blocks_Y = deltaY;
 	move_speed = speed;
 	is_moving = moving_immediately;
 	can_move = true;
@@ -16,9 +15,13 @@ void MovableWall::set_movement_properties(float move_blocks_X, float move_blocks
 	moving_forward = true;
 }
 
-void MovableWall::trigger_movement(bool moving) {
-	if (can_move) { 
-		is_moving = moving;
+void MovableWall::activate() {
+	initial_position = get_position();
+	move_dest_X = initial_position.x + (move_blocks_X * BLOCK_SIZE);
+	move_dest_Y = initial_position.y + (move_blocks_Y * BLOCK_SIZE);
+
+	if (can_move) {
+		is_moving = true;
 	}
 }
 

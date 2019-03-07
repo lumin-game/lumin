@@ -39,8 +39,10 @@ vec2 Firefly::SingleFirefly::CalculateForce(std::vector<SingleFirefly>& fireflie
 	return force;
 }
 
-bool Firefly::SingleFirefly::init()
-{
+bool Firefly::SingleFirefly::init(float x_pos, float y_pos) {
+	position = {x_pos, y_pos};
+	velocity = {0.f, 0.f};
+
 	std::vector<Vertex> vertices;
 
 	Vertex vertex;
@@ -76,10 +78,7 @@ bool Firefly::SingleFirefly::init()
 		return false;
 
 	// Loading shaders
-	if (!effect.load_from_file(shader_path("firefly.vs.glsl"), shader_path("firefly.fs.glsl")))
-		return false;
-
-	return true;
+	return effect.load_from_file(shader_path("firefly.vs.glsl"), shader_path("firefly.fs.glsl"));
 }
 
 void Firefly::SingleFirefly::destroy()
@@ -151,28 +150,21 @@ void Firefly::SingleFirefly::draw(const mat3& projection)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-bool Firefly::init()
-{
+bool Firefly::init(int x_pos, int y_pos) {
 	m_scale.x = 1.f;
 	m_scale.y = 1.f;
 
-	m_position = { 0.f, 0.f };
+	m_position = { (float) x_pos, (float) y_pos };
 	m_screen_pos = m_position;
 
 	std::random_device rand;
 	std::mt19937 gen(rand());
 	std::uniform_real_distribution<> dis(-FIREFLY_DISTRIBUTION, FIREFLY_DISTRIBUTION);
-	for (int i = 0; i < FIREFLY_COUNT; ++i)
-	{
-		fireflies.push_back(SingleFirefly((float) dis(gen), (float) dis(gen)));
+	for (int i = 0; i < FIREFLY_COUNT; ++i) {
+		fireflies.emplace_back(SingleFirefly((float) dis(gen), (float) dis(gen)));
 	}
 
-	if (!lightMesh.init())
-	{
-		return false;
-	}
-
-	return true;
+	return lightMesh.init();
 }
 
 void Firefly::destroy()
@@ -258,17 +250,4 @@ void Firefly::draw(const mat3& projection)
 	lightData.m_screen_pos = m_screen_pos;
 	lightMesh.SetParentData(lightData);
 	lightMesh.draw(projection);
-}
-
-vec2 Firefly::get_position() const {
-	return m_position;
-}
-
-void Firefly::set_position(vec2 position)
-{
-	m_position = position;
-}
-
-void Firefly::set_screen_pos(vec2 position) {
-	m_screen_pos = position;
 }

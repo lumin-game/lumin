@@ -11,6 +11,7 @@
 #include "switch.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
+#include "level_unlocked_sparkle.hpp"
 
 // stlib
 #include <vector>
@@ -48,8 +49,6 @@ private:
 
 	void create_current_level();
 
-	void create_firefly(vec2 pos);
-
 	void print_grid(std::vector<std::vector<char>>& grid);
 
 	void create_level(std::vector<std::vector<char>>& grid);
@@ -76,24 +75,16 @@ private:
 	Screen m_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
-
-	unsigned int m_points;
+	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 
 	unsigned int m_current_level;
 
 	// number of levels that user has unlocked
 	unsigned int m_unlocked_levels;
 
-	// max level of the game
-	unsigned int m_max_level;
-
 	// Game entities
 	Player m_player;
 	std::vector<Entity*> m_entities;
-	std::vector<Firefly*> m_fireflies;
-	Door* m_exit_door;
-	
-
 	Mix_Music* m_background_music;
 
 	// C++ rng
