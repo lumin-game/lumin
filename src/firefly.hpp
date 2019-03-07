@@ -44,7 +44,7 @@ public:
 	const char* get_texture_path() const override { return nullptr; }
 
 	// Creates all the associated render resources and default transform
-	bool init(int x_pos, int y_pos) override;
+	bool init(float x_pos, float y_pos) override;
 
 	// Releases all associated resources
 	void destroy() override;

@@ -77,10 +77,10 @@ private:
 	PauseScreen m_pause_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 
-	unsigned int m_current_level;
+	int m_current_level;
 
 	// number of levels that user has unlocked
-	unsigned int m_unlocked_levels;
+	int m_unlocked_levels;
 
 	// Game entities
 	Player m_player;

@@ -5,7 +5,7 @@
 #include "CollisionManager.hpp"
 
 
-bool Entity::init(int x_pos, int y_pos) {
+bool Entity::init(float x_pos, float y_pos) {
 	if (!unlit_texture.load_from_file(get_texture_path())) {
 		fprintf(stderr, "Failed to load entity texture!");
 		return false;
