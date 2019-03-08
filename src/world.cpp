@@ -98,12 +98,6 @@ bool World::init(vec2 screen) {
 		fprintf(stderr, "Failed to open audio device");
 		return false;
 	}
-	m_swtch_on_sound = Mix_LoadWAV(audio_path("switch_on.wav"));
-
-	if (m_swtch_on_sound == nullptr) {
-		fprintf(stderr, "Failed to load sound\n %s make sure the data directory is present",
-			audio_path("switch_on.wav"));
-	}
 
 	return m_screen.init();
 }
@@ -115,8 +109,6 @@ void World::destroy()
 
 	if (m_background_music != nullptr)
 		Mix_FreeMusic(m_background_music);
-	if (m_swtch_on_sound != nullptr)
-		Mix_FreeChunk(m_swtch_on_sound);
 
 	Mix_CloseAudio();
 
@@ -141,13 +133,6 @@ bool World::update(float elapsed_ms) {
 		// First move the world (entities)
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
-			// Check if switch has been activated to play sound effect
-			if (Switch* swtch = dynamic_cast<Switch*>(entity)) {
-				if (swtch->get_lit() && !swtch->get_audio_played()) {
-					Mix_PlayChannel(-1,m_swtch_on_sound, 0);
-					swtch->set_audio_played();
-				}
-			}
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
 				if (door->get_lit() && door->is_player_inside(&m_player)) {
