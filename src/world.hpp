@@ -1,17 +1,14 @@
 #pragma once
 
 // internal
-#include "movable_wall.hpp"
 #include "common.hpp"
-#include "door.hpp"
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"
-#include "firefly.hpp"
-#include "switch.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
 #include "level_unlocked_sparkle.hpp"
+#include "LevelGenerator.hpp"
 
 // stlib
 #include <vector>
@@ -45,22 +42,14 @@ public:
 	bool is_over()const;
 
 private:
-	bool add_tile(int x_pos, int y_pos, StaticTile tile);
-
-	void create_current_level();
-
-	void print_grid(std::vector<std::vector<char>>& grid);
-
-	void create_level(std::vector<std::vector<char>>& grid);
-
 	void reset_game();
 
 	void load_level_screen(int key_pressed_level);
 
-	void update_level();
-
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
+
+	void next_level();
 
 private:
 	// Window handle
@@ -70,6 +59,8 @@ private:
 	// The draw loop first renders to this texture, then it is used for the water shader
 	GLuint m_frame_buffer;
 	Texture m_screen_tex;
+
+	LevelGenerator levelGenerator;
 
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
