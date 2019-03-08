@@ -1,8 +1,8 @@
 #include "switch.hpp"
 #include "CollisionManager.hpp"
 
-
 void Switch::activate() {
+	Mix_PlayChannel(-1, get_sound(), 0);
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
 			entity->activate();

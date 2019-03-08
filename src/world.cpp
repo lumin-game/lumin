@@ -2,6 +2,7 @@
 #include "world.hpp"
 #include "CollisionManager.hpp"
 #include "door.hpp"
+#include "switch.hpp"
 
 // stlib
 
@@ -84,6 +85,18 @@ bool World::init(vec2 screen) {
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
 		m_unlocked_level_sparkles[i].init();
+	}
+
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		fprintf(stderr, "Failed to initialize SDL Audio");
+		return false;
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+	{
+		fprintf(stderr, "Failed to open audio device");
+		return false;
 	}
 
 	return m_screen.init();
