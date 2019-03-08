@@ -134,7 +134,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
 						continue;
 					}
 					std::pair<int, int> start = dynamicEntityLocs.find(name)->second;
-					vec2 initialBlockLocation = { start.first, start.second };
+					vec2 initialBlockLocation = { (float) start.first, (float) start.second };
 
 					row.erase(0, row.find(" ") + 1);
 
