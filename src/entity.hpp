@@ -6,6 +6,10 @@
 #include <iostream>
 #include <set>
 
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 struct EntityColor {
 	float r, g, b, a;
 };
@@ -15,7 +19,7 @@ public:
 	virtual ~Entity() { Entity::destroy(); };
 
 	virtual const char* get_texture_path() const = 0;
-
+	virtual const char* get_audio_path() const { return nullptr; }
 	virtual const char* get_lit_texture_path() const { return nullptr; }
 	virtual bool is_player_collidable() const { return false; }
 	virtual bool is_light_collidable() const { return false; }
@@ -25,8 +29,8 @@ public:
 	virtual void activate() {};
 	virtual void deactivate() {};
 
-	// Creates all the associated render resources and default transform
-	virtual bool init(int x_pos, int y_pos);
+	// Creates all the associated render reso+urces and default transform
+	virtual bool init(float x_pos, float y_pos);
 
 	// Releases all the associated resources
 	virtual void destroy();
@@ -61,10 +65,13 @@ public:
 	// Register an entity relationship
 	void register_entity(Entity* entity);
 
+	Mix_Chunk* get_sound() const;
+
 private:
 	Texture unlit_texture;
 	Texture lit_texture;
 	bool m_is_lit = false;
+	Mix_Chunk* m_entity_sound;
 
 protected:
     // Window coordinates
