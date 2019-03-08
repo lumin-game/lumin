@@ -94,6 +94,7 @@ private:
 	
 	// List of light in the level
 	std::set<const RadiusLightMesh*> lightSources;
+	const LaserLightMesh* laserLightSource;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;

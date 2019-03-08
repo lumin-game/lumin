@@ -17,19 +17,18 @@ void CollisionManager::UnregisterRadiusLight(const RadiusLightMesh* light)
 	lightSources.erase(light);
 }
 
-/*
+
 void CollisionManager::RegisterLaserLight(const LaserLightMesh* light)
 {
-	if (lightSources.find(light) == lightSources.end())
-	{
-		lightSources.emplace(light);
+	if (laserLightSource == nullptr) {
+		laserLightSource = light;
 	}
 }
 
 void CollisionManager::UnregisterLaserLight(const LaserLightMesh* light)
 {
-	lightSources.erase(light);
-}*/
+	laserLightSource = nullptr;
+}
 
 void CollisionManager::RegisterEntity(const Entity* entity)
 {
