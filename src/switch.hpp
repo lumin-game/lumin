@@ -11,4 +11,10 @@ public:
 
 	void activate() override;
 	void deactivate() override;
+
+	bool get_audio_played();
+	void set_audio_played();
+
+private:
+	bool m_audio_played = false;
 };

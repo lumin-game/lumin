@@ -17,3 +17,11 @@ void Switch::deactivate() {
 	// but for now, since we don't have the kind of switch that stays on permanently implemented,
 	// this switch should leave movable blocks in their location even after the switch is off
 }
+
+bool Switch::get_audio_played() {
+	return m_audio_played;
+}
+
+void Switch::set_audio_played() {
+	m_audio_played = !m_audio_played;
+}
