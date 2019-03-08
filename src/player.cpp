@@ -14,7 +14,8 @@
 bool Player::init()
 {
 	playerMesh.init();
-	lightMesh.init();
+	radiusLightMesh.init();
+	laserLightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
@@ -32,6 +33,7 @@ bool Player::init()
 	m_max_fall_velocity = 20.f;
 
 	can_jump = false;
+	m_is_radius_light = true;
 
 	return true;
 }
@@ -40,7 +42,8 @@ bool Player::init()
 void Player::destroy()
 {
 	playerMesh.destroy();
-	lightMesh.destroy();
+	radiusLightMesh.destroy();
+	laserLightMesh.destroy();
 }
 
 // Called on each frame by World::update()
@@ -111,12 +114,22 @@ void Player::calculate_screen_pos(const float screen_w, const float screen_h){
 
 void Player::draw(const mat3& projection)
 {
-	RadiusLightMesh::ParentData lightData;
-	lightData.m_position = m_position;
-	lightData.m_screen_pos = m_screen_pos;
+	if (m_is_radius_light) {
+		RadiusLightMesh::ParentData lightData;
+		lightData.m_position = m_position;
+		lightData.m_screen_pos = m_screen_pos;
 
-	lightMesh.SetParentData(lightData);
-	lightMesh.draw(projection);
+		radiusLightMesh.SetParentData(lightData);
+		radiusLightMesh.draw(projection);
+	}
+	else {
+		LaserLightMesh::ParentData lightData;
+		lightData.m_position = m_position;
+		lightData.m_screen_pos = m_screen_pos;
+
+		laserLightMesh.SetParentData(lightData);
+		laserLightMesh.draw(projection);
+	}
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
@@ -158,4 +171,8 @@ void Player::setRightPressed(bool tf) {
 void Player::setPlayerPosition(vec2 pos) {
 	m_position = pos;
 	m_screen_pos = m_position;
+}
+
+void Player::switchLightSource() {
+	m_is_radius_light = !m_is_radius_light;
 }

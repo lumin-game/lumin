@@ -16,7 +16,7 @@
 
 bool LaserLightMesh::init()
 {
-	m_lightRadius = 300.f;
+	m_lightRadius = 100.f;
 
 	// Vertex Buffer creation
 	glGenBuffers(1, &mesh.vbo);

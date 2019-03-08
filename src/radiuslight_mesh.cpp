@@ -28,7 +28,7 @@ bool RadiusLightMesh::init()
 		return false;
 
 	// Loading shaders
-	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
+	if (!effect.load_from_file(shader_path("radiuslight.vs.glsl"), shader_path("radiuslight.fs.glsl")))
 		return false;
 
 	CollisionManager::GetInstance().RegisterRadiusLight(this);

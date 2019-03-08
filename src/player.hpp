@@ -2,6 +2,7 @@
 
 #include "player_mesh.hpp"
 #include "radiuslight_mesh.hpp"
+#include "laserlight_mesh.hpp"
 #include "common.hpp"
 
 class World;
@@ -40,6 +41,8 @@ public:
 
 	void setPlayerPosition(vec2 pos);
 
+	void switchLightSource();
+
 private:
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Position on screen
@@ -50,6 +53,9 @@ private:
 	bool m_is_z_pressed;
 
 	bool can_jump;
+
+	// This flag is used to determine if the laser or radius light should be rendered
+	bool m_is_radius_light;
 
 	float m_y_velocity;
 	float m_x_velocity;
@@ -62,5 +68,6 @@ private:
 	int playerHeight;
 
 	PlayerMesh playerMesh;
-	RadiusLightMesh lightMesh;
+	RadiusLightMesh radiusLightMesh;
+	LaserLightMesh laserLightMesh;
 };

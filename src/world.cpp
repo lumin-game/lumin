@@ -2,7 +2,6 @@
 #include "world.hpp"
 #include "CollisionManager.hpp"
 #include "door.hpp"
-#include "switch.hpp"
 
 // stlib
 
@@ -290,13 +289,13 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
+		if (key == GLFW_KEY_Z || key == GLFW_KEY_W) {
 			m_player.setZPressed(true);
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setRightPressed(true);
 		}
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
@@ -307,16 +306,19 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		else if (key == GLFW_KEY_P) {
 			m_paused = !m_paused;
 		}
+		else if (key == GLFW_KEY_SPACE) {
+			m_player.switchLightSource();
+		}
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
+		if (key == GLFW_KEY_Z || key == GLFW_KEY_W) {
 			m_player.setZPressed(false);
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(false);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setRightPressed(false);
 		}
 	}
