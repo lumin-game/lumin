@@ -5,7 +5,7 @@
 #include "CollisionManager.hpp"
 
 
-bool Entity::init(int x_pos, int y_pos) {
+bool Entity::init(float x_pos, float y_pos) {
 	if (!unlit_texture.load_from_file(get_texture_path())) {
 		fprintf(stderr, "Failed to load entity texture!");
 		return false;
@@ -16,7 +16,7 @@ bool Entity::init(int x_pos, int y_pos) {
 		return false;
 	}
 
-	texture = &unlit_texture;
+	texture = m_is_lit ? &lit_texture : &unlit_texture;
 
 	// The position corresponds to the center of the texture
 	float wr = texture->width * 0.5f;
@@ -70,6 +70,13 @@ bool Entity::init(int x_pos, int y_pos) {
 	m_screen_pos.x = (float) x_pos;
 	m_screen_pos.y = (float) y_pos;
 
+	m_entity_sound = Mix_LoadWAV(get_audio_path());
+
+	if (get_audio_path() != nullptr && m_entity_sound == nullptr) {
+		fprintf(stderr, "Failed to load audio file!");
+		return false;
+	}
+
 	return true;
 }
 
@@ -81,6 +88,9 @@ void Entity::destroy() {
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
+
+	if (m_entity_sound != nullptr)
+		Mix_FreeChunk(m_entity_sound);
 
 	effect.release();
 }
@@ -224,7 +234,6 @@ void Entity::set_lit(bool lit) {
 bool Entity::get_lit() const {
 	return m_is_lit;
 }
-
 ParametricLines Entity::calculate_dynamic_equations() const
 {
 	// By default entities have no dynamic equations
@@ -234,3 +243,8 @@ ParametricLines Entity::calculate_dynamic_equations() const
 void Entity::register_entity(Entity* entity) {
 	m_entities.insert(entity);
 }
+
+Mix_Chunk* Entity::get_sound() const{
+	return m_entity_sound;
+}
+

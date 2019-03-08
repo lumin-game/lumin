@@ -3,67 +3,147 @@
 
 #include <iostream>
 
-void MovableWall::set_movement_properties(float move_blocks_X, float move_blocks_Y, float speed, bool moving_immediately, bool loop_movement) {
-	const uint32_t BLOCK_SIZE = 64;
-	
-	initial_position = get_position();
-	move_dest_X = initial_position.x + (move_blocks_X * BLOCK_SIZE);
-	move_dest_Y = initial_position.y + (move_blocks_Y * BLOCK_SIZE);
-	move_speed = speed;
-	is_moving = moving_immediately;
-	can_move = true;
-	movement_loops = loop_movement;
-	moving_forward = true;
+#define BLOCK_SIZE 64
+
+bool MovableWall::init(float xPos, float yPos)
+{
+	initial_position = { xPos, yPos };
+	currentTime = 0.f;
+	return Wall::init(xPos, yPos);
 }
 
-void MovableWall::trigger_movement(bool moving) {
-	if (can_move) { 
-		is_moving = moving;
+void MovableWall::set_movement_properties(
+	bool shouldCurve,
+	std::vector<vec2> blockLocations,
+	std::vector<vec2> curveLocations,
+	float speed, 
+	bool moving_immediately,
+	bool loop_movement,
+	bool loop_reverses) 
+{
+	targetBlockLocations = blockLocations;
+	curveBlockLocations = curveLocations;
+	curving = shouldCurve;
+
+	move_speed = speed;
+
+	can_move = true;
+	movementLoops = loop_movement;
+	reverseWhenLooping = loop_reverses;
+	isReversed = false;
+
+	if (moving_immediately)
+	{
+		activate();
 	}
 }
 
+void MovableWall::activate() {
+	if (can_move) {
+		is_moving = true;
+		currentTargetIndex = -1;
+		AdvanceToNextPoint();
+	}
+}
+
+void MovableWall::AdvanceToNextPoint()
+{
+	int nextIndex = currentTargetIndex + (isReversed ? -1 : 1);
+
+	if (currentTargetIndex != -1)
+	{
+		previousLocation = targetBlockLocations[currentTargetIndex] * BLOCK_SIZE;
+	}
+	else
+	{
+		previousLocation = initial_position;
+	}
+
+	int size = targetBlockLocations.size();
+
+	if (-1 > nextIndex)
+	{
+		isReversed = false;
+		nextIndex = 0;
+	}
+	else if (nextIndex >= size)
+	{
+		if (!movementLoops)
+		{
+			is_moving = false;
+			can_move = false;
+			return;
+		}
+		else if (reverseWhenLooping)
+		{
+			isReversed = true;
+			nextIndex = nextIndex - 2;
+		}
+		else
+		{
+			nextIndex = 0;
+		}
+	}
+
+	currentTargetIndex = nextIndex;
+
+	timeAtLastPoint = currentTime;
+	currentTargetLocation = currentTargetIndex == -1 ? initial_position : targetBlockLocations[currentTargetIndex] * BLOCK_SIZE;
+	float distanceToTarget;
+	if (curving)
+	{
+		int curvePointIndex = isReversed ? currentTargetIndex + 1: currentTargetIndex;
+		currentCurvePoint = curveBlockLocations[curvePointIndex] * BLOCK_SIZE;
+		vec2 toCurvePoint = currentCurvePoint - get_position();
+		vec2 toEnd = currentTargetLocation - currentCurvePoint;
+
+		distanceToTarget = toCurvePoint.Magnitude() + toEnd.Magnitude();
+	}
+	else
+	{
+		distanceToTarget = (currentTargetLocation - get_position()).Magnitude();
+	}
+
+	msToDestination = distanceToTarget / move_speed;
+}
+
 void MovableWall::update(float ms) {
+	currentTime += ms;
+
 	if (is_moving) {
 		vec2 pos = get_position();
 
-		float x_dist;
-		float y_dist;
+		float move_dest_X = currentTargetLocation.x;
+		float move_dest_Y = currentTargetLocation.y;
 
-		// calculate dist to move_dest if move dir is true (moving forwards), or to initial position if move dir is false (moving backwards)
-		if (moving_forward) {
-			x_dist = move_dest_X - pos.x;
-			y_dist = move_dest_Y - pos.y;
-		}
-		else {
-			x_dist = initial_position.x - pos.x;
-			y_dist = initial_position.y - pos.y;
-		}
+		// calculate dist to move_dest
+		float x_dist = move_dest_X - pos.x;
+		float y_dist = move_dest_Y - pos.y;
 		
 		float dest_distance = sqrt((x_dist*x_dist) + (y_dist*y_dist));
 		float x_normalized = x_dist / dest_distance;
 		float y_normalized = y_dist / dest_distance;
 
 		// if true, the block will move past the destination this tick, so do action for when block reaches the end of its path
-		if (abs(x_normalized * move_speed * ms) > abs(x_dist) || abs(y_normalized * move_speed * ms) > abs(y_dist)) {
-
-			//move block to its destination
-			if (moving_forward) {
-				set_position({ move_dest_X, move_dest_Y });
-			}
-			else {
-				set_position({ initial_position.x, initial_position.y });
-			}
-			
-			if (movement_loops) {
-				moving_forward = !moving_forward;
-			}
-			else {
-				is_moving = false;
-				can_move = false; // if movement completes on a block that doesn't repeat movement, don't let it be triggered to move again
-			}
+		float timeDiff = currentTime - timeAtLastPoint;
+		if (timeDiff > msToDestination)
+		{
+			set_position({ currentTargetLocation.x, currentTargetLocation.y });
+			AdvanceToNextPoint();
 		}
 		else {
-			set_position({ pos.x + (x_normalized * move_speed * ms), pos.y + (y_normalized * move_speed * ms) });
+			if (!curving)
+			{
+				set_position({ pos.x + (x_normalized * move_speed * ms), pos.y + (y_normalized * move_speed * ms) });
+			}
+			else
+			{
+				float timeFrac = timeDiff / msToDestination;
+				float oneMinusTimeFrac = 1 - timeFrac;
+				
+				vec2 curvePath = previousLocation * oneMinusTimeFrac * oneMinusTimeFrac + currentCurvePoint * 2 * oneMinusTimeFrac * timeFrac + currentTargetLocation * timeFrac * timeFrac;
+				set_position(curvePath);
+			}
 		}
 	}
 }

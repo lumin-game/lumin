@@ -40,12 +40,14 @@ set(SOURCE_FILES
         src/movable_wall.cpp
         src/level_screen.cpp
         src/pause_screen.cpp
+        src/level_unlocked_sparkle.cpp
         src/screen.cpp
         src/world.cpp
         src/CollisionManager.cpp
         src/firefly.cpp
         src/switch.cpp
         src/door.cpp
+		src/LevelGenerator.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -59,13 +61,14 @@ set(SOURCE_FILES
         src/movable_wall.hpp
         src/level_screen.hpp
         src/pause_screen.hpp
+        src/level_unlocked_sparkle.hpp
         src/screen.hpp
         src/world.hpp
         src/CollisionManager.hpp
         src/switch.hpp
         src/firefly.hpp
         src/door.hpp
-        src/door.cpp src/door.hpp)
+        src/LevelGenerator.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
