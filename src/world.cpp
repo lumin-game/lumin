@@ -284,9 +284,7 @@ void World::next_level() {
 		if (m_current_level < MAX_LEVEL) {
 			m_current_level++;
 			reset_game();
-		}
-		else if (m_current_level == MAX_LEVEL) {
-			// TODO: Maybe project a screen displaying that user has completed all levels?
+		} else if (m_current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
 		}
@@ -314,9 +312,17 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
 			m_should_load_level_screen = !m_should_load_level_screen;
+			m_paused = false;
 		}
 		else if (key == GLFW_KEY_P) {
 			m_paused = !m_paused;
+			m_should_load_level_screen = false;
+		}
+		else if (m_paused && key == GLFW_KEY_R) {
+			m_paused = false;
+		}
+		else if (!m_paused && key == GLFW_KEY_R) {
+			reset_game();
 		}
 	}
 
@@ -344,15 +350,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
       }
 	  }
   }
-
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
-	{
-		reset_game();
-	}
 
 	// Exit Game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
