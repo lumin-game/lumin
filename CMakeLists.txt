@@ -47,6 +47,7 @@ set(SOURCE_FILES
         src/switch.cpp
         src/door.cpp
 		src/LevelGenerator.cpp
+        src/lantern.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -69,7 +70,8 @@ set(SOURCE_FILES
         src/switch.hpp
         src/firefly.hpp
         src/door.hpp
-        src/LevelGenerator.hpp)
+        src/LevelGenerator.hpp
+        src/lantern.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
