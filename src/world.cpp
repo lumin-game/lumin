@@ -77,10 +77,12 @@ bool World::init(vec2 screen) {
 
 	m_should_load_level_screen = false;
 	m_paused = false;
+	m_game_completed = false;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
 	m_level_screen.init();
 	m_pause_screen.init();
+	m_end_screen.init();
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
@@ -121,6 +123,7 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	m_end_screen.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -218,6 +221,10 @@ void World::draw() {
 	if (m_paused) {
 		m_pause_screen.draw(projection_2D);
 	}
+
+	if (m_game_completed) {
+		m_end_screen.draw(projection_2D);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -273,14 +280,18 @@ void World::load_level_screen(int key_pressed_level) {
 }
 
 void World::next_level() {
-	if (m_current_level < MAX_LEVEL) {
-		m_current_level++;
-		reset_game();
-	} else if (m_current_level == MAX_LEVEL){
-		// TODO: Maybe project a screen displaying that user has completed all levels?
-		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
+	if (!m_game_completed) {
+		if (m_current_level < MAX_LEVEL) {
+			m_current_level++;
+			reset_game();
+		}
+		else if (m_current_level == MAX_LEVEL) {
+			// TODO: Maybe project a screen displaying that user has completed all levels?
+			m_game_completed = true;
+			return;
+		}
+		m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 	}
-	m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 }
 
 // On key callback

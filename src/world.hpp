@@ -7,6 +7,7 @@
 #include "screen.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
+#include "end_screen.hpp"
 #include "level_unlocked_sparkle.hpp"
 #include "LevelGenerator.hpp"
 
@@ -64,6 +65,7 @@ private:
 
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;
+	EndScreen m_end_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
@@ -84,4 +86,5 @@ private:
 
 	bool m_should_load_level_screen;
 	bool m_paused;
+	bool m_game_completed;
 };
