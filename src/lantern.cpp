@@ -2,20 +2,28 @@
 // Created by Sherry Yuan on 2019-03-08.
 //
 
+#include <random>
 #include "lantern.hpp"
 #include "CollisionManager.hpp"
 
 bool Lantern::init(float x_pos, float y_pos) {
     Entity::init(x_pos, y_pos);
+    std::random_device rand;
+    std::mt19937 gen(rand());
+    std::uniform_real_distribution<> dis(-FIREFLY_DISTRIBUTION, FIREFLY_DISTRIBUTION);
+    for (int i = 0; i < FIREFLY_COUNT; ++i) {
+        fireflies.emplace_back(SingleFirefly((float) dis(gen), (float) dis(gen)));
+    }
 
-    return Firefly::init(x_pos, y_pos);
+    lightMesh.init();
+    return true;
 }
 
 void Lantern::update(float ms) {
 
-    if (ms_since_activation < 12000 && get_lit()) {
+    if (ms_since_activation < MAX_MS_SINCE_ACTIVATION && get_lit()) {
         ms_since_activation += ms;
-        num_fireflies_drawn = std::min(FIREFLY_COUNT - 1, (int) ms_since_activation / 200);
+        num_fireflies_drawn = std::min(FIREFLY_COUNT - 1, (int) (ms_since_activation / MS_BETWEEN_SPAWN));
     }
     for (SingleFirefly &firefly : fireflies) {
         firefly.position += firefly.velocity * ms;
@@ -30,7 +38,7 @@ void Lantern::draw(const mat3 &projection) {
     if (get_lit()) {
         SingleFirefly::ParentData fireflyData;
         fireflyData.m_position = m_position;
-        fireflyData.m_screen_pos = m_screen_pos;
+        fireflyData.m_screen_pos = vec2{m_screen_pos.x, m_screen_pos.y + 15};
 
         int i = 0;
         for (SingleFirefly& firefly : fireflies)
@@ -38,6 +46,7 @@ void Lantern::draw(const mat3 &projection) {
             if (i > num_fireflies_drawn) {
                 break;
             }
+
             firefly.parent = fireflyData;
             firefly.draw(projection);
             i++;
@@ -58,5 +67,4 @@ void Lantern::destroy() {
 
 void Lantern::activate() {
     set_lit(true);
-    ms_since_activation = 0.f;
 }

@@ -5,8 +5,6 @@
 #include "entity.hpp"
 
 class Firefly : public Entity {
-private:
-    const float FIREFLY_DISTRIBUTION = 30.f;
 
 protected:
     struct SingleFirefly : public Renderable
@@ -44,6 +42,7 @@ protected:
     std::vector<SingleFirefly> fireflies;
     const int FIREFLY_COUNT = 12;
     LightMesh lightMesh;
+	const float FIREFLY_DISTRIBUTION = 30.f;
 public:
 	const char* get_texture_path() const override { return nullptr; }
 
