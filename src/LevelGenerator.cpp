@@ -25,7 +25,7 @@ std::map<char, StaticTile> LevelGenerator::tile_map = {
         {'&', PLAYER}
 };
 
-void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vector<Entity *> &outEntities) {
+void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vector<Entity*>& outEntities) {
     std::ifstream in(levels_path("level_" + std::to_string(level) + ".txt"));
 
     if (!in) {
@@ -35,7 +35,7 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
 
     std::vector<std::vector<char>> grid;
     std::map<char, std::pair<int, int>> dynamicEntityLocs;
-    std::map<char, Entity *> dynamicEntities;
+    std::map<char, Entity*> dynamicEntities;
 
     std::string row;
     int y = 0;
@@ -51,7 +51,7 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                 const char name = charVector[1];
                 const char type = charVector[2];
 
-                Entity *entity;
+                Entity* entity;
 
                 switch (type) {
                     // Switch
@@ -80,14 +80,16 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                         continue;
                 }
 
-                if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end()) {
+                if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
+                {
                     continue;
                 }
                 std::pair<int, int> coord = dynamicEntityLocs.find(name)->second;
                 entity->init(coord.first * BLOCK_SIZE, coord.second * BLOCK_SIZE);
-                dynamicEntities.insert(std::pair<char, Entity *>(name, entity));
+                dynamicEntities.insert(std::pair<char, Entity*>(name, entity));
                 outEntities.push_back(entity);
-            } else if (charVector[0] == '=') {
+            }
+            else if (charVector[0] == '=') {
                 // Parse entity relationship
                 auto entity1 = dynamicEntities.find(charVector[1]);
                 auto entity2 = dynamicEntities.find(charVector[2]);
@@ -113,7 +115,8 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                     door->set_lit(false);
                 }
 
-            } else if (charVector[0] == '@') {
+            }
+            else if (charVector[0] == '@') {
                 // Parse entity property declaration
                 const char name = charVector[1];
                 auto entity = dynamicEntities.find(name);
@@ -128,14 +131,14 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                 }
 
                 // Moving platform movement declaration
-                if (MovableWall *mw = dynamic_cast<MovableWall *>(entity->second)) {
+                if (MovableWall *mw = dynamic_cast<MovableWall*>(entity->second)) {
 
-					if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
-					{
-						continue;
-					}
-					std::pair<int, int> start = dynamicEntityLocs.find(name)->second;
-					vec2 initialBlockLocation = { (float) start.first, (float) start.second };
+                    if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
+                    {
+                        continue;
+                    }
+                    std::pair<int, int> start = dynamicEntityLocs.find(name)->second;
+                    vec2 initialBlockLocation = { (float) start.first, (float) start.second };
 
                     row.erase(0, row.find(" ") + 1);
 
@@ -152,15 +155,18 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                     std::string closeParen = ")";
 
                     int curveInd = row.find(curve);
-                    if (curveInd < row.size()) {
+                    if (curveInd < row.size())
+                    {
                         shouldCurve = true;
                         std::string curveDefinition = row.substr(curveInd, row.size() - curveInd);
                         row.erase(curveInd, row.size());
 
                         int index = curveDefinition.find(openParen);
-                        while (index < curveDefinition.size()) {
+                        while (index < curveDefinition.size())
+                        {
                             int end = curveDefinition.find(closeParen);
-                            if (end >= curveDefinition.size()) {
+                            if (end >= curveDefinition.size())
+                            {
                                 fprintf(stderr, "Syntax malformat in MovableWall path declaration!");
                                 continue;
                             }
@@ -173,7 +179,7 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                             int xBlock = stoi(xBlockStr);
                             int yBlock = stoi(yBlockStr);
 
-                            blockCurves.push_back(initialBlockLocation + vec2({(float) xBlock, (float) yBlock}));
+                            blockCurves.push_back(initialBlockLocation + vec2({ (float)xBlock, (float)yBlock }));
 
                             curveDefinition.erase(0, end + 1);
                             index = curveDefinition.find(openParen);
@@ -181,9 +187,11 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                     }
 
                     int index = row.find(openParen);
-                    while (index < row.size()) {
+                    while (index < row.size())
+                    {
                         int end = row.find(closeParen);
-                        if (end >= row.size()) {
+                        if (end >= row.size())
+                        {
                             fprintf(stderr, "Syntax malformat in MovableWall path declaration!");
                             continue;
                         }
@@ -196,18 +204,18 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
                         int xBlock = stoi(xBlockStr);
                         int yBlock = stoi(yBlockStr);
 
-                        blockLocations.push_back(initialBlockLocation + vec2({(float) xBlock, (float) yBlock}));
+                        blockLocations.push_back(initialBlockLocation + vec2({ (float)xBlock, (float)yBlock }));
 
                         row.erase(0, end + 1);
                         index = row.find(openParen);
                     }
 
                     // TODO: map different movement types to the 4th character in the declaration
-                    mw->set_movement_properties(shouldCurve, blockLocations, blockCurves, 0.2, moveImmediate,
-                                                loopMovement, reverseOnLoop);
+                    mw->set_movement_properties(shouldCurve, blockLocations, blockCurves, 0.2, moveImmediate, loopMovement, reverseOnLoop);
                 }
 
-            } else {
+            }
+            else {
                 // Keep track of dynamic dynamicEntities
                 for (int x = 0; x < charVector.size(); x++) {
                     const char c = charVector[x];
@@ -228,8 +236,7 @@ void LevelGenerator::create_current_level(int level, Player &outPlayer, std::vec
     create_level(grid, outPlayer, outEntities);
 }
 
-bool
-LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player &outPlayer, std::vector<Entity *> &outEntities) {
+bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& outPlayer, std::vector<Entity*>& outEntities) {
     Entity *level_entity = nullptr;
 
     switch (tile) {
@@ -254,7 +261,7 @@ LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player &outPlaye
         case PLAYER:
             outPlayer.init();
             // spawn player 1 tile higher to ensure that the player doesn't fall
-            outPlayer.setPlayerPosition({(float) x_pos * BLOCK_SIZE, (float) (y_pos - 1) * BLOCK_SIZE});
+            outPlayer.setPlayerPosition({ (float)x_pos * BLOCK_SIZE, (float)(y_pos - 1) * BLOCK_SIZE });
             return true;
     }
 
@@ -267,15 +274,16 @@ LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player &outPlaye
     return true;
 }
 
-template<class TEntity>
-TEntity *LevelGenerator::createTile(int x_pos, int y_pos) {
-    TEntity *entity = new TEntity();
+template <class TEntity>
+TEntity* LevelGenerator::createTile(int x_pos, int y_pos)
+{
+    TEntity* entity = new TEntity();
     entity->init(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE);
     return entity;
 }
 
 // Just to print the grid (testing purposes)
-void LevelGenerator::print_grid(std::vector<std::vector<char>> &grid) {
+void LevelGenerator::print_grid(std::vector<std::vector<char>>& grid) {
     for (std::vector<char> row : grid) {
         for (char cell : row) {
             std::cout << cell << " ";
@@ -284,8 +292,7 @@ void LevelGenerator::print_grid(std::vector<std::vector<char>> &grid) {
     }
 }
 
-void LevelGenerator::create_level(std::vector<std::vector<char>> &grid, Player &outPlayer,
-                                  std::vector<Entity *> &outEntities) {
+void LevelGenerator::create_level(std::vector<std::vector<char>>& grid, Player& outPlayer, std::vector<Entity*>& outEntities) {
     for (int y = 0; y < grid.size(); y++) {
         for (int x = 0; x < grid[y].size(); x++) {
             auto tile = tile_map.find(grid[y][x]);
