@@ -315,7 +315,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			m_paused = false;
 		}
 		else if (key == GLFW_KEY_P) {
-			m_paused = true;
+			m_paused = !m_paused;
 			m_should_load_level_screen = false;
 		}
 		else if (m_paused && key == GLFW_KEY_R) {
