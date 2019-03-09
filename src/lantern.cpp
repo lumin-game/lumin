@@ -1,7 +1,3 @@
-//
-// Created by Sherry Yuan on 2019-03-08.
-//
-
 #include <random>
 #include "lantern.hpp"
 #include "CollisionManager.hpp"
