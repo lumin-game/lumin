@@ -69,7 +69,7 @@ set(SOURCE_FILES
         src/switch.hpp
         src/firefly.hpp
         src/door.hpp
-        src/LevelGenerator.hpp)
+        src/LevelGenerator.hpp src/lantern.cpp src/lantern.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

@@ -6,40 +6,44 @@
 
 class Firefly : public Entity {
 private:
-	const int FIREFLY_COUNT = 12;
-	const float FIREFLY_DISTRIBUTION = 30.f;
+    const float FIREFLY_DISTRIBUTION = 30.f;
 
-	struct SingleFirefly : public Renderable
-	{
-		const float FIREFLY_RADIUS = 5.f;
-		const float FIREFLY_MAX_RANGE = 20.f;
+protected:
+    struct SingleFirefly : public Renderable
+    {
+        const float FIREFLY_RADIUS = 5.f;
+        const float FIREFLY_MAX_RANGE = 20.f;
 
-	public:
-		struct ParentData
-		{
-			vec2 m_position;
-			vec2 m_screen_pos;
-		};
+        vec2 position;
+        vec2 velocity;
 
-		ParentData parent;
+        vec2 CalculateForce(std::vector<SingleFirefly>& fireflies) const;
 
-		SingleFirefly(float x, float y) {
-			init(x, y);
-		}
+    public:
+        struct ParentData
+        {
+            vec2 m_position;
+            vec2 m_screen_pos;
+        };
 
-		void destroy();
-		void update(float ms, std::vector<SingleFirefly>& fireflies);
-		void draw(const mat3& projection) override;
+        ParentData parent;
 
-	private:
-		bool init(float x_pos, float y_pos);
+        SingleFirefly(float x, float y) {
+            init(x, y);
+        }
 
-		vec2 position;
-		vec2 velocity;
+        void destroy();
+        void update(float ms, std::vector<SingleFirefly>& fireflies);
+        void draw(const mat3& projection) override;
 
-		vec2 CalculateForce(std::vector<SingleFirefly>& fireflies) const;
-	};
+    private:
+        bool init(float x_pos, float y_pos);
 
+    };
+
+    std::vector<SingleFirefly> fireflies;
+    const int FIREFLY_COUNT = 12;
+    LightMesh lightMesh;
 public:
 	const char* get_texture_path() const override { return nullptr; }
 
@@ -54,7 +58,5 @@ public:
 	void draw(const mat3& projection) override;
 
 private:
-	std::vector<SingleFirefly> fireflies;
-	vec2 m_velocity;
-	LightMesh lightMesh;
+    vec2 m_velocity;
 };

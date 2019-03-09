@@ -5,7 +5,7 @@ void Switch::activate() {
 	Mix_PlayChannel(-1, get_sound(), 0);
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
-			entity->activate();
+            entity->activate();
 		} else {
 			m_entities.erase(entity);
 		}

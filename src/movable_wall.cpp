@@ -34,7 +34,7 @@ void MovableWall::set_movement_properties(
 
 	if (moving_immediately)
 	{
-		activate();
+        activate();
 	}
 }
 
