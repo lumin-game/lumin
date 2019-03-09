@@ -16,10 +16,10 @@ void MovableWall::set_movement_properties(
 	bool shouldCurve,
 	std::vector<vec2> blockLocations,
 	std::vector<vec2> curveLocations,
-	float speed, 
+	float speed,
 	bool moving_immediately,
 	bool loop_movement,
-	bool loop_reverses) 
+	bool loop_reverses)
 {
 	targetBlockLocations = blockLocations;
 	curveBlockLocations = curveLocations;
@@ -34,7 +34,7 @@ void MovableWall::set_movement_properties(
 
 	if (moving_immediately)
 	{
-        activate();
+	    activate();
 	}
 }
 
@@ -119,7 +119,7 @@ void MovableWall::update(float ms) {
 		// calculate dist to move_dest
 		float x_dist = move_dest_X - pos.x;
 		float y_dist = move_dest_Y - pos.y;
-		
+
 		float dest_distance = sqrt((x_dist*x_dist) + (y_dist*y_dist));
 		float x_normalized = x_dist / dest_distance;
 		float y_normalized = y_dist / dest_distance;
@@ -140,7 +140,7 @@ void MovableWall::update(float ms) {
 			{
 				float timeFrac = timeDiff / msToDestination;
 				float oneMinusTimeFrac = 1 - timeFrac;
-				
+
 				vec2 curvePath = previousLocation * oneMinusTimeFrac * oneMinusTimeFrac + currentCurvePoint * 2 * oneMinusTimeFrac * timeFrac + currentTargetLocation * timeFrac * timeFrac;
 				set_position(curvePath);
 			}

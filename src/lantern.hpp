@@ -24,6 +24,7 @@ public:
 private:
     const float MAX_MS_SINCE_ACTIVATION = 12000;
     const float MS_BETWEEN_SPAWN = 200;
+    const float LANTERN_MAX_RANGE = 12.f;
     int num_fireflies_drawn = 0;
     float ms_since_activation = 0.f;
 };
