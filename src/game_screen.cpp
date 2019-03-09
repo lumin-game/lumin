@@ -1,27 +1,22 @@
-#include "pause_screen.hpp"
+#include "game_screen.hpp"
 
 #include <iostream>
 #include <cmath>
 
-Texture PauseScreen::pause_screen_texture;
-
-bool PauseScreen::init() {
+bool GameScreen::init() {
 
 	// Since we are not going to apply transformation to this screen geometry
 	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
 	// Make the size slightly larger then the screen to crop the boundary
-  if (!pause_screen_texture.is_valid())
-  {
-    if (!pause_screen_texture.load_from_file(textures_path("pause_screen.png")))
+    if (!screen_texture.load_from_file(get_texture_path()))
     {
       fprintf(stderr, "Failed to load level screen texture!");
       return false;
     }
-  }
 
   // The position corresponds to the center of the texture
-  float wr = pause_screen_texture.width * 0.5f;
-  float hr = pause_screen_texture.height * 0.5f;
+  float wr = screen_texture.width * 0.5f;
+  float hr = screen_texture.height * 0.5f;
 
   TexturedVertex vertices[4];
   vertices[0].position = { -wr, +hr, 0.f };
@@ -63,7 +58,7 @@ bool PauseScreen::init() {
   return true;
 }
 
-void PauseScreen::destroy() {
+void GameScreen::destroy() {
   glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -71,7 +66,7 @@ void PauseScreen::destroy() {
 	effect.release();
 }
 
-void PauseScreen::draw(const mat3& projection) {
+void GameScreen::draw(const mat3& projection) {
   transform_begin();
   // see Transformations and Rendering in the specification pdf
   // the following functions are available:
@@ -110,7 +105,7 @@ void PauseScreen::draw(const mat3& projection) {
 
   // Enabling and binding texture to slot 0
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, pause_screen_texture.id);
+  glBindTexture(GL_TEXTURE_2D, screen_texture.id);
 
   // Setting uniform values to the currently bound program
   glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -122,9 +117,9 @@ void PauseScreen::draw(const mat3& projection) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 // returns the local bounding coordinates scaled by the current size of the background
-vec2 PauseScreen::get_bounding_box()const
+vec2 GameScreen::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction
-	return { std::fabs(m_scale.x) * pause_screen_texture.width, std::fabs(m_scale.y) * pause_screen_texture.height };
+	return { std::fabs(m_scale.x) * screen_texture.width, std::fabs(m_scale.y) * screen_texture.height };
 }
 
