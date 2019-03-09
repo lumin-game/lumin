@@ -2,10 +2,10 @@
 
 #include "common.hpp"
 
-class InGameScreen : public Renderable
+class GameScreen : public Renderable
 {
 public:
-	virtual ~InGameScreen() { InGameScreen::destroy(); };
+	virtual ~GameScreen() { GameScreen::destroy(); };
 
 	virtual const char* get_texture_path() const = 0;
 	// Creates all the associated render reso+urces and default transform

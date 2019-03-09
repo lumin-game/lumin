@@ -1,9 +1,9 @@
-#include "in_game_screen.hpp"
+#include "game_screen.hpp"
 
 #include <iostream>
 #include <cmath>
 
-bool InGameScreen::init() {
+bool GameScreen::init() {
 
 	// Since we are not going to apply transformation to this screen geometry
 	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
@@ -58,7 +58,7 @@ bool InGameScreen::init() {
   return true;
 }
 
-void InGameScreen::destroy() {
+void GameScreen::destroy() {
   glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -66,7 +66,7 @@ void InGameScreen::destroy() {
 	effect.release();
 }
 
-void InGameScreen::draw(const mat3& projection) {
+void GameScreen::draw(const mat3& projection) {
   transform_begin();
   // see Transformations and Rendering in the specification pdf
   // the following functions are available:
@@ -117,7 +117,7 @@ void InGameScreen::draw(const mat3& projection) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 // returns the local bounding coordinates scaled by the current size of the background
-vec2 InGameScreen::get_bounding_box()const
+vec2 GameScreen::get_bounding_box()const
 {
 	// fabs is to avoid negative scale due to the facing direction
 	return { std::fabs(m_scale.x) * screen_texture.width, std::fabs(m_scale.y) * screen_texture.height };

@@ -38,7 +38,7 @@ set(SOURCE_FILES
         src/player_mesh.cpp
         src/light_mesh.cpp
         src/movable_wall.cpp
-        src/in_game_screen.cpp
+        src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
         src/screen.cpp
         src/world.cpp
@@ -59,7 +59,7 @@ set(SOURCE_FILES
         src/light_mesh.hpp
         src/movable_wall.hpp
         src/level_screen.hpp
-		src/in_game_screen.hpp
+		src/game_screen.hpp
         src/pause_screen.hpp
 		src/end_screen.hpp
         src/level_unlocked_sparkle.hpp
