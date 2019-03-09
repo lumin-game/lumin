@@ -11,22 +11,14 @@ class CollisionManager
 
 public:
 
-struct EntityResult
-{
-	const Entity* entity;
-	float xPos;
-	float yPos;
-};
-
 // CollisionResult is the result of moving one box a set distance.
 // Collisions are resolved one by one
 struct CollisionResult
 {
-	std::vector<EntityResult> entitiesHit;	// List of entities the box hit
 	float resultXPos = 0.f;					// Final position the box would be
 	float resultYPos = 0.f;					// Final position the box would be
-	bool hitGround = false;					// If there was a grounding collision
-	bool hitCeiling = false;				// If there was a ceiling collision
+	bool topCollision = false;				// If there was on the bottom of the box passed in
+	bool bottomCollision = false;			// If there was on the top of the box passed in
 };
 
 public:
@@ -53,9 +45,21 @@ public:
 	// Unregisters an entity. Should be called on destroy.
 	void UnregisterEntity(const Entity* entity);
 
+	// Registers the player
+	void RegisterPlayer(Player* playerPtr);
+	void UnregisterPlayer();
+
+	bool CollidesWithPlayer(vec2 boxPosition, vec2 boxBound, vec2 boxDisplacement, CollisionResult& outResult) const;
+
+	void MovePlayer(vec2 movement);
+
+	Player* getPlayer() {
+		if (player) return player;
+	};
+
 	// Given a box with param dimensions moving a distance of xDist, yDist
 	// Return the result of all collisions that will happen
-	const CollisionResult BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist, bool unstoppable = false) const;
+	const CollisionResult BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist) const;
 
 	// Check whether door and player are colliding
 	// Return true if they are
@@ -71,7 +75,7 @@ public:
 
 	bool findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const;
 
-	const void UpdateDynamicLightEquations();
+	void UpdateDynamicLightEquations();
 
 	bool LinesCollide(ParametricLine line1, ParametricLine line2) const;
 	bool LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const;
@@ -84,8 +88,11 @@ private:
 	std::map<const Entity*, const ParametricLines> dynamicLightCollisionLines;
 
 	// List of box entities that have collision
-	std::vector<const Entity*> staticCollisionEntities;
+	std::vector<const Entity*> collisionEntities;
 	
+	// Ptr to player, we can keep our position this way. Const as we should never change it.
+	Player* player;
+
 	// List of light in the level
 	std::set<const LightMesh*> lightSources;
 

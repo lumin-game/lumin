@@ -40,6 +40,10 @@ public:
 
 	void setPlayerPosition(vec2 pos);
 
+	vec2 getPlayerDimensions() {
+		return { (float) playerWidth, (float) playerHeight };
+	}
+
 private:
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Position on screen
