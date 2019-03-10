@@ -33,6 +33,7 @@ bool Player::init()
 
 	can_jump = false;
 
+	CollisionManager::GetInstance().RegisterPlayer(this);
 	return true;
 }
 
@@ -41,6 +42,8 @@ void Player::destroy()
 {
 	playerMesh.destroy();
 	lightMesh.destroy();
+
+	CollisionManager::GetInstance().UnregisterPlayer();
 }
 
 // Called on each frame by World::update()
@@ -95,9 +98,9 @@ void Player::update(float ms)
 
 	m_position.x = collisionResult.resultXPos;
 	m_position.y = collisionResult.resultYPos;
-	can_jump = collisionResult.hitGround;
+	can_jump = collisionResult.bottomCollision;
 
-	if (collisionResult.hitGround || collisionResult.hitCeiling)
+	if (collisionResult.bottomCollision || collisionResult.topCollision)
 	{
 		m_y_velocity = 0.f;
 	}

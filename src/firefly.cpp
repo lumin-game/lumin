@@ -221,7 +221,7 @@ void Firefly::update(float ms)
 	m_position.x = collisionResult.resultXPos;
 	m_position.y = collisionResult.resultYPos;
 
-	if (collisionResult.hitGround || collisionResult.hitCeiling)
+	if (collisionResult.bottomCollision || collisionResult.topCollision)
 	{
 		m_velocity.y = 0.f;
 	}
