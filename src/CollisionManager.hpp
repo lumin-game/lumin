@@ -53,10 +53,6 @@ public:
 
 	void MovePlayer(vec2 movement);
 
-	Player* getPlayer() {
-		if (player) return player;
-	};
-
 	// Given a box with param dimensions moving a distance of xDist, yDist
 	// Return the result of all collisions that will happen
 	const CollisionResult BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist) const;
