@@ -314,6 +314,9 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			m_should_load_level_screen = !m_should_load_level_screen;
 			m_paused = false;
 		}
+		else if (key == GLFW_KEY_L) {
+			m_player.toggleShowPolygon();
+		}
 		else if (key == GLFW_KEY_P) {
 			m_paused = !m_paused;
 			m_should_load_level_screen = false;

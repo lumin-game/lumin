@@ -44,6 +44,10 @@ public:
 		return { (float) playerWidth, (float) playerHeight };
 	}
 
+	void toggleShowPolygon() {
+		lightMesh.toggleShowPolygon();
+	};
+
 private:
 	vec2 m_position; // Window coordinates
 	vec2 m_screen_pos; // Position on screen

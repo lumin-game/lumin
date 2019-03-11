@@ -74,6 +74,7 @@ void LightMesh::draw(const mat3& projection)
 	GLint color_uloc = glGetUniformLocation(effect.program, "fcolor");
 	GLint projection_uloc = glGetUniformLocation(effect.program, "projection");
 	GLint light_radius = glGetUniformLocation(effect.program, "lightRadius");
+	GLint show_polygon = glGetUniformLocation(effect.program, "showPolygon");
 
 	// Setting vertices and indices
 	glBindVertexArray(mesh.vao);
@@ -95,6 +96,7 @@ void LightMesh::draw(const mat3& projection)
 	glUniform3fv(color_uloc, 1, color);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 	glUniform1f(light_radius, m_lightRadius);
+	glUniform1i(show_polygon, (int) m_enablePolygon);
 
 	// Recreate polygonial mesh based on objects that block light around us
 	int toRender = UpdateVertices();
