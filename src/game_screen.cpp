@@ -53,7 +53,7 @@ bool GameScreen::init() {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
 	m_scale = { 1, 1 };
-	m_position = { 600, 400 }; // modify this later
+	m_position = { 130, 340 }; // modify this later
 
   return true;
 }

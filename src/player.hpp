@@ -19,15 +19,11 @@ public:
 	// ms represents the number of milliseconds elapsed from the previous update() call
 	void update(float ms);
 
-	void calculate_screen_pos(const float screen_w, const float screen_h);
-
 	// Renders the player
 	void draw(const mat3& projection);
 
 	// Returns the current player position
 	vec2 get_position()const;
-
-	vec2 get_screen_pos()const;
 
 	// Moves the player's position by the specified offset
 	void move(vec2 off);
@@ -50,7 +46,6 @@ public:
 
 private:
 	vec2 m_position; // Window coordinates
-	vec2 m_screen_pos; // Position on screen
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 
 	bool m_is_left_pressed;

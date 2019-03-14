@@ -58,7 +58,7 @@ void LightMesh::draw(const mat3& projection)
 	// transform_rotate()
 	// transform_scale()
 
-	transform_translate(m_parent.m_screen_pos);
+	transform_translate(m_parent.m_position);
 
 	transform_end();
 

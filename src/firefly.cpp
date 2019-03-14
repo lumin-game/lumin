@@ -107,7 +107,7 @@ void Firefly::SingleFirefly::draw(const mat3& projection)
 	// transform_rotate()
 	// transform_scale()
 
-	transform_translate(parent.m_screen_pos + position);
+	transform_translate(parent.m_position + position);
 	transform_end();
 
 	// Setting shaders
@@ -155,7 +155,6 @@ bool Firefly::init(float x_pos, float y_pos) {
 	m_scale.y = 1.f;
 
 	m_position = { (float) x_pos, (float) y_pos };
-	m_screen_pos = m_position;
 
 	std::random_device rand;
 	std::mt19937 gen(rand());
@@ -237,7 +236,6 @@ void Firefly::draw(const mat3& projection)
 {
 	SingleFirefly::ParentData fireflyData;
 	fireflyData.m_position = m_position;
-	fireflyData.m_screen_pos = m_screen_pos;
 
 	for (SingleFirefly& firefly : fireflies)
 	{
@@ -247,7 +245,6 @@ void Firefly::draw(const mat3& projection)
 
 	LightMesh::ParentData lightData;
 	lightData.m_position = m_position;
-	lightData.m_screen_pos = m_screen_pos;
 	lightMesh.SetParentData(lightData);
 	lightMesh.draw(projection);
 }
