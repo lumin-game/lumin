@@ -61,6 +61,7 @@ void Player::update(float ms)
 
 	if (m_is_z_pressed && can_jump) {
 		m_y_velocity = -8.f;
+		m_is_z_pressed = false;
 	}
 
 	if (m_is_left_pressed) {
@@ -136,12 +137,16 @@ void Player::setZPressed(bool tf) {
 
 void Player::setLeftPressed(bool tf) {
 	m_is_left_pressed = tf;
-	playerMesh.turn_left();
+	if (tf) {
+		playerMesh.turn_left();
+	}
 }
 
 void Player::setRightPressed(bool tf) {
 	m_is_right_pressed = tf;
-	playerMesh.turn_right();
+	if (tf) {
+		playerMesh.turn_right();
+	}
 }
 
 void Player::setPlayerPosition(vec2 pos) {

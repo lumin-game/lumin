@@ -201,7 +201,9 @@ void World::draw() {
 	if (m_should_load_level_screen) {
 		m_level_screen.set_position(m_player.get_position());
 		m_level_screen.draw(projection_2D);
-		vec2 initial_pos = vec2{m_player.get_position().x - (w / retinaScale / 2), m_player.get_position().y};
+		vec2 initial_pos;
+		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
+		initial_pos.y = m_player.get_position().y - 20;
 		// Offset is the distance calculated between each level boxes
 		float offset = 225;
 		// There are 4 boxes per row right now
@@ -300,9 +302,11 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			m_player.setZPressed(true);
 		}
 		else if (key == GLFW_KEY_LEFT) {
+			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
 		else if (key == GLFW_KEY_RIGHT) {
+			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
