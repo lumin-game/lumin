@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include "CollisionManager.hpp"
+#include "player.hpp"
 
 
 void CollisionManager::RegisterRadiusLight(const RadiusLightMesh* light)
@@ -17,6 +18,15 @@ void CollisionManager::UnregisterRadiusLight(const RadiusLightMesh* light)
 	lightSources.erase(light);
 }
 
+void CollisionManager::RegisterPlayer(Player* playerPtr)
+{
+	player = playerPtr;
+}
+
+void CollisionManager::UnregisterPlayer()
+{
+	player = nullptr;
+}
 
 void CollisionManager::RegisterLaserLight(const LaserLightMesh* light)
 {
@@ -45,7 +55,7 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 	}
 	if (entity->is_player_collidable())
 	{
-		staticCollisionEntities.push_back(entity);
+		collisionEntities.push_back(entity);
 	}
 }
 
@@ -55,22 +65,86 @@ void CollisionManager::UnregisterEntity(const Entity* entity)
 
 	staticLightCollisionLines.erase(entity);
 	dynamicLightCollisionLines.erase(entity);
-	for (auto iter = staticCollisionEntities.begin(); iter != staticCollisionEntities.end(); ++iter)
+	for (auto iter = collisionEntities.begin(); iter != collisionEntities.end(); ++iter)
 	{
 		if (*iter == entity)
 		{
-			staticCollisionEntities.erase(iter);
+			collisionEntities.erase(iter);
 			break;
 		}
 	}
 }
 
-const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist, bool unstoppable) const
+bool CollisionManager::CollidesWithPlayer(vec2 boxPosition, vec2 boxBound, vec2 boxDisplacement, CollisionResult& outResult) const
+{
+	if (player == nullptr)
+	{
+		return false;
+	}
+
+	float playerX = player->get_position().x;
+	float playerY = player->get_position().y;
+	float playerW = player->getPlayerDimensions().x;
+	float playerH = player->getPlayerDimensions().y;
+
+	// Center-to-center distance between two boxes
+	float distanceX = std::fabs(boxPosition.x - playerX + boxDisplacement.x);
+	float distanceY = std::fabs(boxPosition.y - playerY + boxDisplacement.y);
+
+	// Margin is how much distance can be between the two centers before collision
+	float xMargin = (boxBound.x + playerW) / 2;
+	float yMargin = (boxBound.y + playerH) / 2;
+
+	if (distanceX < xMargin && distanceY < yMargin)
+	{
+		// yPos wasn't in the margin, but after moving yDist it will be
+		if (std::fabs(boxPosition.y - playerY) < yMargin)
+		{
+			// We know we will collide in the X axis.
+			float margin = boxDisplacement.x < 0 ? -xMargin : xMargin;
+
+			outResult.resultXPos = boxPosition.x + boxDisplacement.x + margin;
+			outResult.resultYPos = playerY;
+		}
+		else
+		{
+			// We know we will collide in the Y axis.
+			float margin = boxDisplacement.y < 0 ? -yMargin : yMargin;
+			if (boxDisplacement.y > 0)
+			{
+				outResult.bottomCollision = true;
+			}
+			else
+			{
+				outResult.topCollision = true;
+			}
+
+			outResult.resultXPos = playerX;
+			outResult.resultYPos = boxPosition.y + boxDisplacement.y + margin;
+		}
+
+		return true;
+	}
+	
+	return false;
+}
+
+void CollisionManager::MovePlayer(vec2 movement)
+{
+	if (player == nullptr)
+	{
+		return;
+	}
+
+	player->setPlayerPosition(movement);
+}
+
+const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, int height, float xPos, float yPos, float xDist, float yDist) const
 {
 	CollisionResult collisionResults;
 	collisionResults.resultXPos = xPos + xDist;
 	collisionResults.resultYPos = yPos + yDist;
-	for (const Entity* entity : staticCollisionEntities)
+	for (const Entity* entity : collisionEntities)
 	{
 		// Center-to-center distance between two boxes
 		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
@@ -82,27 +156,17 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 
 		if (distanceX < xMargin && distanceY < yMargin)
 		{
-			EntityResult entityResult;
-			entityResult.entity = entity;
-			entityResult.xPos = entity->get_position().x;
-			entityResult.yPos = entity->get_position().y;
+			float diffY = std::fabs(entity->get_position().y - yPos);
+			float diffX = std::fabs(entity->get_position().x - xPos);
 
 			// yPos wasn't in the margin, but after moving yDist it will be
-			if (std::fabs(entity->get_position().y - yPos) < yMargin)
+			if (diffY < yMargin)
 			{
 				// We know we will collide in the X axis.
 				float margin = xDist > 0 ? -xMargin : xMargin;
 
-				if (unstoppable)
-				{
-					//TODO: this is for moving platforms colliding into players. UNTESTED!!
-					entityResult.xPos = xPos + margin;
-				}
-				else
-				{
-					collisionResults.resultXPos = entity->get_position().x + margin;
-					xDist = collisionResults.resultXPos - xPos;
-				}
+				collisionResults.resultXPos = entity->get_position().x + margin;
+				xDist = collisionResults.resultXPos - xPos;	
 			}
 			else
 			{
@@ -110,26 +174,16 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 				float margin = yDist > 0 ? -yMargin : yMargin;
 				if (yDist > 0)
 				{
-					collisionResults.hitGround = true;
+					collisionResults.bottomCollision = true;
 				}
 				else
 				{
-					collisionResults.hitCeiling = true;
+					collisionResults.topCollision = true;
 				}
 
-				if (unstoppable)
-				{
-					//TODO: this is for moving platforms colliding into players. UNTESTED!!
-					entityResult.yPos = yPos + margin;
-				}
-				else
-				{
-					collisionResults.resultYPos = entity->get_position().y + margin;
-					yDist = collisionResults.resultYPos - yPos;
-				}
+				collisionResults.resultYPos = entity->get_position().y + margin;
+				yDist = collisionResults.resultYPos - yPos;				
 			}
-
-			collisionResults.entitiesHit.push_back(entityResult);
 		}
 	}
 
@@ -372,7 +426,7 @@ bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2, 
 	return false;
 }
 
-const void CollisionManager::UpdateDynamicLightEquations()
+void CollisionManager::UpdateDynamicLightEquations()
 {
 	dynamicLightCollisionLines.clear();
 	for (const Entity* entity : registeredEntities)

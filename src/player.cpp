@@ -24,7 +24,6 @@ bool Player::init()
 
 	playerWidth = (int)(playerMesh.GetPlayerWidth() * m_scale.x);
 	playerHeight = (int)(playerMesh.GetPlayerHeight() * m_scale.y);
-	m_screen_pos = m_position;
 	m_screen_x_movement = 0.f;
 	m_screen_y_movement = 0.f;
   
@@ -35,6 +34,7 @@ bool Player::init()
 	can_jump = false;
 	m_is_radius_light = true;
 
+	CollisionManager::GetInstance().RegisterPlayer(this);
 	return true;
 }
 
@@ -62,6 +62,7 @@ void Player::update(float ms)
 
 	if (m_is_z_pressed && can_jump) {
 		m_y_velocity = -8.f;
+		m_is_z_pressed = false;
 	}
 
 	if (m_is_left_pressed) {
@@ -98,18 +99,12 @@ void Player::update(float ms)
 
 	m_position.x = collisionResult.resultXPos;
 	m_position.y = collisionResult.resultYPos;
-	can_jump = collisionResult.hitGround;
+	can_jump = collisionResult.bottomCollision;
 
-	if (collisionResult.hitGround || collisionResult.hitCeiling)
+	if (collisionResult.bottomCollision || collisionResult.topCollision)
 	{
 		m_y_velocity = 0.f;
 	}
-}
-
-void Player::calculate_screen_pos(const float screen_w, const float screen_h){
-	// make sure player shows up in the middle half of the screen in both x and y directions
-    m_screen_pos.x = std::clamp(m_screen_pos.x + m_screen_x_movement, screen_w * 1 / 4, screen_w * 3 / 4);
-    m_screen_pos.y = std::clamp(m_screen_pos.y + m_screen_y_movement, screen_h * 1 / 4, screen_h * 3 / 4);
 }
 
 void Player::draw(const mat3& projection)
@@ -117,7 +112,6 @@ void Player::draw(const mat3& projection)
 	if (m_is_radius_light) {
 		RadiusLightMesh::ParentData lightData;
 		lightData.m_position = m_position;
-		lightData.m_screen_pos = m_screen_pos;
 
 		radiusLightMesh.SetParentData(lightData);
 		radiusLightMesh.draw(projection);
@@ -133,7 +127,6 @@ void Player::draw(const mat3& projection)
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
-	playerData.m_screen_pos = m_screen_pos;
 
 	playerMesh.SetParentData(playerData);
 	playerMesh.draw(projection);
@@ -142,11 +135,6 @@ void Player::draw(const mat3& projection)
 vec2 Player::get_position()const
 {
 	return m_position;
-}
-
-vec2 Player::get_screen_pos()const
-{
-	return m_screen_pos;
 }
 
 void Player::move(vec2 off)
@@ -160,17 +148,20 @@ void Player::setZPressed(bool tf) {
 
 void Player::setLeftPressed(bool tf) {
 	m_is_left_pressed = tf;
-	playerMesh.turn_left();
+	if (tf) {
+		playerMesh.turn_left();
+	}
 }
 
 void Player::setRightPressed(bool tf) {
 	m_is_right_pressed = tf;
-	playerMesh.turn_right();
+	if (tf) {
+		playerMesh.turn_right();
+	}
 }
 
 void Player::setPlayerPosition(vec2 pos) {
 	m_position = pos;
-	m_screen_pos = m_position;
 }
 
 void Player::switchLightSource() {

@@ -10,7 +10,6 @@ public:
 	struct ParentData
 	{
 		vec2 m_position;
-		vec2 m_screen_pos;
 	};
 
 public:
@@ -29,6 +28,10 @@ public:
 
 	float getLightRadius() const;
 
+	void toggleShowPolygon() {
+		m_enablePolygon = !m_enablePolygon;
+	};
+
 private:
 	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
 	int UpdateVertices();
@@ -38,4 +41,6 @@ private:
 
 	// how larj
 	float m_lightRadius;
+
+	bool m_enablePolygon = false;
 };

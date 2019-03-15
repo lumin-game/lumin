@@ -1,5 +1,7 @@
 #include "entity.hpp"
 #include "movable_wall.hpp"
+#include "CollisionManager.hpp"
+#include "player.hpp"
 
 #include <iostream>
 
@@ -16,10 +18,10 @@ void MovableWall::set_movement_properties(
 	bool shouldCurve,
 	std::vector<vec2> blockLocations,
 	std::vector<vec2> curveLocations,
-	float speed, 
+	float speed,
 	bool moving_immediately,
 	bool loop_movement,
-	bool loop_reverses) 
+	bool loop_reverses)
 {
 	targetBlockLocations = blockLocations;
 	curveBlockLocations = curveLocations;
@@ -34,7 +36,7 @@ void MovableWall::set_movement_properties(
 
 	if (moving_immediately)
 	{
-		activate();
+	    activate();
 	}
 }
 
@@ -119,32 +121,44 @@ void MovableWall::update(float ms) {
 		// calculate dist to move_dest
 		float x_dist = move_dest_X - pos.x;
 		float y_dist = move_dest_Y - pos.y;
-		
+
 		float dest_distance = sqrt((x_dist*x_dist) + (y_dist*y_dist));
 		float x_normalized = x_dist / dest_distance;
 		float y_normalized = y_dist / dest_distance;
 
+		vec2 newPos;
 		// if true, the block will move past the destination this tick, so do action for when block reaches the end of its path
 		float timeDiff = currentTime - timeAtLastPoint;
 		if (timeDiff > msToDestination)
 		{
-			set_position({ currentTargetLocation.x, currentTargetLocation.y });
+			newPos = { currentTargetLocation.x, currentTargetLocation.y };
 			AdvanceToNextPoint();
 		}
 		else {
 			if (!curving)
 			{
-				set_position({ pos.x + (x_normalized * move_speed * ms), pos.y + (y_normalized * move_speed * ms) });
+				newPos = { pos.x + (x_normalized * move_speed * ms), pos.y + (y_normalized * move_speed * ms) };
 			}
 			else
 			{
 				float timeFrac = timeDiff / msToDestination;
 				float oneMinusTimeFrac = 1 - timeFrac;
-				
+
 				vec2 curvePath = previousLocation * oneMinusTimeFrac * oneMinusTimeFrac + currentCurvePoint * 2 * oneMinusTimeFrac * timeFrac + currentTargetLocation * timeFrac * timeFrac;
-				set_position(curvePath);
+				newPos = curvePath;
 			}
 		}
+
+		vec2 movement = newPos - pos;
+		CollisionManager::CollisionResult collisionResult;
+		bool collidesWithPlayer = CollisionManager::GetInstance().CollidesWithPlayer(pos, get_bounding_box(), movement, collisionResult);
+
+		if (collidesWithPlayer)
+		{
+			CollisionManager::GetInstance().MovePlayer({ collisionResult.resultXPos, collisionResult.resultYPos });			
+		}
+
+		set_position(newPos);
 	}
 }
 

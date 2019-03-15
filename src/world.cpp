@@ -5,7 +5,7 @@
 
 // stlib
 
-#define MAX_LEVEL 5
+#define MAX_LEVEL 7
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -76,10 +76,12 @@ bool World::init(vec2 screen) {
 
 	m_should_load_level_screen = false;
 	m_paused = false;
+	m_game_completed = false;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
 	m_level_screen.init();
 	m_pause_screen.init();
+	m_end_screen.init();
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
@@ -120,6 +122,7 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	m_end_screen.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -175,34 +178,31 @@ void World::draw() {
 
 	// Fake projection matrix, scales with respect to window coordinates
 	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
-	float left = 0.f;// *-0.5;
-	float top = 0.f;// (float)h * -0.5;
-	float right = (float) w / retinaScale;
-	float bottom = (float)h / retinaScale;
+	float left = m_player.get_position().x - (float) w / retinaScale / 2;
+	float top = m_player.get_position().y - (float) h / retinaScale / 2;
+	float right = m_player.get_position().x + (float) w / retinaScale / 2;
+	float bottom = m_player.get_position().y + (float) h / retinaScale / 2;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
-	// Drawing entities
-	m_player.calculate_screen_pos(ww, hh);
 
 	for (Entity* entity: m_entities) {
-		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
-		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
-		vec2 screen_pos = {screen_pos_x, screen_pos_y};
-		entity->set_screen_pos(screen_pos);
 		entity->draw(projection_2D);
 	}
 
 	m_player.draw(projection_2D);
 
 	/////////////////////
-	// Truely render to the screen
+	// Truly render to the screen
 	if (m_should_load_level_screen) {
+		m_level_screen.set_position(m_player.get_position());
 		m_level_screen.draw(projection_2D);
-		vec2 initial_screen_pos = { 300, 370 };
+		vec2 initial_pos;
+		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
+		initial_pos.y = m_player.get_position().y - 20;
 		// Offset is the distance calculated between each level boxes
 		float offset = 225;
 		// There are 4 boxes per row right now
@@ -210,12 +210,18 @@ void World::draw() {
 		for (int i = 0; i < m_unlocked_levels; ++i) {
 			int x = i % num_col;
 			int y = i / num_col;
-			m_unlocked_level_sparkles[i].set_screen_position(initial_screen_pos, { offset * x, offset * y });
+			m_unlocked_level_sparkles[i].set_position(initial_pos, { offset * x, offset * y });
 			m_unlocked_level_sparkles[i].draw(projection_2D);
 		}
 	}
 	if (m_paused) {
+		m_pause_screen.set_position(m_player.get_position());
 		m_pause_screen.draw(projection_2D);
+	}
+
+	if (m_game_completed) {
+		m_end_screen.set_position(m_player.get_position());
+		m_end_screen.draw(projection_2D);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -272,14 +278,16 @@ void World::load_level_screen(int key_pressed_level) {
 }
 
 void World::next_level() {
-	if (m_current_level < MAX_LEVEL) {
-		m_current_level++;
-		reset_game();
-	} else if (m_current_level == MAX_LEVEL){
-		// TODO: Maybe project a screen displaying that user has completed all levels?
-		fprintf(stderr, "Congratulations! You've conquered all levels in the game!");
+	if (!m_game_completed) {
+		if (m_current_level < MAX_LEVEL) {
+			m_current_level++;
+			reset_game();
+		} else if (m_current_level == MAX_LEVEL) {
+			m_game_completed = true;
+			return;
+		}
+		m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 	}
-	m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
 }
 
 // On key callback
@@ -292,19 +300,32 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		if (key == GLFW_KEY_Z || key == GLFW_KEY_W) {
 			m_player.setZPressed(true);
 		}
-		else if (key == GLFW_KEY_A) {
+		else if (key == GLFW_KEY_LEFT) {
+			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_D) {
+		else if (key == GLFW_KEY_RIGHT) {
+			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
 			m_should_load_level_screen = !m_should_load_level_screen;
+			m_paused = false;
+		}
+		else if (key == GLFW_KEY_L) {
+			m_player.toggleShowPolygon();
 		}
 		else if (key == GLFW_KEY_P) {
 			m_paused = !m_paused;
+			m_should_load_level_screen = false;
+		}
+		else if (m_paused && key == GLFW_KEY_R) {
+			m_paused = false;
+		}
+		else if (!m_paused && key == GLFW_KEY_R) {
+			reset_game();
 		}
 		else if (key == GLFW_KEY_SPACE) {
 			m_player.switchLightSource();
@@ -335,15 +356,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
       }
 	  }
   }
-
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
-	{
-		reset_game();
-	}
 
 	// Exit Game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {

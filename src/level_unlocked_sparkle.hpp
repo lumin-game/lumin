@@ -15,7 +15,7 @@ public:
 	void draw(const mat3& projection)override;
 
 	// Default screen position doesn't have an offset value
-	void set_screen_position(vec2 position, vec2 offset = {0, 0});
+	void set_position(vec2 position, vec2 offset = {0, 0});
 
   vec2 get_bounding_box()const;
 

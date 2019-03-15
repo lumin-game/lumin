@@ -7,12 +7,18 @@ in vec2 vpos;
 uniform sampler2D sampler0;
 uniform vec3 fcolor;
 uniform float lightRadius;
+uniform int showPolygon;
 
 // Output color
 layout(location = 0) out vec4 color;
 
 void main()
 {
+	if (showPolygon == 1)
+	{
+		color = vec4(1,1,1,1);
+		return;
+	}
 	//TODO: Prolly don't hardcode these values
 	float radius = distance(vec2(0.0), vpos);
 	if (radius < lightRadius)

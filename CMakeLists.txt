@@ -39,8 +39,7 @@ set(SOURCE_FILES
         src/radiuslight_mesh.cpp
         src/laserlight_mesh.cpp
         src/movable_wall.cpp
-        src/level_screen.cpp
-        src/pause_screen.cpp
+        src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
         src/screen.cpp
         src/world.cpp
@@ -49,6 +48,7 @@ set(SOURCE_FILES
         src/switch.cpp
         src/door.cpp
 		src/LevelGenerator.cpp
+        src/lantern.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -62,7 +62,9 @@ set(SOURCE_FILES
         src/laserlight_mesh.hpp
         src/movable_wall.hpp
         src/level_screen.hpp
+		src/game_screen.hpp
         src/pause_screen.hpp
+		src/end_screen.hpp
         src/level_unlocked_sparkle.hpp
         src/screen.hpp
         src/world.hpp
@@ -70,7 +72,8 @@ set(SOURCE_FILES
         src/switch.hpp
         src/firefly.hpp
         src/door.hpp
-        src/LevelGenerator.hpp)
+        src/LevelGenerator.hpp
+        src/lantern.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
