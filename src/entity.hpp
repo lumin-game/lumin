@@ -47,12 +47,6 @@ public:
 	// Sets the new entity position
 	void set_position(vec2 position);
 
-	// Returns the current entity screen position
-	vec2 get_screen_pos() const;
-
-	// Sets the new entity screen position
-	virtual void set_screen_pos(vec2 position);
-
 	// Returns the wall's bounding box for collision detection, called by collides_with()
 	vec2 get_bounding_box() const;
 
@@ -74,9 +68,6 @@ private:
 	Mix_Chunk* m_entity_sound;
 
 protected:
-    // Window coordinates
-    vec2 m_screen_pos;
-
 	// pointer to the active texture
     Texture* texture;
 

@@ -179,34 +179,31 @@ void World::draw() {
 
 	// Fake projection matrix, scales with respect to window coordinates
 	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
-	float left = 0.f;// *-0.5;
-	float top = 0.f;// (float)h * -0.5;
-	float right = (float) w / retinaScale;
-	float bottom = (float)h / retinaScale;
+	float left = m_player.get_position().x - (float) w / retinaScale / 2;
+	float top = m_player.get_position().y - (float) h / retinaScale / 2;
+	float right = m_player.get_position().x + (float) w / retinaScale / 2;
+	float bottom = m_player.get_position().y + (float) h / retinaScale / 2;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
-	// Drawing entities
-	m_player.calculate_screen_pos(ww, hh);
 
 	for (Entity* entity: m_entities) {
-		float screen_pos_x = entity->get_position().x - m_player.get_position().x + m_player.get_screen_pos().x;
-		float screen_pos_y = entity->get_position().y - m_player.get_position().y + m_player.get_screen_pos().y;
-		vec2 screen_pos = {screen_pos_x, screen_pos_y};
-		entity->set_screen_pos(screen_pos);
 		entity->draw(projection_2D);
 	}
 
 	m_player.draw(projection_2D);
 
 	/////////////////////
-	// Truely render to the screen
+	// Truly render to the screen
 	if (m_should_load_level_screen) {
+		m_level_screen.set_position(m_player.get_position());
 		m_level_screen.draw(projection_2D);
-		vec2 initial_screen_pos = { 300, 370 };
+		vec2 initial_pos;
+		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
+		initial_pos.y = m_player.get_position().y - 20;
 		// Offset is the distance calculated between each level boxes
 		float offset = 225;
 		// There are 4 boxes per row right now
@@ -214,15 +211,17 @@ void World::draw() {
 		for (int i = 0; i < m_unlocked_levels; ++i) {
 			int x = i % num_col;
 			int y = i / num_col;
-			m_unlocked_level_sparkles[i].set_screen_position(initial_screen_pos, { offset * x, offset * y });
+			m_unlocked_level_sparkles[i].set_position(initial_pos, { offset * x, offset * y });
 			m_unlocked_level_sparkles[i].draw(projection_2D);
 		}
 	}
 	if (m_paused) {
+		m_pause_screen.set_position(m_player.get_position());
 		m_pause_screen.draw(projection_2D);
 	}
 
 	if (m_game_completed) {
+		m_end_screen.set_position(m_player.get_position());
 		m_end_screen.draw(projection_2D);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -303,9 +302,11 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			m_player.setZPressed(true);
 		}
 		else if (key == GLFW_KEY_LEFT) {
+			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
 		else if (key == GLFW_KEY_RIGHT) {
+			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected

@@ -13,7 +13,12 @@ public:
 
 	// Releases all the associated resources
 	virtual void destroy();
+
 	void draw(const mat3& projection)override;
+
+	void set_position(vec2 position) {
+		m_position = position;
+	}
 
 	vec2 get_bounding_box()const;
 

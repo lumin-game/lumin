@@ -35,9 +35,8 @@ void Lantern::draw(const mat3 &projection) {
     // same as Firefly::draw(), except don't draw all the SingleFireflies at once when lantern is turned on
     if (get_lit()) {
         SingleFirefly::ParentData fireflyData;
-        fireflyData.m_position = m_position;
         // the firefly jar is in bottom half of the lantern texture, so move the fireflies down
-        fireflyData.m_screen_pos = vec2{m_screen_pos.x, m_screen_pos.y + 18};
+        fireflyData.m_position = vec2{m_position.x, m_position.y + 18};
 
         int i = 0;
         for (SingleFirefly& firefly : fireflies)
@@ -53,7 +52,6 @@ void Lantern::draw(const mat3 &projection) {
 
         LightMesh::ParentData lightData;
         lightData.m_position = m_position;
-        lightData.m_screen_pos = m_screen_pos;
         lightMesh.SetParentData(lightData);
         lightMesh.draw(projection);
     }

@@ -116,8 +116,8 @@ void UnlockedLevelSparkle::draw(const mat3& projection) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 }
 
-void UnlockedLevelSparkle::set_screen_position(vec2 position, vec2 offset) {
-	m_position.x = position.x + offset.x;
+void UnlockedLevelSparkle::set_position(vec2 position, vec2 offset) {
+  m_position.x = position.x + offset.x;
   m_position.y = position.y + offset.y;
 }
 
