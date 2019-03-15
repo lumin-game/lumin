@@ -12,6 +12,7 @@ public:
 
 private:
 	static Texture player_texture;
+	static Texture player_spritesheet;
 
 public:
 	// Creates all the associated render resources and default transform
@@ -19,6 +20,8 @@ public:
 
 	// Releases all associated resources
 	void destroy();
+
+	void update(float ms);
 
 	// Renders the player
 	void draw(const mat3& projection) override;
@@ -29,6 +32,8 @@ public:
 	// Render player as facing left
 	void turn_left();
 
+	void playAnimation();
+
 	void SetParentData(ParentData data) { m_parent = data; }
 
 	int GetPlayerWidth() const;
@@ -38,4 +43,9 @@ public:
 private:
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	ParentData m_parent;
+	int m_total_frames;
+	int m_current_frame;
+	int m_frame_counter;
+	int m_frame_speed;
+
 };

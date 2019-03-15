@@ -104,6 +104,8 @@ void Player::update(float ms)
 	{
 		m_y_velocity = 0.f;
 	}
+
+	playerMesh.update(ms);
 }
 
 void Player::draw(const mat3& projection)
@@ -151,4 +153,8 @@ void Player::setRightPressed(bool tf) {
 
 void Player::setPlayerPosition(vec2 pos) {
 	m_position = pos;
+}
+
+void Player::playAnimation() {
+
 }

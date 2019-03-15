@@ -10,13 +10,30 @@
 
 Texture PlayerMesh::player_texture;
 
+Texture PlayerMesh::player_spritesheet;
+
 bool PlayerMesh::init()
 {
+
+	m_total_frames = 18;
+	m_current_frame = 0;
+	m_frame_counter = 0;
+	m_frame_speed = 20;
+
 	if (!player_texture.is_valid())
 	{
 		if (!player_texture.load_from_file(textures_path("player.png")))
 		{
 			fprintf(stderr, "Failed to load player texture!");
+			return false;
+		}
+	}
+
+	if (!player_spritesheet.is_valid())
+	{
+		if (!player_spritesheet.load_from_file(spritesheet_path("player.png")))
+		{
+			fprintf(stderr, "Failed to load player spritesheet!");
 			return false;
 		}
 	}
@@ -91,6 +108,10 @@ void PlayerMesh::destroy()
 
 void PlayerMesh::draw(const mat3& projection)
 {
+
+	int row = std::floor(m_current_frame / 4);
+	int col = std::floor(m_current_frame % 4);
+
 	transform_begin();
 
 	// see Transformations and Rendering in the specification pdf
@@ -155,3 +176,15 @@ int PlayerMesh::GetPlayerWidth() const
 	return player_texture.width;
 
 }
+
+  void PlayerMesh::playAnimation() {
+
+  }
+
+  void PlayerMesh::update(float ms) {
+	if (m_frame_counter == (m_frame_speed - 1)) {
+		m_current_frame = (m_current_frame + 1) % m_total_frames;
+	}
+
+	m_frame_counter = (m_frame_counter + 1) % m_frame_speed;
+  }
