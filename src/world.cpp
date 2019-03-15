@@ -298,14 +298,14 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
-			m_player.setZPressed(true);
+		if (key == GLFW_KEY_W) {
+			m_player.setJumpPressed(true);
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
@@ -331,13 +331,13 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
-			m_player.setZPressed(false);
+		if (key == GLFW_KEY_W) {
+			m_player.setJumpPressed(false);
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(false);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setRightPressed(false);
 		}
 	}

@@ -59,9 +59,9 @@ void Player::update(float ms)
 	// Update player position/velocity based on key presses
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	if (m_is_z_pressed && can_jump) {
+	if (m_is_jump_pressed && can_jump) {
 		m_y_velocity = -8.f;
-		m_is_z_pressed = false;
+		m_is_jump_pressed = false;
 	}
 
 	if (m_is_left_pressed) {
@@ -131,8 +131,8 @@ void Player::move(vec2 off)
 	m_position.x += off.x; m_position.y += off.y;
 }
 
-void Player::setZPressed(bool tf) {
-	m_is_z_pressed = tf;
+void Player::setJumpPressed(bool tf) {
+	m_is_jump_pressed = tf;
 }
 
 void Player::setLeftPressed(bool tf) {

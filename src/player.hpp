@@ -32,7 +32,7 @@ public:
 
 	void setRightPressed(bool tf);
 
-	void setZPressed(bool tf);
+	void setJumpPressed(bool tf);
 
 	void setPlayerPosition(vec2 pos);
 
@@ -50,7 +50,7 @@ private:
 
 	bool m_is_left_pressed;
 	bool m_is_right_pressed;
-	bool m_is_z_pressed;
+	bool m_is_jump_pressed;
 
 	bool can_jump;
 
