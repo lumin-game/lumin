@@ -11,7 +11,6 @@ public:
 	};
 
 private:
-// 	static Texture player_texture;
 	static Texture player_spritesheet;
 	static const int TOTAL_FRAMES = 18;
 	static const int FRAME_SPEED = 5;
@@ -33,8 +32,6 @@ public:
 
 	// Render player as facing left
 	void turn_left();
-
-	void shouldPlayAnimation(bool is_walking);
 
 	void SetParentData(ParentData data) { m_parent = data; }
 

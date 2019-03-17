@@ -36,8 +36,6 @@ public:
 
 	void setPlayerPosition(vec2 pos);
 
-	void playAnimation();
-
 	vec2 getPlayerDimensions() {
 		return { (float) playerWidth, (float) playerHeight };
 	}
