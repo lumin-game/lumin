@@ -8,8 +8,6 @@
 #include <iostream>
 #include <cmath>
 
-// Texture PlayerMesh::player_texture;
-
 Texture PlayerMesh::player_spritesheet;
 
 bool PlayerMesh::init()
@@ -33,13 +31,13 @@ bool PlayerMesh::init()
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, 0.1f };
-	vertices[0].texcoord = { 0, 1.f };
+	vertices[0].texcoord = { 0.f, 1.f };
 	vertices[1].position = { +wr, +hr, 0.1f };
 	vertices[1].texcoord = { tex_right, 1.f };
 	vertices[2].position = { +wr, -hr, 0.1f };
 	vertices[2].texcoord = { tex_right, 0.f };
 	vertices[3].position = { -wr, -hr, 0.1f };
-	vertices[3].texcoord = { 0, 0.f };
+	vertices[3].texcoord = { 0.f, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction
 	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
@@ -103,6 +101,7 @@ void PlayerMesh::draw(const mat3& projection)
     float wr = 125 * 0.5f;
     float hr = player_spritesheet.height * 0.5f;
 
+    // move to correct sprite on spritesheet
     TexturedVertex vertices[4];
     float tex_left = (float) m_current_frame / TOTAL_FRAMES;
     float tex_right = (m_current_frame + 1.f) / TOTAL_FRAMES;
