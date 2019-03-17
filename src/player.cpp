@@ -104,6 +104,12 @@ void Player::update(float ms)
 	{
 		m_y_velocity = 0.f;
 	}
+
+	if(m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)
+	{
+		// only update player animation if player is walking along horizontal surface
+		playerMesh.updateFrame();
+	}
 }
 
 void Player::draw(const mat3& projection)
