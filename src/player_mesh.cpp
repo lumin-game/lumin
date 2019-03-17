@@ -14,42 +14,31 @@ Texture PlayerMesh::player_spritesheet;
 
 bool PlayerMesh::init()
 {
-
-	m_total_frames = 18;
 	m_current_frame = 0;
 	m_frame_counter = 0;
-	m_frame_speed = 20;
 
 	if (!player_texture.is_valid())
 	{
+//		if (!player_texture.load_from_file(textures_path("player.png")))
 		if (!player_texture.load_from_file(textures_path("player.png")))
 		{
 			fprintf(stderr, "Failed to load player texture!");
 			return false;
 		}
 	}
-
-	if (!player_spritesheet.is_valid())
-	{
-		if (!player_spritesheet.load_from_file(spritesheet_path("player.png")))
-		{
-			fprintf(stderr, "Failed to load player spritesheet!");
-			return false;
-		}
-	}
 	// The position corresponds to the center of the texture
-	float wr = player_texture.width * 0.5f;
+	float wr = 125 * 0.5f;
 	float hr = player_texture.height * 0.5f;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, 0.1f };
-	vertices[0].texcoord = { 0.f, 1.f };
+	vertices[0].texcoord = { 0, 1.f };
 	vertices[1].position = { +wr, +hr, 0.1f };
-	vertices[1].texcoord = { 1.f, 1.f };
+	vertices[1].texcoord = { 1, 1.f };
 	vertices[2].position = { +wr, -hr, 0.1f };
-	vertices[2].texcoord = { 1.f, 0.f };
+	vertices[2].texcoord = { 1, 0.f };
 	vertices[3].position = { -wr, -hr, 0.1f };
-	vertices[3].texcoord = { 0.f, 0.f };
+	vertices[3].texcoord = { 0, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction
 	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
@@ -85,13 +74,13 @@ bool PlayerMesh::init()
 }
 
 // Render player as facing right
-void PlayerMesh::turn_right() 
+void PlayerMesh::turn_right()
 {
 	m_scale.x = std::fabs(m_scale.x);
 }
 
 // Render player as facing left
-void PlayerMesh::turn_left() 
+void PlayerMesh::turn_left()
 {
 	m_scale.x = -std::fabs(m_scale.x);
 }
@@ -109,8 +98,15 @@ void PlayerMesh::destroy()
 void PlayerMesh::draw(const mat3& projection)
 {
 
-	int row = std::floor(m_current_frame / 4);
-	int col = std::floor(m_current_frame % 4);
+    {
+        std::string sprite_path = "/Users/sherryuan/Documents/UBC/CPSC436/lumin/./data/textures/player_sprites/player" +
+                                  std::to_string(m_current_frame) + ".png";
+
+        if (!player_texture.load_from_file(sprite_path.c_str())) {
+            fprintf(stderr, sprite_path.c_str());
+            fprintf(stderr, "Failed to load player texture!");
+        }
+    }
 
 	transform_begin();
 
@@ -177,14 +173,15 @@ int PlayerMesh::GetPlayerWidth() const
 
 }
 
-  void PlayerMesh::playAnimation() {
+  void PlayerMesh::shouldPlayAnimation(bool is_walking) {
 
   }
 
-  void PlayerMesh::update(float ms) {
-	if (m_frame_counter == (m_frame_speed - 1)) {
-		m_current_frame = (m_current_frame + 1) % m_total_frames;
+  void PlayerMesh::update(bool is_walking) {
+	if (is_walking) {
+		if (m_frame_counter == (FRAME_SPEED - 1)) {
+			m_current_frame = (m_current_frame + 1) % TOTAL_FRAMES;
+		}
+		m_frame_counter = (m_frame_counter + 1) % FRAME_SPEED;
 	}
-
-	m_frame_counter = (m_frame_counter + 1) % m_frame_speed;
   }

@@ -62,6 +62,7 @@ void Player::update(float ms)
 	if (m_is_z_pressed && can_jump) {
 		m_y_velocity = -8.f;
 		m_is_z_pressed = false;
+		playerMesh.shouldPlayAnimation(false);
 	}
 
 	if (m_is_left_pressed) {
@@ -105,7 +106,8 @@ void Player::update(float ms)
 		m_y_velocity = 0.f;
 	}
 
-	playerMesh.update(ms);
+	bool is_walking = m_screen_x_movement != 0.f && m_screen_y_movement == 0.f;
+	playerMesh.update(is_walking);
 }
 
 void Player::draw(const mat3& projection)
