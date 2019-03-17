@@ -11,7 +11,7 @@ public:
 	};
 
 private:
-	static Texture player_texture;
+// 	static Texture player_texture;
 	static Texture player_spritesheet;
 	static const int TOTAL_FRAMES = 18;
 	static const int FRAME_SPEED = 5;

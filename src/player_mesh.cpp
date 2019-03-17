@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cmath>
 
-Texture PlayerMesh::player_texture;
+// Texture PlayerMesh::player_texture;
 
 Texture PlayerMesh::player_spritesheet;
 
@@ -17,18 +17,27 @@ bool PlayerMesh::init()
 	m_current_frame = 0;
 	m_frame_counter = 0;
 
-	if (!player_texture.is_valid())
-	{
+//	if (!player_texture.is_valid())
+//	{
+////		if (!player_texture.load_from_file(textures_path("player.png")))
 //		if (!player_texture.load_from_file(textures_path("player.png")))
-		if (!player_texture.load_from_file(textures_path("player.png")))
-		{
-			fprintf(stderr, "Failed to load player texture!");
-			return false;
-		}
-	}
+//		{
+//			fprintf(stderr, "Failed to load player texture!");
+//			return false;
+//		}
+//	}
+
+    if (!player_spritesheet.is_valid())
+    {
+        if (!player_spritesheet.load_from_file(spritesheet_path("player_spritesheet.png")))
+        {
+            fprintf(stderr, "Failed to load player spritesheet!");
+            return false;
+        }
+    }
 	// The position corresponds to the center of the texture
 	float wr = 125 * 0.5f;
-	float hr = player_texture.height * 0.5f;
+	float hr = player_spritesheet.height * 0.5f;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, 0.1f };
@@ -98,15 +107,34 @@ void PlayerMesh::destroy()
 void PlayerMesh::draw(const mat3& projection)
 {
 
-    {
-        std::string sprite_path = "/Users/sherryuan/Documents/UBC/CPSC436/lumin/./data/textures/player_sprites/player" +
-                                  std::to_string(m_current_frame) + ".png";
+    // The position corresponds to the center of the texture
+    float wr = 125 * 0.5f;
+    float hr = player_spritesheet.height * 0.5f;
 
-        if (!player_texture.load_from_file(sprite_path.c_str())) {
-            fprintf(stderr, sprite_path.c_str());
-            fprintf(stderr, "Failed to load player texture!");
-        }
-    }
+    TexturedVertex vertices[4];
+    float tex_left = (float) m_current_frame / TOTAL_FRAMES;
+    float tex_right = (m_current_frame + 1.f) / TOTAL_FRAMES;
+    vertices[0].position = { -wr, +hr, 0.1f };
+    vertices[0].texcoord = { tex_left, 1.f };
+    vertices[1].position = { +wr, +hr, 0.1f };
+    vertices[1].texcoord = { tex_right, 1.f };
+    vertices[2].position = { +wr, -hr, 0.1f };
+    vertices[2].texcoord = { tex_right, 0.f };
+    vertices[3].position = { -wr, -hr, 0.1f };
+    vertices[3].texcoord = { tex_left, 0.f };
+
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TexturedVertex) * 4, vertices, GL_STATIC_DRAW);
+//
+//    {
+//        std::string sprite_path = "/Users/sherryuan/Documents/UBC/CPSC436/lumin/./data/textures/player_sprites/player" +
+//                                  std::to_string(m_current_frame) + ".png";
+//
+//        if (!player_texture.load_from_file(sprite_path.c_str())) {
+//            fprintf(stderr, sprite_path.c_str());
+//            fprintf(stderr, "Failed to load player texture!");
+//        }
+//    }
 
 	transform_begin();
 
@@ -149,7 +177,7 @@ void PlayerMesh::draw(const mat3& projection)
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, player_texture.id);
+	glBindTexture(GL_TEXTURE_2D, player_spritesheet.id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -164,12 +192,12 @@ void PlayerMesh::draw(const mat3& projection)
 
 int PlayerMesh::GetPlayerHeight() const
 {
-	return player_texture.height;
+	return player_spritesheet.height;
 }
 
 int PlayerMesh::GetPlayerWidth() const
 {
-	return player_texture.width;
+	return player_spritesheet.width / TOTAL_FRAMES;
 
 }
 
