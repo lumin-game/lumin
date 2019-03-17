@@ -182,11 +182,10 @@ int PlayerMesh::GetPlayerWidth() const
 
 }
 
-  void PlayerMesh::update(bool is_walking) {
-	if (is_walking) {
-		if (m_frame_counter == (FRAME_SPEED - 1)) {
-			m_current_frame = (m_current_frame + 1) % TOTAL_FRAMES;
-		}
-		m_frame_counter = (m_frame_counter + 1) % FRAME_SPEED;
+  void PlayerMesh::updateFrame()
+  {
+	if (m_frame_counter == (FRAME_SPEED - 1)) {
+		m_current_frame = (m_current_frame + 1) % TOTAL_FRAMES;
 	}
+	m_frame_counter = (m_frame_counter + 1) % FRAME_SPEED;
   }

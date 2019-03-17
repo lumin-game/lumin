@@ -13,7 +13,7 @@ public:
 private:
 	static Texture player_spritesheet;
 	static const int TOTAL_FRAMES = 18;
-	static const int FRAME_SPEED = 5;
+	static const int FRAME_SPEED = 4;
 
 public:
 	// Creates all the associated render resources and default transform
@@ -22,7 +22,7 @@ public:
 	// Releases all associated resources
 	void destroy();
 
-	void update(bool is_walking);
+	void updateFrame();
 
 	// Renders the player
 	void draw(const mat3& projection) override;
