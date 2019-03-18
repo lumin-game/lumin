@@ -8,29 +8,34 @@
 #include <iostream>
 #include <cmath>
 
-Texture PlayerMesh::player_texture;
+Texture PlayerMesh::player_spritesheet;
 
 bool PlayerMesh::init()
 {
-	if (!player_texture.is_valid())
-	{
-		if (!player_texture.load_from_file(textures_path("player.png")))
-		{
-			fprintf(stderr, "Failed to load player texture!");
-			return false;
-		}
-	}
+	m_current_frame = 0;
+	m_frame_counter = 0;
+
+    if (!player_spritesheet.is_valid())
+    {
+        if (!player_spritesheet.load_from_file(spritesheet_path("player.png")))
+        {
+            fprintf(stderr, "Failed to load player spritesheet!");
+            return false;
+        }
+    }
 	// The position corresponds to the center of the texture
-	float wr = player_texture.width * 0.5f;
-	float hr = player_texture.height * 0.5f;
+	float wr = 125 * 0.5f;
+	float hr = player_spritesheet.height * 0.5f;
+
+	float tex_right = 1.f / TOTAL_FRAMES;
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, 0.1f };
 	vertices[0].texcoord = { 0.f, 1.f };
 	vertices[1].position = { +wr, +hr, 0.1f };
-	vertices[1].texcoord = { 1.f, 1.f };
+	vertices[1].texcoord = { tex_right, 1.f };
 	vertices[2].position = { +wr, -hr, 0.1f };
-	vertices[2].texcoord = { 1.f, 0.f };
+	vertices[2].texcoord = { tex_right, 0.f };
 	vertices[3].position = { -wr, -hr, 0.1f };
 	vertices[3].texcoord = { 0.f, 0.f };
 
@@ -68,13 +73,13 @@ bool PlayerMesh::init()
 }
 
 // Render player as facing right
-void PlayerMesh::turn_right() 
+void PlayerMesh::turn_right()
 {
 	m_scale.x = std::fabs(m_scale.x);
 }
 
 // Render player as facing left
-void PlayerMesh::turn_left() 
+void PlayerMesh::turn_left()
 {
 	m_scale.x = -std::fabs(m_scale.x);
 }
@@ -91,6 +96,27 @@ void PlayerMesh::destroy()
 
 void PlayerMesh::draw(const mat3& projection)
 {
+
+    // The position corresponds to the center of the texture
+    float wr = 125 * 0.5f;
+    float hr = player_spritesheet.height * 0.5f;
+
+    // move to correct sprite on spritesheet
+    TexturedVertex vertices[4];
+    float tex_left = (float) m_current_frame / TOTAL_FRAMES;
+    float tex_right = (m_current_frame + 1.f) / TOTAL_FRAMES;
+    vertices[0].position = { -wr, +hr, 0.1f };
+    vertices[0].texcoord = { tex_left, 1.f };
+    vertices[1].position = { +wr, +hr, 0.1f };
+    vertices[1].texcoord = { tex_right, 1.f };
+    vertices[2].position = { +wr, -hr, 0.1f };
+    vertices[2].texcoord = { tex_right, 0.f };
+    vertices[3].position = { -wr, -hr, 0.1f };
+    vertices[3].texcoord = { tex_left, 0.f };
+
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TexturedVertex) * 4, vertices, GL_STATIC_DRAW);
+
 	transform_begin();
 
 	// see Transformations and Rendering in the specification pdf
@@ -132,7 +158,7 @@ void PlayerMesh::draw(const mat3& projection)
 
 	// Enabling and binding texture to slot 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, player_texture.id);
+	glBindTexture(GL_TEXTURE_2D, player_spritesheet.id);
 
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
@@ -147,11 +173,19 @@ void PlayerMesh::draw(const mat3& projection)
 
 int PlayerMesh::GetPlayerHeight() const
 {
-	return player_texture.height;
+	return player_spritesheet.height;
 }
 
 int PlayerMesh::GetPlayerWidth() const
 {
-	return player_texture.width;
+	return player_spritesheet.width / TOTAL_FRAMES;
 
 }
+
+  void PlayerMesh::updateFrame()
+  {
+	if (m_frame_counter == (FRAME_SPEED - 1)) {
+		m_current_frame = (m_current_frame + 1) % TOTAL_FRAMES;
+	}
+	m_frame_counter = (m_frame_counter + 1) % FRAME_SPEED;
+  }

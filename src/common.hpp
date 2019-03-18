@@ -20,6 +20,7 @@
 
 #define data_path PROJECT_SOURCE_DIR "./data"
 #define textures_path(name)  data_path "/textures/" name
+#define spritesheet_path(name)  data_path "/spritesheets/" name
 #define audio_path(name) data_path  "/audio/" name
 #define mesh_path(name) data_path  "/meshes/" name
 #define levels_path(name) data_path "/levels/" name

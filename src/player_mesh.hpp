@@ -11,7 +11,9 @@ public:
 	};
 
 private:
-	static Texture player_texture;
+	static Texture player_spritesheet;
+	static const int TOTAL_FRAMES = 18;
+	static const int FRAME_SPEED = 4;
 
 public:
 	// Creates all the associated render resources and default transform
@@ -19,6 +21,8 @@ public:
 
 	// Releases all associated resources
 	void destroy();
+
+	void updateFrame();
 
 	// Renders the player
 	void draw(const mat3& projection) override;
@@ -38,4 +42,8 @@ public:
 private:
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	ParentData m_parent;
+	int m_current_frame;
+	// keeps track of how many frames has passed since the last sprite change
+	int m_frame_counter;
+
 };
