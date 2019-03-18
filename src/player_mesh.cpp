@@ -66,8 +66,8 @@ bool PlayerMesh::init()
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
-	m_scale.x = 0.5f;
-	m_scale.y = 0.5f;
+	m_scale.x = 0.45f;
+	m_scale.y = 0.45f;
 
 	return true;
 }
