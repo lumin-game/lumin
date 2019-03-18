@@ -66,7 +66,6 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
 
                     case '|':
                         entity = new Door();
-
                         // Make default state of door open; if we later link it to a switch,
                         // we turn its default state to off as part of the linking process.
                         entity->set_lit(true);
@@ -214,6 +213,14 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                     mw->set_movement_properties(shouldCurve, blockLocations, blockCurves, 0.2, moveImmediate, loopMovement, reverseOnLoop);
                 }
 
+				if (Door *door = dynamic_cast<Door *>(entity->second)) {
+					int level = 0;
+					for (int i = 2; i < 4; i++) {
+						level *= 10;
+						level += charVector[i] - '0';
+					}
+					door->set_level_index(level);
+				}
             }
             else {
                 // Keep track of dynamic dynamicEntities
