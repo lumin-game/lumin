@@ -103,7 +103,7 @@ void MovableWall::AdvanceToNextPoint()
 	}
 	else
 	{
-		distanceToTarget = (currentTargetLocation - get_position()).Magnitude();
+		distanceToTarget = (currentTargetLocation - previousLocation).Magnitude();
 	}
 
 	msToDestination = distanceToTarget / move_speed;
