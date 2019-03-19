@@ -4,7 +4,7 @@
 
 class World;
 
-class LightMesh : public Renderable
+class LaserLightMesh : public Renderable
 {
 public:
 	struct ParentData

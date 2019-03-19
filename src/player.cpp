@@ -114,7 +114,7 @@ void Player::update(float ms)
 
 void Player::draw(const mat3& projection)
 {
-	LightMesh::ParentData lightData;
+	RadiusLightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 
 	lightMesh.SetParentData(lightData);

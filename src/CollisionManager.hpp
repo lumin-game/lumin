@@ -36,8 +36,8 @@ public:
 	void operator=(CollisionManager const &) = delete;
 
 	// Registers a light
-	void RegisterLight(const LightMesh* light);
-	void UnregisterLight(const LightMesh* light);
+	void RegisterLight(const RadiusLightMesh* light);
+	void UnregisterLight(const RadiusLightMesh* light);
 
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
 	void RegisterEntity(const Entity* entity);
@@ -90,7 +90,7 @@ private:
 	Player* player;
 
 	// List of light in the level
-	std::set<const LightMesh*> lightSources;
+	std::set<const RadiusLightMesh*> lightSources;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;

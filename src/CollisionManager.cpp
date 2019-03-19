@@ -5,7 +5,7 @@
 #include "player.hpp"
 
 
-void CollisionManager::RegisterLight(const LightMesh* light)
+void CollisionManager::RegisterLight(const RadiusLightMesh* light)
 {
 	if (lightSources.find(light) == lightSources.end())
 	{
@@ -13,7 +13,7 @@ void CollisionManager::RegisterLight(const LightMesh* light)
 	}
 }
 
-void CollisionManager::UnregisterLight(const LightMesh* light)
+void CollisionManager::UnregisterLight(const RadiusLightMesh* light)
 {
 	lightSources.erase(light);
 }
@@ -272,7 +272,7 @@ bool CollisionManager::IsHitByLight(const vec2 entityPos) const {
 	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
 	{
 		bool hasCollision = false;
-		const LightMesh* light = *it;
+		const RadiusLightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
 		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));
@@ -319,7 +319,7 @@ bool CollisionManager::findClosestVisibleLightSource(const vec2 entityPos, vec2&
 	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
 	{
 		bool hasCollision = false;
-		const LightMesh* light = *it;
+		const RadiusLightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
 		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));

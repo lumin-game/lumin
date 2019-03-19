@@ -1,5 +1,5 @@
   // Header
-#include "light_mesh.hpp"
+#include "laserlight_mesh.hpp"
 #include "CollisionManager.hpp"
 
 // stlib
@@ -14,7 +14,7 @@
 
 #define PI 3.14159265
 
-bool LightMesh::init()
+bool LaserLightMesh::init()
 {
 	m_lightRadius = 300.f;
 
@@ -37,7 +37,7 @@ bool LightMesh::init()
 }
 
 // Releases all graphics resources
-void LightMesh::destroy()
+void LaserLightMesh::destroy()
 {
 	CollisionManager::GetInstance().UnregisterLight(this);
 
@@ -48,7 +48,7 @@ void LightMesh::destroy()
 	effect.release();
 }
 
-void LightMesh::draw(const mat3& projection)
+void LaserLightMesh::draw(const mat3& projection)
 {
 	transform_begin();
 
@@ -105,7 +105,7 @@ void LightMesh::draw(const mat3& projection)
 	glDrawElements(GL_TRIANGLES, toRender, GL_UNSIGNED_SHORT, nullptr);
 }
 
-int LightMesh::UpdateVertices()
+int LaserLightMesh::UpdateVertices()
 {
 	// Update our collision equations based on where we are in the world
 	// CollisionManager is friend
@@ -227,12 +227,12 @@ int LightMesh::UpdateVertices()
 	return indices.size();
 }
 
-vec2 LightMesh::get_position() const
+vec2 LaserLightMesh::get_position() const
 {
 	return m_parent.m_position;
 }
 
-float LightMesh::getLightRadius() const
+float LaserLightMesh::getLightRadius() const
 {
 	return m_lightRadius;
 }
