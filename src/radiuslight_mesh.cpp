@@ -31,7 +31,7 @@ bool RadiusLightMesh::init()
 	if (!effect.load_from_file(shader_path("radiuslight.vs.glsl"), shader_path("radiuslight.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterLight(this);
+	CollisionManager::GetInstance().RegisterRadiusLight(this);
 
 	return true;
 }
@@ -39,7 +39,7 @@ bool RadiusLightMesh::init()
 // Releases all graphics resources
 void RadiusLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterLight(this);
+	CollisionManager::GetInstance().UnregisterRadiusLight(this);
 
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);

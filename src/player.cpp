@@ -14,7 +14,8 @@
 bool Player::init()
 {
 	playerMesh.init();
-	lightMesh.init();
+	laserLightMesh.init();
+	//radiusLightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
@@ -40,7 +41,8 @@ bool Player::init()
 void Player::destroy()
 {
 	playerMesh.destroy();
-	lightMesh.destroy();
+	laserLightMesh.destroy();
+	// radiusLightMesh.destroy();
 
 	CollisionManager::GetInstance().UnregisterPlayer();
 }
@@ -114,11 +116,12 @@ void Player::update(float ms)
 
 void Player::draw(const mat3& projection)
 {
-	RadiusLightMesh::ParentData lightData;
+	LaserLightMesh::ParentData lightData;
 	lightData.m_position = m_position;
 
-	lightMesh.SetParentData(lightData);
-	lightMesh.draw(projection);
+	laserLightMesh.SetParentData(lightData);
+	laserLightMesh.draw(projection);
+	// need to draw radiusLightMesh
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;

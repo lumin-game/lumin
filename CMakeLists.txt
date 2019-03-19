@@ -37,6 +37,7 @@ set(SOURCE_FILES
         src/player.cpp
         src/player_mesh.cpp
         src/radiuslight_mesh.cpp
+        src/laserlight_mesh.cpp
         src/movable_wall.cpp
         src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
@@ -58,6 +59,7 @@ set(SOURCE_FILES
         src/player.hpp
         src/player_mesh.hpp
         src/radiuslight_mesh.hpp
+        src/laserlight_mesh.hpp
         src/movable_wall.hpp
         src/level_screen.hpp
 		src/game_screen.hpp

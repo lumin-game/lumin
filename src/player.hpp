@@ -1,6 +1,7 @@
 #pragma once
 
 #include "player_mesh.hpp"
+#include "laserlight_mesh.hpp"
 #include "radiuslight_mesh.hpp"
 #include "common.hpp"
 
@@ -41,7 +42,7 @@ public:
 	}
 
 	void toggleShowPolygon() {
-		lightMesh.toggleShowPolygon();
+		radiusLightMesh.toggleShowPolygon();
 	};
 
 private:
@@ -65,5 +66,7 @@ private:
 	int playerHeight;
 
 	PlayerMesh playerMesh;
-	RadiusLightMesh lightMesh;
+	LaserLightMesh laserLightMesh;
+	RadiusLightMesh radiusLightMesh;
+
 };

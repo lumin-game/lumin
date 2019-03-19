@@ -16,7 +16,7 @@
 
 bool LaserLightMesh::init()
 {
-	m_lightRadius = 300.f;
+	m_lightRadius = 100.f;
 
 	// Vertex Buffer creation
 	glGenBuffers(1, &mesh.vbo);
@@ -28,10 +28,10 @@ bool LaserLightMesh::init()
 		return false;
 
 	// Loading shaders
-	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
+	if (!effect.load_from_file(shader_path("laserlight.vs.glsl"), shader_path("laserlight.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterLight(this);
+	CollisionManager::GetInstance().RegisterLaserLight(this);
 
 	return true;
 }
@@ -39,7 +39,7 @@ bool LaserLightMesh::init()
 // Releases all graphics resources
 void LaserLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterLight(this);
+	CollisionManager::GetInstance().UnregisterLaserLight(this);
 
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
