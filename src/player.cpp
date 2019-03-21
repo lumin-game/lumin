@@ -100,9 +100,9 @@ void Player::update(float ms)
 	m_position.y = collisionResult.resultYPos;
 	can_jump = collisionResult.bottomCollision;
 
-	if (collisionResult.bottomCollision || collisionResult.topCollision)
+	if (collisionResult.bottomCollision || collisionResult.topCollision) 
 	{
-		m_y_velocity = 0.f;
+		m_y_velocity = collisionResult.resultYPush;
 	}
 
 	if(m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)

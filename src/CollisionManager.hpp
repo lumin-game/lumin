@@ -19,6 +19,7 @@ struct CollisionResult
 	float resultYPos = 0.f;					// Final position the box would be
 	bool topCollision = false;				// If there was on the bottom of the box passed in
 	bool bottomCollision = false;			// If there was on the top of the box passed in
+	float resultYPush = 0.f;
 };
 
 public:
@@ -40,10 +41,10 @@ public:
 	void UnregisterLight(const LightMesh* light);
 
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
-	void RegisterEntity(const Entity* entity);
+	void RegisterEntity(Entity* entity);
 
 	// Unregisters an entity. Should be called on destroy.
-	void UnregisterEntity(const Entity* entity);
+	void UnregisterEntity(Entity* entity);
 
 	// Registers the player
 	void RegisterPlayer(Player* playerPtr);
@@ -84,7 +85,7 @@ private:
 	std::map<const Entity*, const ParametricLines> dynamicLightCollisionLines;
 
 	// List of box entities that have collision
-	std::vector<const Entity*> collisionEntities;
+	std::vector<Entity*> collisionEntities;
 	
 	// Ptr to player, we can keep our position this way. Const as we should never change it.
 	Player* player;

@@ -19,6 +19,8 @@ public:
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
 
+	vec2 get_velocity();
+
 private:
 	void AdvanceToNextPoint();
 
@@ -45,4 +47,6 @@ private:
 	bool isReversed;
 
 	float currentTime;
+
+	vec2 velocity;
 };
