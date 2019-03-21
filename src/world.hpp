@@ -87,4 +87,5 @@ private:
 	bool m_should_load_level_screen;
 	bool m_paused;
 	bool m_game_completed;
+	bool m_interact;
 };

@@ -6,7 +6,7 @@
 
 // stlib
 
-#define MAX_LEVEL 7
+#define MAX_LEVEL 9
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -78,6 +78,7 @@ bool World::init(vec2 screen) {
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
+	m_interact = false;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
 	m_level_screen.init();
@@ -138,7 +139,8 @@ bool World::update(float elapsed_ms) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
-				if (door->get_lit() && door->is_player_inside(&m_player)) {
+				if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
+					m_current_level = door->get_level_index();
 					next_level();
 					return true;
 				}
@@ -281,7 +283,6 @@ void World::load_level_screen(int key_pressed_level) {
 void World::next_level() {
 	if (!m_game_completed) {
 		if (m_current_level < MAX_LEVEL) {
-			m_current_level++;
 			reset_game();
 		} else if (m_current_level == MAX_LEVEL) {
 			m_game_completed = true;
@@ -298,14 +299,15 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
+		if (key == GLFW_KEY_W) {
 			m_player.setZPressed(true);
+			m_interact = true;
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
@@ -331,27 +333,28 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
+		if (key == GLFW_KEY_W) {
 			m_player.setZPressed(false);
+			m_interact = false;
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(false);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setRightPressed(false);
 		}
 	}
 
 	if (m_should_load_level_screen) {
-    if (key == GLFW_KEY_T) {
+		if (key == GLFW_KEY_T) {
 			load_level_screen(-1);
     }
     else {
-      for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
-        if (key == i) {
-          load_level_screen(i - GLFW_KEY_1 + 1);
-        }
-      }
+		  for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
+			if (key == i) {
+			  load_level_screen(i - GLFW_KEY_1 + 1);
+			}
+		  }
 	  }
   }
 
