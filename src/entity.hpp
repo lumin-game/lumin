@@ -20,7 +20,7 @@ public:
 
 	virtual const char* get_texture_path() const = 0;
 	virtual const char* get_audio_path() const { return nullptr; }
-	virtual const char* get_lit_texture_path() const { return nullptr; }
+	virtual const char* get_lit_texture_path() const { return get_texture_path(); }
 	virtual bool is_player_collidable() const { return false; }
 	virtual bool is_light_collidable() const { return false; }
 	virtual bool is_light_dynamic() const { return false; }

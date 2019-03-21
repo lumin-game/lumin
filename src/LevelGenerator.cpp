@@ -236,7 +236,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
     create_level(grid, outPlayer, outEntities);
 }
 
-bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& outPlayer, std::vector<Entity*>& outEntities) {
+bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& outPlayer, std::vector<CreatedEntity>& outCreateEntities) {
     Entity *level_entity = nullptr;
 
     switch (tile) {
@@ -267,11 +267,15 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
 
     if (!level_entity) {
         fprintf(stderr, "Level entity is not set \n");
-        return false;
+		return false;
     }
 
-    outEntities.push_back(level_entity);
-    return true;
+	CreatedEntity createdEntity;
+	createdEntity.x = x_pos;
+	createdEntity.y = y_pos;
+	createdEntity.entity = level_entity;
+
+	outCreateEntities.push_back(createdEntity);
 }
 
 template <class TEntity>
@@ -293,12 +297,49 @@ void LevelGenerator::print_grid(std::vector<std::vector<char>>& grid) {
 }
 
 void LevelGenerator::create_level(std::vector<std::vector<char>>& grid, Player& outPlayer, std::vector<Entity*>& outEntities) {
-    for (int y = 0; y < grid.size(); y++) {
+	std::vector<CreatedEntity> createdEntities;
+	for (int y = 0; y < grid.size(); y++) {
         for (int x = 0; x < grid[y].size(); x++) {
             auto tile = tile_map.find(grid[y][x]);
             if (tile != tile_map.end()) {
-                add_tile(x, y, tile->second, outPlayer, outEntities);
+                add_tile(x, y, tile->second, outPlayer, createdEntities);
+				if (tile->second == FOG)
+				{
+					Fog* fogTile = dynamic_cast<Fog*>(createdEntities[createdEntities.size() - 1].entity);
+
+					if (!fogTile) {
+						fprintf(stderr, "Last tile was not a fog\n");
+						continue;
+					}
+
+					for (const CreatedEntity& createdEntity : createdEntities)
+					{
+						if ((createdEntity.x == x - 1 && createdEntity.y == y)
+							|| (createdEntity.x == x && createdEntity.y == y - 1))
+						{
+							Fog* neighborFogTile = dynamic_cast<Fog*>(createdEntity.entity);
+							if (neighborFogTile)
+							{
+								if (createdEntity.x == x - 1)
+								{
+									fogTile->GetNeighborFogStruct().left = true;
+									neighborFogTile->GetNeighborFogStruct().right = true;
+								}
+								else
+								{
+									fogTile->GetNeighborFogStruct().bottom = true;
+									neighborFogTile->GetNeighborFogStruct().top = true;
+								}
+							}
+						}
+					}
+				}
             }
         }
     }
+
+	for (const CreatedEntity& createdEntity : createdEntities)
+	{
+		outEntities.push_back(createdEntity.entity);
+	}
 }

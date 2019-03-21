@@ -48,6 +48,7 @@ set(SOURCE_FILES
         src/door.cpp
 		src/LevelGenerator.cpp
         src/lantern.cpp
+		src/fog.cpp
 
         src/project_path.hpp
         src/common.hpp
