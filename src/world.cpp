@@ -144,9 +144,6 @@ bool World::update(float elapsed_ms) {
 					next_level();
 					return true;
 				}
-				else {
-					m_interact = false;
-				}
 			}
 		}
 		// Then handle light equations
@@ -338,6 +335,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	if (action == GLFW_RELEASE) {
 		if (key == GLFW_KEY_W) {
 			m_player.setZPressed(false);
+			m_interact = false;
 		}
 		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(false);
