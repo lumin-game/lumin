@@ -63,6 +63,12 @@ bool World::init(vec2 screen) {
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((World*)glfwGetWindowUserPointer(wnd))->on_key(wnd, _0, _1, _2, _3); };
 	glfwSetKeyCallback(m_window, key_redirect);
 
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((World*)glfwGetWindowUserPointer(wnd))->on_mouse_move(wnd, _0, _1); };
+	glfwSetCursorPosCallback(m_window, cursor_pos_redirect);
+
+	GLFWmousebuttonfun mouse_button_func = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((World*)glfwGetWindowUserPointer(wnd))->on_mouse_button(wnd, _0, _1, _2); };
+	glfwSetMouseButtonCallback(m_window, mouse_button_func);
+
 	// Create a frame buffer
 	m_frame_buffer = 0;
 	glGenFramebuffers(1, &m_frame_buffer);
@@ -361,3 +367,27 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		exit(0);
 	}
 }
+
+void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
+{
+	int w, h;
+	glfwGetFramebufferSize(m_window, &w, &h);
+	float wOffset = -w / 2;
+	float hOffset = -h / 2;
+
+	m_player.setMousePosition({(float) xpos + wOffset, (float) ypos + hOffset});
+}
+
+void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		m_player.setLightMode(true);
+	}
+
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	{
+		m_player.setLightMode(false);
+	}
+}
+

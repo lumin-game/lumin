@@ -37,12 +37,18 @@ public:
 
 	void setPlayerPosition(vec2 pos);
 
+	void setLightMode(bool isLaser);
+
 	vec2 getPlayerDimensions() {
 		return { (float) playerWidth, (float) playerHeight };
 	}
 
 	void toggleShowPolygon() {
 		radiusLightMesh.toggleShowPolygon();
+	};
+
+	void setMousePosition(vec2 mousePos) {
+		mousePosition = mousePos;
 	};
 
 private:
@@ -69,4 +75,6 @@ private:
 	LaserLightMesh laserLightMesh;
 	RadiusLightMesh radiusLightMesh;
 
+	bool isLaserMode;
+	vec2 mousePosition;
 };

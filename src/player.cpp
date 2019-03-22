@@ -15,7 +15,7 @@ bool Player::init()
 {
 	playerMesh.init();
 	laserLightMesh.init();
-	//radiusLightMesh.init();
+	radiusLightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
@@ -32,6 +32,7 @@ bool Player::init()
 	m_max_fall_velocity = 20.f;
 
 	can_jump = false;
+	isLaserMode = false;
 
 	CollisionManager::GetInstance().RegisterPlayer(this);
 	return true;
@@ -116,12 +117,23 @@ void Player::update(float ms)
 
 void Player::draw(const mat3& projection)
 {
-	LaserLightMesh::ParentData lightData;
-	lightData.m_position = m_position;
+	if (isLaserMode)
+	{
+		LaserLightMesh::ParentData lightData;
+		lightData.m_position = m_position;
+		lightData.m_mousePosition = mousePosition;
 
-	laserLightMesh.SetParentData(lightData);
-	laserLightMesh.draw(projection);
-	// need to draw radiusLightMesh
+		laserLightMesh.SetParentData(lightData);
+		laserLightMesh.draw(projection);
+	}
+	else
+	{
+		RadiusLightMesh::ParentData radiusLightData;
+		radiusLightData.m_position = m_position;
+
+		radiusLightMesh.SetParentData(radiusLightData);
+		radiusLightMesh.draw(projection);
+	}
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
@@ -160,4 +172,9 @@ void Player::setRightPressed(bool tf) {
 
 void Player::setPlayerPosition(vec2 pos) {
 	m_position = pos;
+}
+
+void Player::setLightMode(bool isLaser)
+{
+	isLaserMode = isLaser;
 }
