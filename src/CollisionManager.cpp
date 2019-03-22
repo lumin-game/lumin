@@ -3,6 +3,7 @@
 #include <iostream>
 #include "CollisionManager.hpp"
 #include "player.hpp"
+#include "movable_wall.hpp"
 
 void CollisionManager::RegisterRadiusLight(const RadiusLightMesh* light)
 {
@@ -40,7 +41,7 @@ void CollisionManager::UnregisterPlayer()
 	player = nullptr;
 }
 
-void CollisionManager::RegisterEntity(const Entity* entity)
+void CollisionManager::RegisterEntity(Entity* entity)
 {
 	if (registeredEntities.find(entity) != registeredEntities.end())
 	{
@@ -59,7 +60,7 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 	}
 }
 
-void CollisionManager::UnregisterEntity(const Entity* entity)
+void CollisionManager::UnregisterEntity(Entity* entity)
 {
 	registeredEntities.erase(entity);
 
@@ -144,7 +145,7 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 	CollisionResult collisionResults;
 	collisionResults.resultXPos = xPos + xDist;
 	collisionResults.resultYPos = yPos + yDist;
-	for (const Entity* entity : collisionEntities)
+	for (Entity* entity : collisionEntities)
 	{
 		// Center-to-center distance between two boxes
 		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
@@ -171,6 +172,16 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 			else
 			{
 				// We know we will collide in the Y axis.
+
+				MovableWall* mov_wall = dynamic_cast<MovableWall*>(entity);
+				if (mov_wall != 0) { // if the pointer isn't null then player is intersecting with a moving block and they should travel with it
+					collisionResults.resultXPos += mov_wall->get_velocity().x; // Drag the player in whatever X direction the block is moving
+					if (mov_wall->get_velocity().y > 0) {
+						// Make the player keep a similar Y velocity to the block so they will collide with it every frame and thus be dragged horizontally by it every frame
+						collisionResults.resultYPush = mov_wall->get_velocity().y; 
+					}
+				}
+
 				float margin = yDist > 0 ? -yMargin : yMargin;
 				if (yDist > 0)
 				{

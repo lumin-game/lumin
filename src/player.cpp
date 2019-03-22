@@ -19,8 +19,8 @@ bool Player::init()
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
-	m_scale.x = 0.5f;
-	m_scale.y = 0.5f;
+	m_scale.x = 0.45f;
+	m_scale.y = 0.45f;
 
 	playerWidth = (int)(playerMesh.GetPlayerWidth() * m_scale.x);
 	playerHeight = (int)(playerMesh.GetPlayerHeight() * m_scale.y);
@@ -103,9 +103,9 @@ void Player::update(float ms)
 	m_position.y = collisionResult.resultYPos;
 	can_jump = collisionResult.bottomCollision;
 
-	if (collisionResult.bottomCollision || collisionResult.topCollision)
+	if (collisionResult.bottomCollision || collisionResult.topCollision) 
 	{
-		m_y_velocity = 0.f;
+		m_y_velocity = collisionResult.resultYPush;
 	}
 
 	if(m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)

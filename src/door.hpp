@@ -12,4 +12,9 @@ public:
     void activate() override { set_lit(true); }
 
     bool is_player_inside(Player* player_pos);
+	int get_level_index();
+	void set_level_index(int);
+
+protected:
+	int m_level_index = 1;
 };
