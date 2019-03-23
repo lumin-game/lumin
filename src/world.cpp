@@ -373,10 +373,12 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 
 void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
-	int w, h;
+	int w, h, ww, hh;
 	glfwGetFramebufferSize(m_window, &w, &h);
-	float wOffset = -w / 2;
-	float hOffset = -h / 2;
+	glfwGetWindowSize(m_window, &ww, &hh);
+	auto retinaScale = (float) (w / ww);
+	float wOffset = (-w / retinaScale) / 2;
+	float hOffset = (-h / retinaScale) / 2;
 
 	m_player.setMousePosition({(float) xpos + wOffset, (float) ypos + hOffset});
 }
