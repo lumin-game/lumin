@@ -4,12 +4,13 @@
 
 class World;
 
-class LightMesh : public Renderable
+class LaserLightMesh : public Renderable
 {
 public:
 	struct ParentData
 	{
 		vec2 m_position;
+		vec2 m_mousePosition;
 	};
 
 public:
@@ -39,8 +40,10 @@ private:
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;
 
-	// how larj
-	float m_lightRadius;
+	// how long
+	float m_laserLength;
+
+	float m_laserWidth;
 
 	bool m_enablePolygon = false;
 };

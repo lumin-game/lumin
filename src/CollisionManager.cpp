@@ -5,18 +5,30 @@
 #include "player.hpp"
 #include "movable_wall.hpp"
 
-
-void CollisionManager::RegisterLight(const LightMesh* light)
+void CollisionManager::RegisterRadiusLight(const RadiusLightMesh* light)
 {
-	if (lightSources.find(light) == lightSources.end())
+	if (radiusLightSources.find(light) == radiusLightSources.end())
 	{
-		lightSources.emplace(light);
+		radiusLightSources.emplace(light);
 	}
 }
 
-void CollisionManager::UnregisterLight(const LightMesh* light)
+void CollisionManager::UnregisterRadiusLight(const RadiusLightMesh* light)
 {
-	lightSources.erase(light);
+	radiusLightSources.erase(light);
+}
+
+void CollisionManager::RegisterLaserLight(const LaserLightMesh* light)
+{
+	if (laserLightSources.find(light) == laserLightSources.end())
+	{
+		laserLightSources.emplace(light);
+	}
+}
+
+void CollisionManager::UnregisterLaserLight(const LaserLightMesh* light)
+{
+	laserLightSources.erase(light);
 }
 
 void CollisionManager::RegisterPlayer(Player* playerPtr)
@@ -280,10 +292,10 @@ void CollisionManager::CalculateVerticesForEntry(const Entity* entity, std::vect
 bool CollisionManager::IsHitByLight(const vec2 entityPos) const {
 
 	//cycle through all lightsources
-	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
+	for (auto it = radiusLightSources.begin(); it != radiusLightSources.end(); ++it)
 	{
 		bool hasCollision = false;
-		const LightMesh* light = *it;
+		const RadiusLightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
 		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));
@@ -327,10 +339,10 @@ bool CollisionManager::findClosestVisibleLightSource(const vec2 entityPos, vec2&
 	outClosestLight = { 0.f, 0.f };
 	float currentClosestDist = 10000000.f;
 
-	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
+	for (auto it = radiusLightSources.begin(); it != radiusLightSources.end(); ++it)
 	{
 		bool hasCollision = false;
-		const LightMesh* light = *it;
+		const RadiusLightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
 		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));

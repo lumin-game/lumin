@@ -1,7 +1,8 @@
 #pragma once
 
 #include "player_mesh.hpp"
-#include "light_mesh.hpp"
+#include "laserlight_mesh.hpp"
+#include "radiuslight_mesh.hpp"
 #include "common.hpp"
 
 class World;
@@ -32,16 +33,22 @@ public:
 
 	void setRightPressed(bool tf);
 
-	void setZPressed(bool tf);
+	void setJumpPressed(bool tf);
 
 	void setPlayerPosition(vec2 pos);
+
+	void setLightMode(bool isLaser);
 
 	vec2 getPlayerDimensions() {
 		return { (float) playerWidth, (float) playerHeight };
 	}
 
 	void toggleShowPolygon() {
-		lightMesh.toggleShowPolygon();
+		radiusLightMesh.toggleShowPolygon();
+	};
+
+	void setMousePosition(vec2 mousePos) {
+		mousePosition = mousePos;
 	};
 
 private:
@@ -50,7 +57,7 @@ private:
 
 	bool m_is_left_pressed;
 	bool m_is_right_pressed;
-	bool m_is_z_pressed;
+	bool m_is_jump_pressed;
 
 	bool can_jump;
 
@@ -65,5 +72,9 @@ private:
 	int playerHeight;
 
 	PlayerMesh playerMesh;
-	LightMesh lightMesh;
+	LaserLightMesh laserLightMesh;
+	RadiusLightMesh radiusLightMesh;
+
+	bool isLaserMode;
+	vec2 mousePosition;
 };
