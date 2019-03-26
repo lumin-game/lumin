@@ -141,6 +141,10 @@ void World::destroy()
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
 		// First move the world (entities)
+		for (Entity* entity : m_entities)
+		{
+			entity->UpdateHitByLight();
+		}
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
@@ -198,11 +202,15 @@ void World::draw() {
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 
+	m_player.draw(projection_2D);
+
+	for (Entity* entity : m_entities) {
+		entity->predraw();
+	}
+
 	for (Entity* entity: m_entities) {
 		entity->draw(projection_2D);
 	}
-
-	m_player.draw(projection_2D);
 
 	/////////////////////
 	// Truly render to the screen

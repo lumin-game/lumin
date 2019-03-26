@@ -115,30 +115,47 @@ int LaserLightMesh::UpdateVertices()
 	// Update our collision equations based on where we are in the world
 	const CollisionManager& colManager = CollisionManager::GetInstance();
 
-	// Corner points are the vertices of all relevant light objects
-	std::vector<vec2> cornerPoints = colManager.CalculateVertices(m_parent.m_position.x, m_parent.m_position.y, m_laserLength);
+	// Get all relevant entities in radius
+	std::vector<Entity*> entities = colManager.GetEntitiesInRange(m_parent.m_position.x, m_parent.m_position.y, m_laserLength);
 	
 	std::vector<vec2> relevantPoints;
+
+	// Add our left and right boundaries
 	relevantPoints.push_back({ -m_laserWidth, 0.f });
 	relevantPoints.push_back({ m_laserWidth, 0.f });
 
-	// Transform cornerPoints into our rotation in which lightAngle is 'up' (90 deg)
+	// Transform entity corners into our rotation in which lightAngle is 'up' (90 deg)
 	// We work in this rotation, in which the light starts at (0,0) and goes up to (0,lightLength)
 	// The bottom two coordinates of the light is (-lightWidth, 0), (lightWidth, 0)
-	for (vec2& point : cornerPoints)
+	for (Entity* entity : entities)
 	{
-		float newX = point.x * cosA + point.y * sinA;
-		float newY = point.x * -sinA + point.y * cosA;
-		point.x = newX;
-		point.y = newY;
+		vec2 posToEntity = { entity->get_position().x - m_parent.m_position.x, entity->get_position().y - m_parent.m_position.y };
 
-		// Only add the points if they are within the light's area
-		if (std::fabs(point.x) <= m_laserWidth && point.y >= 0)
+		const float xRadius = entity->get_bounding_box().x / 2;
+		const float yRadius = entity->get_bounding_box().y / 2;
+
+		vec2 topRight = { posToEntity.x + xRadius, posToEntity.y - yRadius };
+		vec2 topLeft = { posToEntity.x - xRadius, posToEntity.y - yRadius };
+		vec2 bottomRight = { posToEntity.x + xRadius, posToEntity.y + yRadius };
+		vec2 bottomLeft = { posToEntity.x - xRadius, posToEntity.y + yRadius };
+
+		std::vector<vec2> entityPoints = { topRight, topLeft, bottomLeft, bottomRight };
+
+		for (vec2& point : entityPoints)
 		{
-			// Add two extra points slightly to the right and left
-			relevantPoints.push_back({ point.x - 0.001f , point.y });
-			relevantPoints.push_back(point);
-			relevantPoints.push_back({ point.x + 0.001f , point.y });
+			float newX = point.x * cosA + point.y * sinA;
+			float newY = point.x * -sinA + point.y * cosA;
+			point.x = newX;
+			point.y = newY;
+
+			// Only add the points if they are within the light's area
+			if (std::fabs(point.x) <= m_laserWidth && point.y >= 0)
+			{
+				// Add two extra points slightly to the right and left
+				relevantPoints.push_back({ point.x - 0.001f , point.y });
+				relevantPoints.push_back(point);
+				relevantPoints.push_back({ point.x + 0.001f , point.y });
+			}
 		}
 	}
 
@@ -148,22 +165,35 @@ int LaserLightMesh::UpdateVertices()
 		return point1.x < point2.x;
 	});
 
-	// Grab light blocking equations, we'll have to transform their rotation too
-	ParametricLines lightEquations = colManager.CalculateLightEquations(m_parent.m_position.x, m_parent.m_position.y, m_laserLength);
-	for (ParametricLine& line : lightEquations)
+	// Bound lines is a list of entities and their boundary lines
+	// We also rotate these lines to our world coord rotation
+	std::vector<EntityBoundLine> boundLines;
+	for (Entity* entity : entities)
 	{
-		vec2 startingPoint = { line.x_0, line.y_0 };
-		float newStartX = startingPoint.x * cosA + startingPoint.y * sinA;
-		float newStartY = startingPoint.x * -sinA + startingPoint.y * cosA;
+		ParametricLines lines;
+		for (ParametricLine line : entity->calculate_boundary_equations())
+		{
+			line.x_0 = line.x_0 - m_parent.m_position.x;
+			line.y_0 = line.y_0 - m_parent.m_position.y;
 
-		vec2 endPoint = { line.x_t, line.y_t };
-		float newEndX = endPoint.x * cosA + endPoint.y * sinA;
-		float newEndY = endPoint.x * -sinA + endPoint.y * cosA;
+			vec2 startingPoint = { line.x_0, line.y_0 };
+			float newStartX = startingPoint.x * cosA + startingPoint.y * sinA;
+			float newStartY = startingPoint.x * -sinA + startingPoint.y * cosA;
 
-		line.x_0 = newStartX;
-		line.y_0 = newStartY;
-		line.x_t = newEndX;
-		line.y_t = newEndY;
+			vec2 endPoint = { line.x_t, line.y_t };
+			float newEndX = endPoint.x * cosA + endPoint.y * sinA;
+			float newEndY = endPoint.x * -sinA + endPoint.y * cosA;
+
+			line.x_0 = newStartX;
+			line.y_0 = newStartY;
+			line.x_t = newEndX;
+			line.y_t = newEndY;
+			
+			lines.push_back(line);
+		}
+
+		EntityBoundLine boundLine = { entity, lines };
+		boundLines.push_back(boundLine);
 	}
 
 	// Check collisions, these will be the vertices of our polygon
@@ -176,21 +206,43 @@ int LaserLightMesh::UpdateVertices()
 		rayTrace.y_0 = 0.f;
 		rayTrace.y_t = m_laserLength;
 
-		vec2 hitPos = { corner.x, m_laserLength };
-		for (const ParametricLine& lightEq : lightEquations)
+		vec2 hitPosition = { corner.x, m_laserLength };
+
+		// Keep track of all entities hit
+		std::vector<EntityHit> entitiesHit;
+		for (EntityBoundLine& entityBounds : boundLines)
 		{
-			// Make sure we use the collision that is the closest to the light origin.
-			vec2 collisionLocation;
-			if (colManager.LinesCollide(rayTrace, lightEq, collisionLocation))
+			for (ParametricLine line : entityBounds.lines)
 			{
-				if (collisionLocation.Magnitude() < hitPos.Magnitude())
+				vec2 collisionLocation;
+				if (colManager.LinesCollide(rayTrace, line, collisionLocation))
 				{
-					hitPos = collisionLocation;
+					EntityHit entityHit = { entityBounds.entity, collisionLocation };
+					entitiesHit.push_back(entityHit);
 				}
 			}
 		}
 
-		polyVertices.push_back(hitPos);
+		// Sort by increasing distance away from origin
+		std::sort(entitiesHit.begin(), entitiesHit.end(), [](const EntityHit& ntHit1, const EntityHit& ntHit2)
+		{
+			float dist1 = ntHit1.hitLocation.Magnitude();
+			float dist2 = ntHit2.hitLocation.Magnitude();
+			return dist1 < dist2;
+		});		
+
+		// Everything before the first light collidable hit has been hit by light, set to lit
+		for (EntityHit& entityHit : entitiesHit)
+		{
+			entityHit.entity->set_lit(true);
+			if (entityHit.entity->is_light_collidable())
+			{
+				hitPosition = entityHit.hitLocation;
+				break;
+			}
+		}
+
+		polyVertices.push_back(hitPosition);
 	}
 
 	// Create vertices, we are still working in our lightAngle rotation coord system

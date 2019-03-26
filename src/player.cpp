@@ -132,6 +132,7 @@ void Player::draw(const mat3& projection)
 		radiusLightData.m_position = m_position;
 
 		radiusLightMesh.SetParentData(radiusLightData);
+		radiusLightMesh.predraw();
 		radiusLightMesh.draw(projection);
 	}
 
