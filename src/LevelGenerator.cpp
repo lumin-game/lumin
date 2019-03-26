@@ -301,42 +301,40 @@ void LevelGenerator::create_level(std::vector<std::vector<char>>& grid, Player& 
 	for (int y = 0; y < grid.size(); y++) {
         for (int x = 0; x < grid[y].size(); x++) {
             auto tile = tile_map.find(grid[y][x]);
-            if (tile != tile_map.end()) {
-                add_tile(x, y, tile->second, outPlayer, createdEntities);
-				if (tile->second == FOG)
+			if (tile != tile_map.end()) {
+				add_tile(x, y, tile->second, outPlayer, createdEntities);
+			}
+        }
+    }
+
+	for (const CreatedEntity& createdEntity : createdEntities)
+	{
+		Fog* fogTile = dynamic_cast<Fog*>(createdEntity.entity);
+		if (fogTile)
+		{
+			for (const CreatedEntity& otherEntity : createdEntities)
+			{
+				if ((otherEntity.x == createdEntity.x - 1 && otherEntity.y == createdEntity.y)
+					|| (otherEntity.x == createdEntity.x && otherEntity.y == createdEntity.y - 1))
 				{
-					Fog* fogTile = dynamic_cast<Fog*>(createdEntities[createdEntities.size() - 1].entity);
-
-					if (!fogTile) {
-						fprintf(stderr, "Last tile was not a fog\n");
-						continue;
-					}
-
-					for (const CreatedEntity& createdEntity : createdEntities)
+					Fog* neighborFogTile = dynamic_cast<Fog*>(otherEntity.entity);
+					if (neighborFogTile)
 					{
-						if ((createdEntity.x == x - 1 && createdEntity.y == y)
-							|| (createdEntity.x == x && createdEntity.y == y - 1))
+						if (otherEntity.x == createdEntity.x - 1)
 						{
-							Fog* neighborFogTile = dynamic_cast<Fog*>(createdEntity.entity);
-							if (neighborFogTile)
-							{
-								if (createdEntity.x == x - 1)
-								{
-									fogTile->GetNeighborFogStruct().left = true;
-									neighborFogTile->GetNeighborFogStruct().right = true;
-								}
-								else
-								{
-									fogTile->GetNeighborFogStruct().bottom = true;
-									neighborFogTile->GetNeighborFogStruct().top = true;
-								}
-							}
+							fogTile->GetNeighborFogStruct().left = true;
+							neighborFogTile->GetNeighborFogStruct().right = true;
+						}
+						else
+						{
+							fogTile->GetNeighborFogStruct().bottom = true;
+							neighborFogTile->GetNeighborFogStruct().top = true;
 						}
 					}
 				}
-            }
-        }
-    }
+			}
+		}
+	}
 
 	for (const CreatedEntity& createdEntity : createdEntities)
 	{
