@@ -10,6 +10,7 @@ public:
 
     // Light up the door when it's activated (likely by a linked switch)
     void activate() override { set_lit(true); }
+    void deactivate() override { set_lit(false); }
 
     bool is_player_inside(Player* player_pos);
 };

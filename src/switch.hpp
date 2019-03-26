@@ -15,4 +15,8 @@ public:
 
 	void activate() override;
 	void deactivate() override;
+
+	void set_toggle_switch(bool isToggle);
+private:
+	bool mToggleSwitch = false;
 };
