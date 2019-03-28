@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-bool GameScreen::init() {
+bool GameScreen::init(vec2 screen) {
 
 	// Since we are not going to apply transformation to this screen geometry
 	// The coordinates are set to fill the standard openGL window [-1, -1 .. 1, 1]
@@ -52,8 +52,8 @@ bool GameScreen::init() {
   // Loading shaders
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
-	m_scale = { 1, 1 };
-	m_position = { 130, 340 }; // modify this later
+  m_scale = set_translation_scale();
+  m_position = set_translation_position();
 
   return true;
 }

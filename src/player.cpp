@@ -14,7 +14,8 @@
 bool Player::init()
 {
 	playerMesh.init();
-	lightMesh.init();
+	laserLightMesh.init();
+	radiusLightMesh.init();
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	// 1.0 would be as big as the original texture
@@ -31,6 +32,7 @@ bool Player::init()
 	m_max_fall_velocity = 20.f;
 
 	can_jump = false;
+	isLaserMode = false;
 
 	CollisionManager::GetInstance().RegisterPlayer(this);
 	return true;
@@ -40,7 +42,8 @@ bool Player::init()
 void Player::destroy()
 {
 	playerMesh.destroy();
-	lightMesh.destroy();
+	laserLightMesh.destroy();
+	// radiusLightMesh.destroy();
 
 	CollisionManager::GetInstance().UnregisterPlayer();
 }
@@ -59,9 +62,9 @@ void Player::update(float ms)
 	// Update player position/velocity based on key presses
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	if (m_is_z_pressed && can_jump) {
+	if (m_is_jump_pressed && can_jump) {
 		m_y_velocity = -8.f;
-		m_is_z_pressed = false;
+		m_is_jump_pressed = false;
 	}
 
 	if (m_is_left_pressed) {
@@ -100,9 +103,9 @@ void Player::update(float ms)
 	m_position.y = collisionResult.resultYPos;
 	can_jump = collisionResult.bottomCollision;
 
-	if (collisionResult.bottomCollision || collisionResult.topCollision)
+	if (collisionResult.bottomCollision || collisionResult.topCollision) 
 	{
-		m_y_velocity = 0.f;
+		m_y_velocity = collisionResult.resultYPush;
 	}
 
 	if(m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)
@@ -114,11 +117,24 @@ void Player::update(float ms)
 
 void Player::draw(const mat3& projection)
 {
-	LightMesh::ParentData lightData;
-	lightData.m_position = m_position;
+	if (isLaserMode)
+	{
+		LaserLightMesh::ParentData lightData;
+		lightData.m_position = m_position;
+		lightData.m_mousePosition = mousePosition;
 
-	lightMesh.SetParentData(lightData);
-	lightMesh.draw(projection);
+		laserLightMesh.SetParentData(lightData);
+		laserLightMesh.draw(projection);
+	}
+	else
+	{
+		RadiusLightMesh::ParentData radiusLightData;
+		radiusLightData.m_position = m_position;
+
+		radiusLightMesh.SetParentData(radiusLightData);
+		radiusLightMesh.predraw();
+		radiusLightMesh.draw(projection);
+	}
 
 	PlayerMesh::ParentData playerData;
 	playerData.m_position = m_position;
@@ -137,8 +153,8 @@ void Player::move(vec2 off)
 	m_position.x += off.x; m_position.y += off.y;
 }
 
-void Player::setZPressed(bool tf) {
-	m_is_z_pressed = tf;
+void Player::setJumpPressed(bool tf) {
+	m_is_jump_pressed = tf;
 }
 
 void Player::setLeftPressed(bool tf) {
@@ -157,4 +173,9 @@ void Player::setRightPressed(bool tf) {
 
 void Player::setPlayerPosition(vec2 pos) {
 	m_position = pos;
+}
+
+void Player::setLightMode(bool isLaser)
+{
+	isLaserMode = isLaser;
 }

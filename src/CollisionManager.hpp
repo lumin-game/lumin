@@ -19,6 +19,7 @@ struct CollisionResult
 	float resultYPos = 0.f;					// Final position the box would be
 	bool topCollision = false;				// If there was on the bottom of the box passed in
 	bool bottomCollision = false;			// If there was on the top of the box passed in
+	float resultYPush = 0.f;
 };
 
 public:
@@ -36,14 +37,18 @@ public:
 	void operator=(CollisionManager const &) = delete;
 
 	// Registers a light
-	void RegisterLight(const LightMesh* light);
-	void UnregisterLight(const LightMesh* light);
+	void RegisterRadiusLight(const RadiusLightMesh* light);
+	void UnregisterRadiusLight(const RadiusLightMesh* light);
+	
+	// Registers a light
+	void RegisterLaserLight(const LaserLightMesh* light);
+	void UnregisterLaserLight(const LaserLightMesh* light);
 
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
-	void RegisterEntity(const Entity* entity);
+	void RegisterEntity(Entity* entity);
 
 	// Unregisters an entity. Should be called on destroy.
-	void UnregisterEntity(const Entity* entity);
+	void UnregisterEntity(Entity* entity);
 
 	// Registers the player
 	void RegisterPlayer(Player* playerPtr);
@@ -65,9 +70,7 @@ public:
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
 	// Returns a list of all the vertices of light-blocking objects that are found within a light's radius
-	const std::vector<vec2> CalculateVertices(float xPos, float yPos, float lightRadius) const;
-
-	bool IsHitByLight(const vec2 entityPos) const;
+	const std::vector<Entity*> GetEntitiesInRange(float xPos, float yPos, float lightRadius) const;
 
 	bool findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const;
 
@@ -76,21 +79,24 @@ public:
 	bool LinesCollide(ParametricLine line1, ParametricLine line2) const;
 	bool LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const;
 
+	std::set<Entity*> GetEntities() const { return registeredEntities; };
+
 private:
-	std::set<const Entity*> registeredEntities;
+	std::set<Entity*> registeredEntities;
 
 	// Game entities : Light collision equations
 	std::map<const Entity*, const ParametricLines> staticLightCollisionLines;
 	std::map<const Entity*, const ParametricLines> dynamicLightCollisionLines;
 
 	// List of box entities that have collision
-	std::vector<const Entity*> collisionEntities;
+	std::vector<Entity*> collisionEntities;
 	
 	// Ptr to player, we can keep our position this way. Const as we should never change it.
 	Player* player;
 
 	// List of light in the level
-	std::set<const LightMesh*> lightSources;
+	std::set<const RadiusLightMesh*> radiusLightSources;
+	std::set<const LaserLightMesh*> laserLightSources;
 
 	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
 	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;

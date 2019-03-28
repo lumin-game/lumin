@@ -36,10 +36,12 @@ set(SOURCE_FILES
         src/entity.cpp
         src/player.cpp
         src/player_mesh.cpp
-        src/light_mesh.cpp
+        src/radiuslight_mesh.cpp
+        src/laserlight_mesh.cpp
         src/movable_wall.cpp
         src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
+        src/current_level.cpp
         src/screen.cpp
         src/world.cpp
         src/CollisionManager.cpp
@@ -48,6 +50,7 @@ set(SOURCE_FILES
         src/door.cpp
 		src/LevelGenerator.cpp
         src/lantern.cpp
+		src/fog.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -57,13 +60,17 @@ set(SOURCE_FILES
         src/fog.hpp
         src/player.hpp
         src/player_mesh.hpp
-        src/light_mesh.hpp
+        src/radiuslight_mesh.hpp
+        src/laserlight_mesh.hpp
         src/movable_wall.hpp
         src/level_screen.hpp
 		src/game_screen.hpp
         src/pause_screen.hpp
 		src/end_screen.hpp
         src/level_unlocked_sparkle.hpp
+        src/current_level.hpp
+        src/right_top_menu.hpp
+        src/left_top_menu.hpp
         src/screen.hpp
         src/world.hpp
         src/CollisionManager.hpp

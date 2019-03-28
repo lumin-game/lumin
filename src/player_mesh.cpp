@@ -31,12 +31,13 @@ bool PlayerMesh::init()
 
 	TexturedVertex vertices[4];
 	vertices[0].position = { -wr, +hr, 0.1f };
-	vertices[0].texcoord = { 0.f, 1.f };
 	vertices[1].position = { +wr, +hr, 0.1f };
-	vertices[1].texcoord = { tex_right, 1.f };
 	vertices[2].position = { +wr, -hr, 0.1f };
-	vertices[2].texcoord = { tex_right, 0.f };
 	vertices[3].position = { -wr, -hr, 0.1f };
+
+	vertices[0].texcoord = { 0.f, 1.f };
+	vertices[1].texcoord = { tex_right, 1.f };
+	vertices[2].texcoord = { tex_right, 0.f };
 	vertices[3].texcoord = { 0.f, 0.f };
 
 	// counterclockwise as it's the default opengl front winding direction
@@ -105,13 +106,14 @@ void PlayerMesh::draw(const mat3& projection)
     TexturedVertex vertices[4];
     float tex_left = (float) m_current_frame / TOTAL_FRAMES;
     float tex_right = (m_current_frame + 1.f) / TOTAL_FRAMES;
-    vertices[0].position = { -wr, +hr, 0.1f };
-    vertices[0].texcoord = { tex_left, 1.f };
     vertices[1].position = { +wr, +hr, 0.1f };
-    vertices[1].texcoord = { tex_right, 1.f };
+    vertices[0].position = { -wr, +hr, 0.1f };
     vertices[2].position = { +wr, -hr, 0.1f };
-    vertices[2].texcoord = { tex_right, 0.f };
     vertices[3].position = { -wr, -hr, 0.1f };
+
+    vertices[0].texcoord = { tex_left, 1.f };
+    vertices[1].texcoord = { tex_right, 1.f };
+    vertices[2].texcoord = { tex_right, 0.f };
     vertices[3].texcoord = { tex_left, 0.f };
 
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);

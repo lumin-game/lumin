@@ -1,5 +1,5 @@
   // Header
-#include "light_mesh.hpp"
+#include "radiuslight_mesh.hpp"
 #include "CollisionManager.hpp"
 
 // stlib
@@ -14,7 +14,7 @@
 
 #define PI 3.14159265
 
-bool LightMesh::init()
+bool RadiusLightMesh::init()
 {
 	m_lightRadius = 300.f;
 
@@ -28,18 +28,18 @@ bool LightMesh::init()
 		return false;
 
 	// Loading shaders
-	if (!effect.load_from_file(shader_path("light.vs.glsl"), shader_path("light.fs.glsl")))
+	if (!effect.load_from_file(shader_path("radiuslight.vs.glsl"), shader_path("radiuslight.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterLight(this);
+	CollisionManager::GetInstance().RegisterRadiusLight(this);
 
 	return true;
 }
 
 // Releases all graphics resources
-void LightMesh::destroy()
+void RadiusLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterLight(this);
+	CollisionManager::GetInstance().UnregisterRadiusLight(this);
 
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
@@ -48,7 +48,7 @@ void LightMesh::destroy()
 	effect.release();
 }
 
-void LightMesh::draw(const mat3& projection)
+void RadiusLightMesh::draw(const mat3& projection)
 {
 	transform_begin();
 
@@ -98,39 +98,27 @@ void LightMesh::draw(const mat3& projection)
 	glUniform1f(light_radius, m_lightRadius);
 	glUniform1i(show_polygon, (int) m_enablePolygon);
 
-	// Recreate polygonial mesh based on objects that block light around us
-	int toRender = UpdateVertices();
-
 	// Drawing!
-	glDrawElements(GL_TRIANGLES, toRender, GL_UNSIGNED_SHORT, nullptr);
+	glDrawElements(GL_TRIANGLES, indicesToDraw, GL_UNSIGNED_SHORT, nullptr);
 }
 
-int LightMesh::UpdateVertices()
+void RadiusLightMesh::predraw()
+{
+	// Recreate polygonial mesh based on objects that block light around us
+	UpdateVertices();
+}
+
+void RadiusLightMesh::UpdateVertices()
 {
 	// Update our collision equations based on where we are in the world
 	// CollisionManager is friend
 	const CollisionManager& colManager = CollisionManager::GetInstance();
 
-	// Corner points are the vertices of all relevant light objects
-	const std::vector<vec2> cornerPoints = colManager.CalculateVertices(m_parent.m_position.x, m_parent.m_position.y, m_lightRadius);
+	// Get all relevant entities in radius
+	std::vector<Entity*> entities = colManager.GetEntitiesInRange(m_parent.m_position.x, m_parent.m_position.y, m_lightRadius);
 
 	// Ordered points is not ordered yet, but we will sort it at the end, hence they are called orderedPoints
 	std::vector<vec2> orderedPoints;
-
-	// For each vertex, add two more lines slightly to the left and right
-	// https://ncase.me/sight-and-light/
-	for (const vec2& corner : cornerPoints)
-	{
-		const float smallRadian = 0.0001f;
-		const float angle = std::atan2(corner.y, corner.x);
-		const float clockwise = angle - smallRadian;
-		const float antiClockwise = angle + smallRadian;
-		const vec2 clockwisePoint = { cos(clockwise), sin(clockwise) };
-		const vec2 antiClockwisePoint = { cos(antiClockwise), sin(antiClockwise) };
-
-		orderedPoints.push_back(clockwisePoint * m_lightRadius * 2);
-		orderedPoints.push_back(antiClockwisePoint * m_lightRadius * 2);
-	}
 
 	// Add the four corners of the bounding box of the light, in case we do not have any entities near us, we still render the light
 	const vec2 topRight = { m_lightRadius, m_lightRadius };
@@ -143,8 +131,37 @@ int LightMesh::UpdateVertices()
 	orderedPoints.push_back(bottomRight);
 	orderedPoints.push_back(bottomLeft);
 
-	// OrderedPoints should now be our list of original cornerPoints plus our additional points
-	orderedPoints.insert(orderedPoints.end(), cornerPoints.begin(), cornerPoints.end());
+	// Process each entity's corners to orderedPoints
+	for (Entity* entity : entities)
+	{
+		vec2 posToEntity = { entity->get_position().x - m_parent.m_position.x, entity->get_position().y - m_parent.m_position.y };
+
+		const float xRadius = entity->get_bounding_box().x / 2;
+		const float yRadius = entity->get_bounding_box().y / 2;
+
+		vec2 topRight = { posToEntity.x + xRadius, posToEntity.y - yRadius };
+		vec2 topLeft = { posToEntity.x - xRadius, posToEntity.y - yRadius };
+		vec2 bottomRight = { posToEntity.x + xRadius, posToEntity.y + yRadius };
+		vec2 bottomLeft = { posToEntity.x - xRadius, posToEntity.y + yRadius };
+
+		std::vector<vec2> entityPoints = { topRight, topLeft, bottomLeft, bottomRight };
+
+		// For each vertex, add two more lines slightly to the left and right
+		// https://ncase.me/sight-and-light/
+		for (const vec2& corner : entityPoints)
+		{
+			const float smallRadian = 0.0001f;
+			const float angle = std::atan2(corner.y, corner.x);
+			const float clockwise = angle - smallRadian;
+			const float antiClockwise = angle + smallRadian;
+			const vec2 clockwisePoint = { cos(clockwise), sin(clockwise) };
+			const vec2 antiClockwisePoint = { cos(antiClockwise), sin(antiClockwise) };
+
+			orderedPoints.push_back(clockwisePoint * m_lightRadius * 2);
+			orderedPoints.push_back(corner);
+			orderedPoints.push_back(antiClockwisePoint * m_lightRadius * 2);
+		}
+	}
 
 	// Sort points by smallest angle to largest angle to the positive x-axis
 	std::sort(orderedPoints.begin(), orderedPoints.end(), [](const vec2& point1, const vec2& point2)
@@ -157,8 +174,22 @@ int LightMesh::UpdateVertices()
 		return angle1 < angle2;
 	});
 
-	// Get light equations, time to check collisions
-	const ParametricLines lightEquations = colManager.CalculateLightEquations(m_parent.m_position.x, m_parent.m_position.y, m_lightRadius);
+	// Bound lines is a list of entities and their boundary lines
+	std::vector<EntityBoundLine> boundLines;
+	for (Entity* entity : entities)
+	{
+		ParametricLines lines;
+		for (ParametricLine line : entity->calculate_boundary_equations())
+		{
+			line.x_0 = line.x_0 - m_parent.m_position.x;
+			line.y_0 = line.y_0 - m_parent.m_position.y;
+
+			lines.push_back(line);
+		}
+
+		EntityBoundLine boundLine = { entity, lines };
+		boundLines.push_back(boundLine);
+	}
 
 	// For each point, rayTrace from origin to it. The result will be one vertex for our polygon
 	std::vector<vec2> polyVertices;
@@ -171,16 +202,41 @@ int LightMesh::UpdateVertices()
 		rayTrace.y_t = corner.y;
 
 		vec2 hitPos = { rayTrace.x_t, rayTrace.y_t };
-		for (const ParametricLine& lightEq : lightEquations)
+
+		// Keep track of all entities hit
+		std::vector<EntityHit> entitiesHit;
+		for (EntityBoundLine& entityBounds : boundLines)
 		{
-			// Make sure we use the collision that is the closest to the light origin.
-			vec2 collisionLocation;
-			if (colManager.LinesCollide(rayTrace, lightEq, collisionLocation))
+			for (ParametricLine lightEq : entityBounds.lines)
 			{
-				if (collisionLocation.Magnitude() < hitPos.Magnitude())
+				vec2 collisionLocation;
+				if (colManager.LinesCollide(rayTrace, lightEq, collisionLocation))
 				{
-					hitPos = collisionLocation;
+					EntityHit entityHit = { entityBounds.entity, collisionLocation };
+					entitiesHit.push_back(entityHit);
 				}
+			}
+		}
+
+		// Sort by increasing distance away from origin
+		std::sort(entitiesHit.begin(), entitiesHit.end(), [](const EntityHit& ntHit1, const EntityHit& ntHit2)
+		{
+			float dist1 = ntHit1.hitLocation.Magnitude();
+			float dist2 = ntHit2.hitLocation.Magnitude();
+			return dist1 < dist2;
+		});
+
+		// Everything before the first light collidable hit has been hit by light, set to lit
+		for (EntityHit& entityHit : entitiesHit)
+		{
+			if (entityHit.entity->activated_by_light())
+			{
+				entityHit.entity->set_lit(true);
+			}
+			if (entityHit.entity->is_light_collidable())
+			{
+				hitPos = entityHit.hitLocation;
+				break;
 			}
 		}
 
@@ -224,15 +280,15 @@ int LightMesh::UpdateVertices()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-	return indices.size();
+	indicesToDraw = indices.size();
 }
 
-vec2 LightMesh::get_position() const
+vec2 RadiusLightMesh::get_position() const
 {
 	return m_parent.m_position;
 }
 
-float LightMesh::getLightRadius() const
+float RadiusLightMesh::getLightRadius() const
 {
 	return m_lightRadius;
 }

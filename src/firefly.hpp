@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <common.hpp>
-#include <light_mesh.hpp>
+#include <radiuslight_mesh.hpp>
 #include "entity.hpp"
 
 class Firefly : public Entity {
@@ -40,7 +40,7 @@ protected:
 
     std::vector<SingleFirefly> fireflies;
     const int FIREFLY_COUNT = 12;
-    LightMesh lightMesh;
+    RadiusLightMesh lightMesh;
 	const float FIREFLY_DISTRIBUTION = 30.f;
 public:
 	const char* get_texture_path() const override { return nullptr; }
@@ -54,6 +54,7 @@ public:
 	void update(float ms) override;
 
 	void draw(const mat3& projection) override;
+	void predraw() override;
 
 private:
     vec2 m_velocity;

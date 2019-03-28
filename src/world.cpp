@@ -6,7 +6,7 @@
 
 // stlib
 
-#define MAX_LEVEL 7
+#define MAX_LEVEL 11
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -63,6 +63,12 @@ bool World::init(vec2 screen) {
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((World*)glfwGetWindowUserPointer(wnd))->on_key(wnd, _0, _1, _2, _3); };
 	glfwSetKeyCallback(m_window, key_redirect);
 
+	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((World*)glfwGetWindowUserPointer(wnd))->on_mouse_move(wnd, _0, _1); };
+	glfwSetCursorPosCallback(m_window, cursor_pos_redirect);
+
+	GLFWmousebuttonfun mouse_button_func = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((World*)glfwGetWindowUserPointer(wnd))->on_mouse_button(wnd, _0, _1, _2); };
+	glfwSetMouseButtonCallback(m_window, mouse_button_func);
+
 	// Create a frame buffer
 	m_frame_buffer = 0;
 	glGenFramebuffers(1, &m_frame_buffer);
@@ -78,11 +84,15 @@ bool World::init(vec2 screen) {
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
+	m_interact = false;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
-	m_level_screen.init();
-	m_pause_screen.init();
-	m_end_screen.init();
+	m_level_screen.init(screen);
+	m_pause_screen.init(screen);
+	m_right_top_menu.init(screen);
+	m_left_top_menu.init(screen);
+	m_current_level_top_menu.init(screen);
+	m_end_screen.init(screen);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
@@ -123,6 +133,9 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	m_right_top_menu.destroy();
+	m_left_top_menu.destroy();
+	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
@@ -138,10 +151,19 @@ bool World::update(float elapsed_ms) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
-				if (door->get_lit() && door->is_player_inside(&m_player)) {
+				if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
+					m_current_level = door->get_level_index();
+					m_current_level_top_menu.update(m_current_level);
 					next_level();
 					return true;
 				}
+			}
+		}
+		for (Entity* entity : m_entities)
+		{
+			// Update entity hit by light IF it is not a door
+			if (dynamic_cast<Door*>(entity) == 0) {
+				entity->UpdateHitByLight();
 			}
 		}
 		// Then handle light equations
@@ -150,6 +172,20 @@ bool World::update(float elapsed_ms) {
 	}
 
 	return true;
+}
+
+mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
+	float left = player_pos.x - (float) w / retinaScale / 2;
+	float top = player_pos.y - (float) h / retinaScale / 2;
+	float right = player_pos.x + (float) w / retinaScale / 2;
+	float bottom = player_pos.y + (float) h / retinaScale / 2;
+
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+
+	return {{ sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f }};
 }
 
 // Render our game world
@@ -177,30 +213,25 @@ void World::draw() {
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Fake projection matrix, scales with respect to window coordinates
-	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
-	float left = m_player.get_position().x - (float) w / retinaScale / 2;
-	float top = m_player.get_position().y - (float) h / retinaScale / 2;
-	float right = m_player.get_position().x + (float) w / retinaScale / 2;
-	float bottom = m_player.get_position().y + (float) h / retinaScale / 2;
+	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
-	float sx = 2.f / (right - left);
-	float sy = 2.f / (top - bottom);
-	float tx = -(right + left) / (right - left);
-	float ty = -(top + bottom) / (top - bottom);
-	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
+	m_player.draw(projection_2D);
+
+	for (Entity* entity : m_entities) {
+		entity->predraw();
+	}
 
 	for (Entity* entity: m_entities) {
 		entity->draw(projection_2D);
 	}
 
 	m_player.draw(projection_2D);
+	mat3 menu_projection_2D = draw_projection_matrix(w, h, retinaScale, { 0, 0 });
 
 	/////////////////////
 	// Truly render to the screen
 	if (m_should_load_level_screen) {
-		m_level_screen.set_position(m_player.get_position());
-		m_level_screen.draw(projection_2D);
+		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
 		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
 		initial_pos.y = m_player.get_position().y - 20;
@@ -216,14 +247,15 @@ void World::draw() {
 		}
 	}
 	if (m_paused) {
-		m_pause_screen.set_position(m_player.get_position());
-		m_pause_screen.draw(projection_2D);
+		m_pause_screen.draw(menu_projection_2D);
 	}
 
 	if (m_game_completed) {
-		m_end_screen.set_position(m_player.get_position());
-		m_end_screen.draw(projection_2D);
+		m_end_screen.draw(menu_projection_2D);
 	}
+	m_right_top_menu.draw(menu_projection_2D);
+	m_left_top_menu.draw(menu_projection_2D);
+	m_current_level_top_menu.draw(menu_projection_2D);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -261,6 +293,7 @@ void World::reset_game() {
 
 	m_player.destroy();
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
+	m_current_level_top_menu.set_current_level_texture(m_current_level);
 	m_player.init();
 	m_should_load_level_screen = false;
 }
@@ -281,7 +314,6 @@ void World::load_level_screen(int key_pressed_level) {
 void World::next_level() {
 	if (!m_game_completed) {
 		if (m_current_level < MAX_LEVEL) {
-			m_current_level++;
 			reset_game();
 		} else if (m_current_level == MAX_LEVEL) {
 			m_game_completed = true;
@@ -298,14 +330,15 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
-			m_player.setZPressed(true);
+		if (key == GLFW_KEY_W) {
+			m_player.setJumpPressed(true);
+			m_interact = true;
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
@@ -331,27 +364,28 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_Z || key == GLFW_KEY_UP) {
-			m_player.setZPressed(false);
+		if (key == GLFW_KEY_W) {
+			m_player.setJumpPressed(false);
+			m_interact = false;
 		}
-		else if (key == GLFW_KEY_LEFT) {
+		else if (key == GLFW_KEY_A) {
 			m_player.setLeftPressed(false);
 		}
-		else if (key == GLFW_KEY_RIGHT) {
+		else if (key == GLFW_KEY_D) {
 			m_player.setRightPressed(false);
 		}
 	}
 
 	if (m_should_load_level_screen) {
-    if (key == GLFW_KEY_T) {
+		if (key == GLFW_KEY_T) {
 			load_level_screen(-1);
     }
     else {
-      for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
-        if (key == i) {
-          load_level_screen(i - GLFW_KEY_1 + 1);
-        }
-      }
+		  for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
+			if (key == i) {
+			  load_level_screen(i - GLFW_KEY_1 + 1);
+			}
+		  }
 	  }
   }
 
@@ -361,3 +395,29 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		exit(0);
 	}
 }
+
+void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
+{
+	int w, h, ww, hh;
+	glfwGetFramebufferSize(m_window, &w, &h);
+	glfwGetWindowSize(m_window, &ww, &hh);
+	auto retinaScale = (float) (w / ww);
+	float wOffset = (-w / retinaScale) / 2;
+	float hOffset = (-h / retinaScale) / 2;
+
+	m_player.setMousePosition({(float) xpos + wOffset, (float) ypos + hOffset});
+}
+
+void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		m_player.setLightMode(true);
+	}
+
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	{
+		m_player.setLightMode(false);
+	}
+}
+

@@ -92,19 +92,31 @@ void Entity::destroy() {
 	effect.release();
 }
 
-void Entity::update(float elapsed_ms) {
-	if (is_light_dynamic()) {
-		bool was_lit = m_is_lit;
-		set_lit(CollisionManager::GetInstance().IsHitByLight(get_position()));
-		if (m_is_lit && !was_lit) {
+void Entity::UpdateHitByLight()
+{
+	if (activated_by_light())
+	{
+		if (m_is_lit && !m_was_lit) {
 			activate();
-		} else if (!m_is_lit && was_lit) {
+		}
+		else if (!m_is_lit && m_was_lit) {
 			deactivate();
 		}
+
+		m_was_lit = m_is_lit;
+		m_is_lit = false;
 	}
 }
 
+void Entity::update(float elapsed_ms) {
+}
+
 void Entity::draw(const mat3& projection) {
+	if (!alwaysRender() && !get_lit())
+	{
+		return;
+	}
+
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
@@ -167,11 +179,29 @@ vec2 Entity::get_bounding_box() const {
 }
 
 ParametricLines Entity::calculate_static_equations() const {
-	ParametricLines outLines;
-
 	if (!is_light_collidable()) {
-		return outLines;
+		return 	ParametricLines();
 	}
+	return calculate_boundary_equations();
+}
+
+void Entity::set_lit(bool lit) {
+	m_is_lit = lit;
+	texture = lit ? &lit_texture : &unlit_texture;
+}
+
+bool Entity::get_lit() const {
+	return m_is_lit;
+}
+ParametricLines Entity::calculate_dynamic_equations() const
+{
+	// By default entities have no dynamic equations
+	return ParametricLines();
+}
+
+ParametricLines Entity::calculate_boundary_equations() const
+{
+	ParametricLines outLines;
 
 	// Create 4 lines for each each of the box and returns them
 	vec2 boundingBox = get_bounding_box();
@@ -215,19 +245,6 @@ ParametricLines Entity::calculate_static_equations() const {
 	return outLines;
 }
 
-void Entity::set_lit(bool lit) {
-	m_is_lit = lit;
-	texture = lit ? &lit_texture : &unlit_texture;
-}
-
-bool Entity::get_lit() const {
-	return m_is_lit;
-}
-ParametricLines Entity::calculate_dynamic_equations() const
-{
-	// By default entities have no dynamic equations
-	return ParametricLines();
-}
 
 void Entity::register_entity(Entity* entity) {
 	m_entities.insert(entity);

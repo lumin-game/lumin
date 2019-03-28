@@ -3,19 +3,32 @@
 #include <iostream>
 #include "CollisionManager.hpp"
 #include "player.hpp"
+#include "movable_wall.hpp"
 
-
-void CollisionManager::RegisterLight(const LightMesh* light)
+void CollisionManager::RegisterRadiusLight(const RadiusLightMesh* light)
 {
-	if (lightSources.find(light) == lightSources.end())
+	if (radiusLightSources.find(light) == radiusLightSources.end())
 	{
-		lightSources.emplace(light);
+		radiusLightSources.emplace(light);
 	}
 }
 
-void CollisionManager::UnregisterLight(const LightMesh* light)
+void CollisionManager::UnregisterRadiusLight(const RadiusLightMesh* light)
 {
-	lightSources.erase(light);
+	radiusLightSources.erase(light);
+}
+
+void CollisionManager::RegisterLaserLight(const LaserLightMesh* light)
+{
+	if (laserLightSources.find(light) == laserLightSources.end())
+	{
+		laserLightSources.emplace(light);
+	}
+}
+
+void CollisionManager::UnregisterLaserLight(const LaserLightMesh* light)
+{
+	laserLightSources.erase(light);
 }
 
 void CollisionManager::RegisterPlayer(Player* playerPtr)
@@ -28,7 +41,7 @@ void CollisionManager::UnregisterPlayer()
 	player = nullptr;
 }
 
-void CollisionManager::RegisterEntity(const Entity* entity)
+void CollisionManager::RegisterEntity(Entity* entity)
 {
 	if (registeredEntities.find(entity) != registeredEntities.end())
 	{
@@ -47,7 +60,7 @@ void CollisionManager::RegisterEntity(const Entity* entity)
 	}
 }
 
-void CollisionManager::UnregisterEntity(const Entity* entity)
+void CollisionManager::UnregisterEntity(Entity* entity)
 {
 	registeredEntities.erase(entity);
 
@@ -132,7 +145,7 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 	CollisionResult collisionResults;
 	collisionResults.resultXPos = xPos + xDist;
 	collisionResults.resultYPos = yPos + yDist;
-	for (const Entity* entity : collisionEntities)
+	for (Entity* entity : collisionEntities)
 	{
 		// Center-to-center distance between two boxes
 		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
@@ -159,6 +172,16 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 			else
 			{
 				// We know we will collide in the Y axis.
+
+				MovableWall* mov_wall = dynamic_cast<MovableWall*>(entity);
+				if (mov_wall != 0) { // if the pointer isn't null then player is intersecting with a moving block and they should travel with it
+					collisionResults.resultXPos += mov_wall->get_velocity().x; // Drag the player in whatever X direction the block is moving
+					if (mov_wall->get_velocity().y > 0) {
+						// Make the player keep a similar Y velocity to the block so they will collide with it every frame and thus be dragged horizontally by it every frame
+						collisionResults.resultYPush = mov_wall->get_velocity().y; 
+					}
+				}
+
 				float margin = yDist > 0 ? -yMargin : yMargin;
 				if (yDist > 0)
 				{
@@ -230,14 +253,26 @@ void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, P
 	}
 }
 
-const std::vector<vec2> CollisionManager::CalculateVertices(float xPos, float yPos, float lightRadius) const
+const std::vector<Entity*> CollisionManager::GetEntitiesInRange(float xPos, float yPos, float lightRadius) const
 {
-	std::vector<vec2> outVertices;
-	for (const Entity* entity : registeredEntities)
+	std::vector<Entity*> outEntities;
+	for (Entity* entity : registeredEntities)
 	{
-		CalculateVerticesForEntry(entity, outVertices, xPos, yPos, lightRadius);
+		const float xDiff = entity->get_position().x - xPos;
+		const float yDiff = entity->get_position().y - yPos;
+		const float xRadius = entity->get_bounding_box().x / 2;
+		const float yRadius = entity->get_bounding_box().y / 2;
+		float distanceX = fmax(0.f, std::fabs(xDiff) - xRadius);
+		float distanceY = fmax(0.f, std::fabs(yDiff) - yRadius);
+		float distanceSqr = distanceX * distanceX + distanceY * distanceY;
+		
+		if (distanceSqr < ((lightRadius)* lightRadius))
+		{
+			outEntities.push_back(entity);
+		}
 	}
-	return outVertices;
+
+	return outEntities;
 }
 
 void CollisionManager::CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outSet, float xPos, float yPos, float lightRadius) const
@@ -266,60 +301,16 @@ void CollisionManager::CalculateVerticesForEntry(const Entity* entity, std::vect
 	}
 }
 
-bool CollisionManager::IsHitByLight(const vec2 entityPos) const {
-
-	//cycle through all lightsources
-	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
-	{
-		bool hasCollision = false;
-		const LightMesh* light = *it;
-		vec2 lightPos = light->get_position();
-
-		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));
-		float distanceY = fmax(0.f, std::fabs(entityPos.y - lightPos.y));
-		//distance from current lightsource to entity in question
-		float distanceSqr = distanceX * distanceX + distanceY * distanceY;
-		float lightRadius = light->getLightRadius();
-
-		if (distanceSqr < lightRadius * lightRadius)
-		{
-			vec2 entityToLight = lightPos - entityPos;
-			ParametricLine rayTrace;
-			rayTrace.x_0 = 0.f;
-			rayTrace.x_t = entityToLight.x;
-			rayTrace.y_0 = 0.f;
-			rayTrace.y_t = entityToLight.y;
-
-			const ParametricLines blockingEquations = CalculateLightEquations(entityPos.x, entityPos.y, light->getLightRadius());
-			for (const ParametricLine& blockingLine : blockingEquations)
-			{
-				if (LinesCollide(rayTrace, blockingLine))
-				{
-					hasCollision = true;
-					break;
-				}
-			}
-
-			if (hasCollision == false)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 bool CollisionManager::findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const {
 
 	bool foundLight = false;
 	outClosestLight = { 0.f, 0.f };
 	float currentClosestDist = 10000000.f;
 
-	for (auto it = lightSources.begin(); it != lightSources.end(); ++it)
+	for (auto it = radiusLightSources.begin(); it != radiusLightSources.end(); ++it)
 	{
 		bool hasCollision = false;
-		const LightMesh* light = *it;
+		const RadiusLightMesh* light = *it;
 		vec2 lightPos = light->get_position();
 
 		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));

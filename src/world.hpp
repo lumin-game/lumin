@@ -9,6 +9,9 @@
 #include "pause_screen.hpp"
 #include "end_screen.hpp"
 #include "level_unlocked_sparkle.hpp"
+#include "right_top_menu.hpp"
+#include "left_top_menu.hpp"
+#include "current_level.hpp"
 #include "LevelGenerator.hpp"
 
 // stlib
@@ -36,6 +39,9 @@ public:
 	// Steps the game ahead by ms milliseconds
 	bool update(float ms);
 
+	// Draws a projection matrix
+	mat3 draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos);
+
 	// Renders our scene
 	void draw();
 
@@ -49,6 +55,8 @@ private:
 
 	// !!! INPUT CALLBACK FUNCTIONS
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
+	void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
+	void on_mouse_button(GLFWwindow* window, int button, int action, int mods);
 
 	void next_level();
 
@@ -69,6 +77,9 @@ private:
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
+	LeftTopMenu m_left_top_menu;
+	RightTopMenu m_right_top_menu;
+	CurrentLevel m_current_level_top_menu;
 
 	int m_current_level;
 
@@ -87,4 +98,5 @@ private:
 	bool m_should_load_level_screen;
 	bool m_paused;
 	bool m_game_completed;
+	bool m_interact;
 };

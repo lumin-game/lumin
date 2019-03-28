@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <common.hpp>
-#include <light_mesh.hpp>
+#include <radiuslight_mesh.hpp>
 #include "entity.hpp"
 #include "firefly.hpp"
 

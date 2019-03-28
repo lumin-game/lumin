@@ -4,7 +4,7 @@
 
 class World;
 
-class LightMesh : public Renderable
+class RadiusLightMesh : public Renderable
 {
 public:
 	struct ParentData
@@ -21,6 +21,7 @@ public:
 
 	// Renders the player
 	void draw(const mat3& projection) override;
+	void predraw();
 
 	void SetParentData(ParentData data) { m_parent = data; }
 
@@ -34,7 +35,9 @@ public:
 
 private:
 	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
-	int UpdateVertices();
+	void UpdateVertices();
+
+	int indicesToDraw = 0;
 
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;
