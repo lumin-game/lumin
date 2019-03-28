@@ -6,7 +6,7 @@
 
 // stlib
 
-#define MAX_LEVEL 9
+#define MAX_LEVEL 11
 
 // Same as static in c, local to compilation unit
 namespace {
