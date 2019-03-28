@@ -11,6 +11,8 @@ public:
     // Light up the door when it's activated (likely by a linked switch)
     void activate() override { set_lit(true); }
 
+	bool alwaysRender() { return true; }
+
     bool is_player_inside(Player* player_pos);
 	int get_level_index();
 	void set_level_index(int);

@@ -54,6 +54,7 @@ public:
 	void update(float ms) override;
 
 	void draw(const mat3& projection) override;
+	void predraw() override;
 
 private:
     vec2 m_velocity;
