@@ -164,6 +164,10 @@ void MovableWall::update(float ms) {
 
 		set_position(newPos);
 	}
+	else {
+		velocity.x = 0;
+		velocity.y = 0;
+	}
 }
 
 ParametricLines MovableWall::calculate_static_equations() const
