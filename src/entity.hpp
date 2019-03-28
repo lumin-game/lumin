@@ -24,6 +24,7 @@ public:
 	virtual bool is_player_collidable() const { return false; }
 	virtual bool is_light_collidable() const { return false; }
 	virtual bool is_light_dynamic() const { return false; }
+	virtual bool activated_by_light() const { return true; }
 	virtual EntityColor get_color() const { return EntityColor({1.0, 1.0, 1.0, 1.0}); }
 
 	virtual void activate() {};

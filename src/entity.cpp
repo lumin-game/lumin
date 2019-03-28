@@ -94,15 +94,18 @@ void Entity::destroy() {
 
 void Entity::UpdateHitByLight()
 {
-	if (m_is_lit && !m_was_lit) {
-		activate();
-	}
-	else if (!m_is_lit && m_was_lit) {
-		deactivate();
-	}
+	if (activated_by_light())
+	{
+		if (m_is_lit && !m_was_lit) {
+			activate();
+		}
+		else if (!m_is_lit && m_was_lit) {
+			deactivate();
+		}
 
-	m_was_lit = m_is_lit;
-	m_is_lit = false;
+		m_was_lit = m_is_lit;
+		m_is_lit = false;
+	}
 }
 
 void Entity::update(float elapsed_ms) {
