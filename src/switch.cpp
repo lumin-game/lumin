@@ -28,4 +28,7 @@ void Switch::deactivate() {
 
 void Switch::set_toggle_switch(bool isToggle) {
 	mToggleSwitch = isToggle;
+	
+	// Reinitialize the entity so that we get the proper texture (hehe)
+	Entity::init(get_position().x, get_position().y);
 }
