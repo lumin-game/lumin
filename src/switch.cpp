@@ -6,8 +6,6 @@ void Switch::activate() {
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
 			entity->activate();
-		} else {
-			m_entities.erase(entity);
 		}
 	}
 }
@@ -20,15 +18,13 @@ void Switch::deactivate() {
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
 			entity->deactivate();
-		} else {
-			m_entities.erase(entity);
 		}
 	}
 }
 
 void Switch::set_toggle_switch(bool isToggle) {
 	mToggleSwitch = isToggle;
-	
+
 	// Reinitialize the entity so that we get the proper texture (hehe)
 	Entity::init(get_position().x, get_position().y);
 }
