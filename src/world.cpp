@@ -6,7 +6,7 @@
 
 // stlib
 
-#define MAX_LEVEL 9
+#define MAX_LEVEL 11
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -87,9 +87,12 @@ bool World::init(vec2 screen) {
 	m_interact = false;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
-	m_level_screen.init();
-	m_pause_screen.init();
-	m_end_screen.init();
+	m_level_screen.init(screen);
+	m_pause_screen.init(screen);
+	m_right_top_menu.init(screen);
+	m_left_top_menu.init(screen);
+	m_current_level_top_menu.init(screen);
+	m_end_screen.init(screen);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
@@ -130,6 +133,9 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	m_right_top_menu.destroy();
+	m_left_top_menu.destroy();
+	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
@@ -147,9 +153,17 @@ bool World::update(float elapsed_ms) {
 			if (Door* door = dynamic_cast<Door*>(entity)) {
 				if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
 					m_current_level = door->get_level_index();
+					m_current_level_top_menu.update(m_current_level);
 					next_level();
 					return true;
 				}
+			}
+		}
+		for (Entity* entity : m_entities)
+		{
+			// Update entity hit by light IF it is not a door
+			if (dynamic_cast<Door*>(entity) == 0) {
+				entity->UpdateHitByLight();
 			}
 		}
 		// Then handle light equations
@@ -158,6 +172,20 @@ bool World::update(float elapsed_ms) {
 	}
 
 	return true;
+}
+
+mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
+	float left = player_pos.x - (float) w / retinaScale / 2;
+	float top = player_pos.y - (float) h / retinaScale / 2;
+	float right = player_pos.x + (float) w / retinaScale / 2;
+	float bottom = player_pos.y + (float) h / retinaScale / 2;
+
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+
+	return {{ sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f }};
 }
 
 // Render our game world
@@ -185,30 +213,25 @@ void World::draw() {
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Fake projection matrix, scales with respect to window coordinates
-	// PS: 1.f / w in [1][1] is correct.. do you know why ? (:
-	float left = m_player.get_position().x - (float) w / retinaScale / 2;
-	float top = m_player.get_position().y - (float) h / retinaScale / 2;
-	float right = m_player.get_position().x + (float) w / retinaScale / 2;
-	float bottom = m_player.get_position().y + (float) h / retinaScale / 2;
+	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
-	float sx = 2.f / (right - left);
-	float sy = 2.f / (top - bottom);
-	float tx = -(right + left) / (right - left);
-	float ty = -(top + bottom) / (top - bottom);
-	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
+	m_player.draw(projection_2D);
+
+	for (Entity* entity : m_entities) {
+		entity->predraw();
+	}
 
 	for (Entity* entity: m_entities) {
 		entity->draw(projection_2D);
 	}
 
 	m_player.draw(projection_2D);
+	mat3 menu_projection_2D = draw_projection_matrix(w, h, retinaScale, { 0, 0 });
 
 	/////////////////////
 	// Truly render to the screen
 	if (m_should_load_level_screen) {
-		m_level_screen.set_position(m_player.get_position());
-		m_level_screen.draw(projection_2D);
+		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
 		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
 		initial_pos.y = m_player.get_position().y - 20;
@@ -224,14 +247,15 @@ void World::draw() {
 		}
 	}
 	if (m_paused) {
-		m_pause_screen.set_position(m_player.get_position());
-		m_pause_screen.draw(projection_2D);
+		m_pause_screen.draw(menu_projection_2D);
 	}
 
 	if (m_game_completed) {
-		m_end_screen.set_position(m_player.get_position());
-		m_end_screen.draw(projection_2D);
+		m_end_screen.draw(menu_projection_2D);
 	}
+	m_right_top_menu.draw(menu_projection_2D);
+	m_left_top_menu.draw(menu_projection_2D);
+	m_current_level_top_menu.draw(menu_projection_2D);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -269,6 +293,7 @@ void World::reset_game() {
 
 	m_player.destroy();
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
+	m_current_level_top_menu.set_current_level_texture(m_current_level);
 	m_player.init();
 	m_should_load_level_screen = false;
 }

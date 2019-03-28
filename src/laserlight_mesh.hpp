@@ -27,8 +27,6 @@ public:
 
 	vec2 get_position() const;
 
-	float getLightRadius() const;
-
 	void toggleShowPolygon() {
 		m_enablePolygon = !m_enablePolygon;
 	};

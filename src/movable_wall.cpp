@@ -111,6 +111,7 @@ void MovableWall::AdvanceToNextPoint()
 }
 
 void MovableWall::update(float ms) {
+	Entity::update(ms);
 	currentTime += ms;
 
 	if (is_moving) {
@@ -163,6 +164,10 @@ void MovableWall::update(float ms) {
 		}
 
 		set_position(newPos);
+	}
+	else {
+		velocity.x = 0;
+		velocity.y = 0;
 	}
 }
 

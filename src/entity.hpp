@@ -24,10 +24,13 @@ public:
 	virtual bool is_player_collidable() const { return false; }
 	virtual bool is_light_collidable() const { return false; }
 	virtual bool is_light_dynamic() const { return false; }
+	virtual bool activated_by_light() const { return true; }
 	virtual EntityColor get_color() const { return EntityColor({1.0, 1.0, 1.0, 1.0}); }
 
 	virtual void activate() {};
 	virtual void deactivate() {};
+
+	virtual bool alwaysRender() { return false; }
 
 	// Creates all the associated render reso+urces and default transform
 	virtual bool init(float x_pos, float y_pos);
@@ -37,9 +40,11 @@ public:
 
 	// Update logic for entities
 	virtual void update(float elapsed_ms);
+	void UpdateHitByLight();
 
 	// Renders the entity using the texture
 	virtual void draw(const mat3& projection) override;
+	virtual void predraw() {};
 
 	// Returns the current entity position
 	vec2 get_position() const;
@@ -53,6 +58,8 @@ public:
 	virtual ParametricLines calculate_static_equations() const;
 	virtual ParametricLines calculate_dynamic_equations() const;
 
+	virtual ParametricLines calculate_boundary_equations() const;
+
 	void set_lit(bool lit);
 	bool get_lit() const;
 
@@ -65,6 +72,7 @@ private:
 	Texture unlit_texture;
 	Texture lit_texture;
 	bool m_is_lit = false;
+	bool m_was_lit = false;
 	Mix_Chunk* m_entity_sound;
 
 protected:

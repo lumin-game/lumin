@@ -169,6 +169,20 @@ struct ParametricLine
 	float y_t;
 };
 
+typedef std::vector<ParametricLine> ParametricLines;
+
+struct EntityBoundLine
+{
+	class Entity* entity;
+	ParametricLines lines;
+};
+
+struct EntityHit
+{
+	class Entity* entity;
+	vec2 hitLocation;
+};
+
 enum StaticTile
 {
 	WALL,
@@ -179,5 +193,3 @@ enum StaticTile
 	FIREFLY,
 	PLAYER
 };
-
-typedef std::vector<ParametricLine> ParametricLines;

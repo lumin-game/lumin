@@ -70,9 +70,7 @@ public:
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
 	// Returns a list of all the vertices of light-blocking objects that are found within a light's radius
-	const std::vector<vec2> CalculateVertices(float xPos, float yPos, float lightRadius) const;
-
-	bool IsHitByLight(const vec2 entityPos) const;
+	const std::vector<Entity*> GetEntitiesInRange(float xPos, float yPos, float lightRadius) const;
 
 	bool findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const;
 
@@ -81,8 +79,10 @@ public:
 	bool LinesCollide(ParametricLine line1, ParametricLine line2) const;
 	bool LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const;
 
+	std::set<Entity*> GetEntities() const { return registeredEntities; };
+
 private:
-	std::set<const Entity*> registeredEntities;
+	std::set<Entity*> registeredEntities;
 
 	// Game entities : Light collision equations
 	std::map<const Entity*, const ParametricLines> staticLightCollisionLines;
