@@ -147,10 +147,6 @@ void World::destroy()
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
 		// First move the world (entities)
-		for (Entity* entity : m_entities)
-		{
-			entity->UpdateHitByLight();
-		}
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
@@ -161,6 +157,13 @@ bool World::update(float elapsed_ms) {
 					next_level();
 					return true;
 				}
+			}
+		}
+		for (Entity* entity : m_entities)
+		{
+			// Update entity hit by light IF it is not a door
+			if (dynamic_cast<Door*>(entity) == 0) {
+				entity->UpdateHitByLight();
 			}
 		}
 		// Then handle light equations
