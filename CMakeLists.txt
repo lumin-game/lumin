@@ -42,6 +42,7 @@ set(SOURCE_FILES
         src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
         src/current_level.cpp
+        src/press_w.cpp
         src/screen.cpp
         src/world.cpp
         src/CollisionManager.cpp
@@ -71,6 +72,7 @@ set(SOURCE_FILES
         src/current_level.hpp
         src/right_top_menu.hpp
         src/left_top_menu.hpp
+        src/press_w.hpp
         src/screen.hpp
         src/world.hpp
         src/CollisionManager.hpp
