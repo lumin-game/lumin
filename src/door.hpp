@@ -11,6 +11,9 @@ public:
     // Light up the door when it's activated (likely by a linked switch)
     void activate() override { set_lit(true); }
 
+	// Close the door when it's deactivated (if linked switch has been turned off)
+	void deactivate() override { set_lit(false); }
+
 	bool alwaysRender() { return true; }
 	bool activated_by_light() const { return false; }
 

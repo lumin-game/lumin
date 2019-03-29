@@ -49,6 +49,21 @@ void MovableWall::activate() {
 	}
 }
 
+void MovableWall::deactivate() {
+	if (can_move) {
+		is_moving = true;
+		isReversed = true;
+		currentTargetIndex = 0;
+		currentTime = (msToDestination - currentTime) + timeAtLastPoint + timeAtLastPoint;
+
+		AdvanceToNextPoint();
+		//we want timediff = msToDestination - timeDiff
+		//we want the time since timeAtLastPoint to be the same as the time until it hits its current destination
+		//currentTime = (msToDestination - currentTime) + timeAtLastPoint;
+		//currentTime = msToDestination - currentTime;
+	}
+}
+
 void MovableWall::AdvanceToNextPoint()
 {
 	int nextIndex = currentTargetIndex + (isReversed ? -1 : 1);
@@ -68,6 +83,11 @@ void MovableWall::AdvanceToNextPoint()
 	{
 		isReversed = false;
 		nextIndex = 0;
+
+		if (!movementLoops) {
+			is_moving = false;
+			return;
+		}
 	}
 	else if (nextIndex >= size)
 	{
