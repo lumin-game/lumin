@@ -15,8 +15,8 @@ using Clock = std::chrono::high_resolution_clock;
 
 // Global 
 World world;
-const int width = 1600;
-const int height = 1200;
+const int width = 1200;
+const int height = 800;
 const float minDeltaTimeMs = 100.f;
 
 // Entry point
