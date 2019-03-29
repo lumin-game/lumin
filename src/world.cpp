@@ -172,13 +172,13 @@ bool World::update(float elapsed_ms) {
 }
 
 mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
-	float left = player_pos.x + 200 - (float) w / retinaScale / 2;
-	float top = player_pos.y - (float) h / retinaScale / 2;
-	float right = player_pos.x + 200 + (float) w / retinaScale / 2;
-	float bottom =  player_pos.y + (float) h / retinaScale / 2;
+	float left = player_pos.x - (float) w / retinaScale / 2;
+	float top = player_pos.y - 100 - (float) h / retinaScale / 2;
+	float right = player_pos.x + (float) w / retinaScale / 2;
+	float bottom =  player_pos.y - 100 + (float) h / retinaScale / 2;
 
-	float sx = 2.f / (right - left);
-	float sy = 2.f / (top - bottom);
+	float sx = 1.6f / (right - left);
+	float sy = 1.6f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 
