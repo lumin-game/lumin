@@ -69,8 +69,6 @@ public:
 	Mix_Chunk* get_sound() const;
 
 private:
-	Texture unlit_texture;
-	Texture lit_texture;
 	bool m_is_lit = false;
 	bool m_was_lit = false;
 	Mix_Chunk* m_entity_sound;
@@ -78,6 +76,12 @@ private:
 protected:
 	// pointer to the active texture
     Texture* texture;
+
+	//Need to be protected instead of private for door shenanigans
+	Texture unlit_texture;
+	Texture lit_texture;
+
+	float darkness_modifier;
 
     // 1.f in each dimension. 1.f is as big as the associated texture
     vec2 m_scale;

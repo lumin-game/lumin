@@ -234,10 +234,7 @@ int LaserLightMesh::UpdateVertices()
 		// Everything before the first light collidable hit has been hit by light, set to lit
 		for (EntityHit& entityHit : entitiesHit)
 		{
-			if (entityHit.entity->activated_by_light())
-			{
-				entityHit.entity->set_lit(true);
-			}
+			entityHit.entity->set_lit(true);
 			if (entityHit.entity->is_light_collidable())
 			{
 				hitPosition = entityHit.hitLocation;
