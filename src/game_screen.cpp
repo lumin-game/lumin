@@ -52,8 +52,8 @@ bool GameScreen::init(vec2 screen) {
   // Loading shaders
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
-  m_scale = set_translation_scale();
-  m_position = set_translation_position();
+  set_translation_scale();
+  set_translation_position();
 
   return true;
 }
@@ -68,14 +68,8 @@ void GameScreen::destroy() {
 
 void GameScreen::draw(const mat3& projection) {
   transform_begin();
-  // see Transformations and Rendering in the specification pdf
-  // the following functions are available:
-  // transform_translate()
-  // transform_rotate()
-  // transform_scale()
-
-  transform_scale(m_scale);
   transform_translate(m_position);
+  transform_scale(m_scale);
   transform_end();
 
   // Setting shaders

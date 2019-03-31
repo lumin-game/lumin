@@ -36,7 +36,7 @@ bool CurrentLevel::init(vec2 screen) {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
   m_scale = { 0.1, 0.1 };
-	m_position = { -4600, -3700 };
+	m_position = { -460, -370 };
   return true;
 }
 
@@ -82,8 +82,8 @@ void CurrentLevel::update(int current_level) {
 
 void CurrentLevel::draw(const mat3& projection) {
   transform_begin();
-  transform_scale(m_scale);
   transform_translate(m_position);
+  transform_scale(m_scale);
   transform_end();
 
   // Setting shaders

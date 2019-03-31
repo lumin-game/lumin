@@ -6,6 +6,7 @@ class RightTopMenu : public GameScreen
 {
 public:
 	const char* get_texture_path() const override { return textures_path("right_top_menu.png"); }
-	const vec2 set_translation_scale() override { return { 0.12, 0.12 }; };
-	const vec2 set_translation_position() override { return { 3600, -3075 }; };
+	void set_translation_scale() override { m_scale = { 0.12, 0.12 }; };
+	void set_translation_position() override { m_position = { 432, -369 }; };
 };
+
