@@ -6,7 +6,7 @@
 
 // stlib
 
-#define MAX_LEVEL 11
+#define MAX_LEVEL 12
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -171,6 +171,8 @@ bool World::update(float elapsed_ms) {
 		m_player.update(elapsed_ms);
 	}
 
+	m_screen.update();
+
 	return true;
 }
 
@@ -320,6 +322,7 @@ void World::next_level() {
 			return;
 		}
 		m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
+		m_screen.new_level();
 	}
 }
 
