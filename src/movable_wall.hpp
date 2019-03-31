@@ -11,6 +11,7 @@ public:
 
 	void update(float ms) override;
 	void activate() override;
+	void deactivate() override;
 
 	bool is_light_dynamic() const override { return true; }
 
