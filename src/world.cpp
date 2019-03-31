@@ -8,6 +8,8 @@
 
 #define MAX_LEVEL 12
 
+const float next_level_delay = 0.95;
+
 // Same as static in c, local to compilation unit
 namespace {
 	namespace {
@@ -78,6 +80,7 @@ bool World::init(vec2 screen) {
 	m_screen_tex.create_from_screen(m_window);
 
 	m_current_level = 1;
+	m_next_level_time = -1;
 	// Unlocked levels set to MAX_LEVEL for now for testing purposes
 	m_unlocked_levels = MAX_LEVEL;
 
@@ -146,29 +149,40 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-		// First move the world (entities)
-		for (auto entity : m_entities) {
-			entity->update(elapsed_ms);
-			// If one of our entities is a door, check for player collision
-			if (Door* door = dynamic_cast<Door*>(entity)) {
-				if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
-					m_current_level = door->get_level_index();
-					m_current_level_top_menu.update(m_current_level);
-					next_level();
-					return true;
-				}
-			}
-		}
-		for (Entity* entity : m_entities)
-		{
-			// Update entity hit by light IF it is not a door
-			if (dynamic_cast<Door*>(entity) == 0) {
-				entity->UpdateHitByLight();
-			}
-		}
-		// Then handle light equations
-		CollisionManager::GetInstance().UpdateDynamicLightEquations();
-		m_player.update(elapsed_ms);
+        // First move the world (entities)
+        for (auto entity : m_entities) {
+            entity->update(elapsed_ms);
+            // If one of our entities is a door, check for player collision
+            if (Door *door = dynamic_cast<Door *>(entity)) {
+                if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
+                    m_current_level = door->get_level_index();
+                    m_current_level_top_menu.update(m_current_level);
+                    next_level();
+                    return true;
+                }
+            }
+        }
+        for (Entity *entity : m_entities) {
+            // Update entity hit by light IF it is not a door
+            if (dynamic_cast<Door *>(entity) == 0) {
+                entity->UpdateHitByLight();
+            }
+        }
+        // Then handle light equations
+        CollisionManager::GetInstance().UpdateDynamicLightEquations();
+        m_player.update(elapsed_ms);
+
+//		if (m_next_level_time > 0 && (glfwGetTime() - m_next_level_time > next_level_delay)) {
+//		    reset_game();
+//		    m_next_level_time = -1;
+//		}
+
+        if (m_next_level_time > 0) {
+            if (glfwGetTime() - m_next_level_time > next_level_delay) {
+                reset_game();
+                m_next_level_time = -1;
+            }
+        }
 	}
 
 	m_screen.update();
@@ -316,13 +330,14 @@ void World::load_level_screen(int key_pressed_level) {
 void World::next_level() {
 	if (!m_game_completed) {
 		if (m_current_level < MAX_LEVEL) {
-			reset_game();
+            m_screen.new_level();
+            m_next_level_time = glfwGetTime();
+			// reset_game();
 		} else if (m_current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
 		}
 		m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
-		m_screen.new_level();
 	}
 }
 

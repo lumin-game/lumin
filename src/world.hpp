@@ -82,6 +82,7 @@ private:
 	CurrentLevel m_current_level_top_menu;
 
 	int m_current_level;
+	float m_next_level_time;
 
 	// number of levels that user has unlocked
 	int m_unlocked_levels;
