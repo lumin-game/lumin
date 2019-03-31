@@ -5,7 +5,7 @@
 
 Texture CurrentLevel::current_level_texture;
 
-bool CurrentLevel::init(vec2 screen) {
+bool CurrentLevel::init(vec2 screen, vec2 offset) {
   if (!current_level_texture.is_valid()) {
     if (!current_level_texture.load_from_file(textures_path("current_level.png")))
     {
@@ -14,7 +14,7 @@ bool CurrentLevel::init(vec2 screen) {
     }
   }
 
-	float wr = 180 * 0.5f;
+	float wr = current_level_texture.width * 0.5f / TOTAL_LEVELS;
 	float hr = current_level_texture.height * 0.5f;
 
 	vertices[0].position = { -wr, +hr, 0.f };
@@ -35,8 +35,10 @@ bool CurrentLevel::init(vec2 screen) {
   // Loading shaders
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
-  m_scale = { 0.1, 0.1 };
-	m_position = { -460, -370 };
+  vec2 boundingBox = get_bounding_box();
+  float x_offset = -screen.x + offset.x / m_scale.x - 20;
+  float y_offset = -screen.y * 0.5 + boundingBox.y * 1.75;
+  m_position = { x_offset, y_offset };
   return true;
 }
 
