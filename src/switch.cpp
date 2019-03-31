@@ -11,7 +11,6 @@ void Switch::activate() {
 }
 
 void Switch::deactivate() {
-	Mix_PlayChannel(-1, get_sound(), 0);
 	if (!mToggleSwitch) {
 		return;
 	}
