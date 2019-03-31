@@ -53,7 +53,7 @@ bool GameScreen::init(vec2 screen) {
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
   set_translation_scale();
-  set_translation_position();
+  set_translation_position(screen, true);
 
   return true;
 }
@@ -117,3 +117,31 @@ vec2 GameScreen::get_bounding_box()const
 	return { std::fabs(m_scale.x) * screen_texture.width, std::fabs(m_scale.y) * screen_texture.height };
 }
 
+void GameScreen::set_position(vec2 position, vec2 offset) {
+  m_position = position + offset;
+}
+
+void GameScreen::set_translation_scale() { 
+  m_scale = { 1.f, 1.f }; 
+};
+
+void GameScreen::set_translation_position(vec2 screen, bool is_left) {
+  m_position = calculate_position(screen, is_left);
+};
+
+vec2 GameScreen::calculate_position(vec2 screen, bool is_left) {
+  if (m_scale.x == 1.f && m_scale.y == 1.f) {
+    return m_position;
+  }
+  vec2 boundingBox = get_bounding_box();
+  float x_offset, y_offset;
+  y_offset = -screen.y * 0.5 + boundingBox.y * 1.5;
+  if (is_left) {
+    x_offset = -screen.x * 0.5 + boundingBox.x;
+  } else {
+    // ideally, it should jsut be a reverse of x_offset but not sure why - boundingBox.x * 0.5 does not work 
+    x_offset = screen.x * 0.5 - boundingBox.x * 0.75;
+  }
+  vec2 position = { x_offset, y_offset };
+  return position;
+}

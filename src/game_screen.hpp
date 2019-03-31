@@ -16,13 +16,15 @@ public:
 
 	void draw(const mat3& projection)override;
 
-	virtual void set_position(vec2 position, vec2 offset = { 0, 0 }) {
-		m_position = position + offset;
-	}
-	virtual void set_translation_scale() { m_scale = { 1.f, 1.f }; };
-	virtual void set_translation_position() { m_position = { 0, 0 }; };
+	virtual void set_position(vec2 position, vec2 offset = { 0, 0 });
+
+	virtual void set_translation_scale();
+
+	virtual void set_translation_position(vec2 screen, bool is_left);
 
 	vec2 get_bounding_box()const;
+
+	vec2 calculate_position(vec2 screen, bool is_left);
 
 protected:
 	Texture screen_texture;
