@@ -12,8 +12,8 @@ public:
     void activate() override { set_lit(true); }
     void deactivate() override { set_lit(false); }
 
-	bool alwaysRender() { return true; }
-	bool activated_by_light() const { return false; }
+	bool alwaysRender() override { return true; }
+	bool activated_by_light() const override { return false; }
 
     bool is_player_inside(Player* player_pos);
 	int get_level_index();

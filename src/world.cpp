@@ -91,7 +91,7 @@ bool World::init(vec2 screen) {
 	m_pause_screen.init(screen);
 	m_right_top_menu.init(screen);
 	m_left_top_menu.init(screen);
-	m_current_level_top_menu.init(screen);
+	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
 	m_end_screen.init(screen);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
