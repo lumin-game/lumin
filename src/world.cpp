@@ -264,9 +264,9 @@ void World::draw() {
 	m_current_level_top_menu.draw(menu_projection_2D);
 	for (Entity* entity: m_entities) {
 		if (Door* door = dynamic_cast<Door*>(entity)) {
-			if (door->get_lit() && !m_paused && !m_should_load_level_screen && !m_game_completed) {
+			if (door->get_lit() && door->is_player_inside(&m_player) && !m_paused && !m_should_load_level_screen && !m_game_completed) {
 				float offset = m_press_w.update();
-				m_press_w.set_position({ m_w_position.x / (float) 0.1, (m_w_position.y + offset) / (float) 0.1 });
+				m_press_w.set_position({ m_w_position.x, (m_w_position.y + offset)});
 				m_press_w.draw(projection_2D);
 			}
 		}
