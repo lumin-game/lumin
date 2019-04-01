@@ -23,6 +23,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <ctime>
+#include <string>
 
 #define MAX_LEVEL 11
 

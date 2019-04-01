@@ -163,7 +163,6 @@ bool World::update(float elapsed_ms) {
 							m_save_state.current_level = door->get_level_index();
 							next_level();
 							m_current_level_top_menu.update(m_save_state.current_level);
-							m_draw_w = false;
 							return true;
 						}
 						else {
@@ -326,7 +325,13 @@ void World::reset_game() {
 	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
 	m_press_w.init(m_screen_size);
+
 	m_should_load_level_screen = false;
+	m_draw_w = false;
+
+	if (m_save_state.save()) {
+		std::cout << "Saved game state to file.\n" << std::endl;
+	}
 }
 
 void World::load_level_screen(int key_pressed_level) {
@@ -352,10 +357,6 @@ void World::next_level() {
 			return;
 		}
 		m_save_state.unlocked_levels = std::max(m_save_state.current_level, m_save_state.unlocked_levels);
-
-		if (m_save_state.save()) {
-			std::cout << "Saved game state to file.\n" << std::endl;
-		}
 	}
 }
 
@@ -421,10 +422,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 					load_level_screen(i - GLFW_KEY_1 + 1);
 				}
 			}
-		}
-
-		if (m_save_state.save()) {
-			std::cout << "Saved game state to file.\n" << std::endl;
 		}
   }
 

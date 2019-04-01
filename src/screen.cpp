@@ -1,6 +1,7 @@
 #include "screen.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 const float MAX_FADE_TIME = 1000.f;
 
