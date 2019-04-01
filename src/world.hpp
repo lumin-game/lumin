@@ -26,7 +26,7 @@
 #include <ctime>
 #include <string>
 
-#define MAX_LEVEL 11
+#define MAX_LEVEL 14
 
 struct SaveState {
     int current_level = 1;
@@ -107,6 +107,7 @@ private:
 	void next_level();
 
 private:
+	std::string m_load_level;
 	// Window handle
 	GLFWwindow* m_window;
 
