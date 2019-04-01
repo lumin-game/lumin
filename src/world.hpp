@@ -18,6 +18,7 @@
 // stlib
 #include <vector>
 #include <random>
+#include <string>
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>

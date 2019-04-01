@@ -72,7 +72,6 @@ private:
 	bool m_is_lit = false;
 	bool m_was_lit = false;
 	Mix_Chunk* m_entity_sound;
-	float darkness_modifier;
 
 protected:
 	// pointer to the active texture
