@@ -85,6 +85,7 @@ bool World::init(vec2 screen) {
 	m_paused = false;
 	m_game_completed = false;
 	m_interact = false;
+	m_draw_w = false;
 	m_screen_size = screen;
 
 	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
@@ -154,13 +155,19 @@ bool World::update(float elapsed_ms) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
+				m_w_position = door->get_position();
 				if (door->get_lit() && door->is_player_inside(&m_player)) {
-						m_w_position = door->get_position();
 						if (m_interact) {
 							m_current_level = door->get_level_index();
 							next_level();
 							m_current_level_top_menu.update(m_current_level);
+							m_draw_w = false;
 							return true;
+						}
+						else {
+							float offset = m_press_w.update();
+							m_press_w.set_position({ m_w_position.x, (m_w_position.y + offset) });
+							m_draw_w = true;
 						}
 				}
 			}
@@ -262,14 +269,9 @@ void World::draw() {
 	m_right_top_menu.draw(menu_projection_2D);
 	m_left_top_menu.draw(menu_projection_2D);
 	m_current_level_top_menu.draw(menu_projection_2D);
-	for (Entity* entity: m_entities) {
-		if (Door* door = dynamic_cast<Door*>(entity)) {
-			if (door->get_lit() && door->is_player_inside(&m_player) && !m_paused && !m_should_load_level_screen && !m_game_completed) {
-				float offset = m_press_w.update();
-				m_press_w.set_position({ m_w_position.x, (m_w_position.y + offset)});
-				m_press_w.draw(projection_2D);
-			}
-		}
+
+	if(m_draw_w){
+		m_press_w.draw(projection_2D);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

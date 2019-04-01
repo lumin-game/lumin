@@ -104,6 +104,8 @@ private:
 	bool m_interact;
 	bool m_is_door_open;
 	bool m_is_player_near_door;
+	bool m_draw_w;
+
 	vec2 m_w_position;
 	vec2 m_screen_size;
 };
