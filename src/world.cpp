@@ -159,9 +159,9 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->get_lit() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							m_current_level = door->get_level_index();
+							m_save_state.current_level = door->get_level_index();
 							next_level();
-							m_current_level_top_menu.update(m_current_level);
+							m_current_level_top_menu.update(m_save_state.current_level);
 							m_draw_w = false;
 							return true;
 						}
@@ -311,8 +311,8 @@ void World::reset_game() {
 
 	m_player.destroy();
 	m_press_w.destroy();
-	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
-	m_current_level_top_menu.set_current_level_texture(m_current_level);
+	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
+	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
 	m_press_w.init(m_screen_size);
 	m_should_load_level_screen = false;
