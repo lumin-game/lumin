@@ -22,6 +22,14 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#define MAX_LEVEL 11
+
+struct SaveState {
+    int current_level = 1;
+    int unlocked_levels = MAX_LEVEL;
+
+};
+
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class World
@@ -81,10 +89,7 @@ private:
 	RightTopMenu m_right_top_menu;
 	CurrentLevel m_current_level_top_menu;
 
-	int m_current_level;
-
-	// number of levels that user has unlocked
-	int m_unlocked_levels;
+	SaveState m_save_state;
 
 	// Game entities
 	Player m_player;
