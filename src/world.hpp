@@ -28,6 +28,40 @@ struct SaveState {
     int current_level = 1;
     int unlocked_levels = MAX_LEVEL;
 
+    bool save() {
+    	std::ofstream file;
+    	file.open("lumin.sav");
+    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels);
+    	file.close();
+    	return true;
+    }
+
+    bool load() {
+		std::ifstream in("lumin.sav");
+		if (!in) {
+			std::cerr << "Cannot open file. \n" << std::endl;
+			return false;
+		}
+
+		std::string line;
+		int i = 0;
+		while (std::getline(in, line)) {
+			switch (i) {
+				case 0:
+					current_level = std::stoi(line);
+					break;
+				case 1:
+					unlocked_levels = std::stoi(line);
+					break;
+				default:
+					break;
+			}
+
+			i += 1;
+		}
+
+		return true;
+    }
 };
 
 // Container for all our entities and game logic. Individual rendering / update is

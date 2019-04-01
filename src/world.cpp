@@ -78,6 +78,10 @@ bool World::init(vec2 screen) {
 
 	m_save_state = SaveState{};
 
+	if (m_save_state.load()) {
+		std::cout << "Loaded save state from file.\n" << std::endl;
+	}
+
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
@@ -317,6 +321,10 @@ void World::next_level() {
 			return;
 		}
 		m_save_state.unlocked_levels = std::max(m_save_state.current_level, m_save_state.unlocked_levels);
+
+		if (m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
 	}
 }
 
