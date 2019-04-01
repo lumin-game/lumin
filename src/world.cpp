@@ -86,6 +86,8 @@ bool World::init(vec2 screen) {
 	m_paused = false;
 	m_game_completed = false;
 	m_interact = false;
+	m_draw_w = false;
+	m_screen_size = screen;
 
 	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
 	m_level_screen.init(screen);
@@ -93,6 +95,7 @@ bool World::init(vec2 screen) {
 	m_right_top_menu.init(screen);
 	m_left_top_menu.init(screen);
 	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
+	m_press_w.init(screen);
 	m_end_screen.init(screen);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
@@ -138,6 +141,7 @@ void World::destroy()
 	m_left_top_menu.destroy();
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
+	m_press_w.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -152,11 +156,20 @@ bool World::update(float elapsed_ms) {
 			entity->update(elapsed_ms);
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
-				if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
-					m_save_state.current_level = door->get_level_index();
-					m_current_level_top_menu.update(m_save_state.current_level);
-					next_level();
-					return true;
+				m_w_position = door->get_position();
+				if (door->get_lit() && door->is_player_inside(&m_player)) {
+						if (m_interact) {
+							m_save_state.current_level = door->get_level_index();
+							next_level();
+							m_current_level_top_menu.update(m_save_state.current_level);
+							m_draw_w = false;
+							return true;
+						}
+						else {
+							float offset = m_press_w.update();
+							m_press_w.set_position({ m_w_position.x, (m_w_position.y + offset) });
+							m_draw_w = true;
+						}
 				}
 			}
 		}
@@ -257,6 +270,10 @@ void World::draw() {
 	m_right_top_menu.draw(menu_projection_2D);
 	m_left_top_menu.draw(menu_projection_2D);
 	m_current_level_top_menu.draw(menu_projection_2D);
+
+	if(m_draw_w){
+		m_press_w.draw(projection_2D);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -293,9 +310,11 @@ void World::reset_game() {
 	m_entities.clear();
 
 	m_player.destroy();
+	m_press_w.destroy();
 	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
 	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
+	m_press_w.init(m_screen_size);
 	m_should_load_level_screen = false;
 }
 

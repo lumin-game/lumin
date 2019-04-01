@@ -13,6 +13,7 @@
 #include "left_top_menu.hpp"
 #include "current_level.hpp"
 #include "LevelGenerator.hpp"
+#include "press_w.hpp"
 
 // stlib
 #include <vector>
@@ -21,6 +22,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <ctime>
 
 #define MAX_LEVEL 11
 
@@ -122,6 +124,7 @@ private:
 	LeftTopMenu m_left_top_menu;
 	RightTopMenu m_right_top_menu;
 	CurrentLevel m_current_level_top_menu;
+	PressW m_press_w;
 
 	SaveState m_save_state;
 
@@ -138,4 +141,10 @@ private:
 	bool m_paused;
 	bool m_game_completed;
 	bool m_interact;
+	bool m_is_door_open;
+	bool m_is_player_near_door;
+	bool m_draw_w;
+
+	vec2 m_w_position;
+	vec2 m_screen_size;
 };
