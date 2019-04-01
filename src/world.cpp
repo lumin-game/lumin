@@ -384,14 +384,17 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	if (m_should_load_level_screen) {
 		if (key == GLFW_KEY_T) {
 			load_level_screen(-1);
-    }
-    else {
-		  for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
-			if (key == i) {
-			  load_level_screen(i - GLFW_KEY_1 + 1);
+		} else {
+			for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
+				if (key == i) {
+					load_level_screen(i - GLFW_KEY_1 + 1);
+				}
 			}
-		  }
-	  }
+		}
+
+		if (m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
   }
 
 	// Exit Game
