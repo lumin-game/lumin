@@ -15,7 +15,7 @@ class LevelGenerator
 	};
 
 public:
-	LevelGenerator() {};
+	LevelGenerator() = default;
 
 	void create_current_level(int level, Player& outPlayer, std::vector<Entity*>& outEntities);
 

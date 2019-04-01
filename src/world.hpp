@@ -13,6 +13,7 @@
 #include "left_top_menu.hpp"
 #include "current_level.hpp"
 #include "LevelGenerator.hpp"
+#include "press_w.hpp"
 
 // stlib
 #include <vector>
@@ -21,6 +22,49 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <ctime>
+
+#define MAX_LEVEL 11
+
+struct SaveState {
+    int current_level = 1;
+    int unlocked_levels = MAX_LEVEL;
+
+    bool save() {
+    	std::ofstream file;
+    	file.open("lumin.sav");
+    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels);
+    	file.close();
+    	return true;
+    }
+
+    bool load() {
+		std::ifstream in("lumin.sav");
+		if (!in) {
+			std::cerr << "Cannot open file. \n" << std::endl;
+			return false;
+		}
+
+		std::string line;
+		int i = 0;
+		while (std::getline(in, line)) {
+			switch (i) {
+				case 0:
+					current_level = std::stoi(line);
+					break;
+				case 1:
+					unlocked_levels = std::stoi(line);
+					break;
+				default:
+					break;
+			}
+
+			i += 1;
+		}
+
+		return true;
+    }
+};
 
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
@@ -80,12 +124,10 @@ private:
 	LeftTopMenu m_left_top_menu;
 	RightTopMenu m_right_top_menu;
 	CurrentLevel m_current_level_top_menu;
+	PressW m_press_w;
 
-	int m_current_level;
 	float m_next_level_elapsed;
-
-	// number of levels that user has unlocked
-	int m_unlocked_levels;
+	SaveState m_save_state;
 
 	// Game entities
 	Player m_player;
@@ -100,4 +142,10 @@ private:
 	bool m_paused;
 	bool m_game_completed;
 	bool m_interact;
+	bool m_is_door_open;
+	bool m_is_player_near_door;
+	bool m_draw_w;
+
+	vec2 m_w_position;
+	vec2 m_screen_size;
 };

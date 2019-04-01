@@ -57,7 +57,8 @@ bool UnlockedLevelSparkle::init() {
   // Loading shaders
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
-	m_scale = { 1.0, 1.0 };
+	m_scale = { 1.f, 1.f };
+  m_position = { 0, 0 };
 
   return true;
 }
@@ -73,8 +74,8 @@ void UnlockedLevelSparkle::destroy() {
 
 void UnlockedLevelSparkle::draw(const mat3& projection) {
   transform_begin();
-  transform_scale(m_scale);
   transform_translate(m_position);
+  transform_scale(m_scale);
   transform_end();
 
   // Setting shaders

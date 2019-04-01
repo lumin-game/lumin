@@ -4,11 +4,8 @@
 #include "door.hpp"
 #include "switch.hpp"
 
-// stlib
-
-#define MAX_LEVEL 12
-
 const float NEXT_LEVEL_DELAY = 450.f;
+#define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -79,22 +76,27 @@ bool World::init(vec2 screen) {
 	// Initialize the screen texture
 	m_screen_tex.create_from_screen(m_window);
 
-	m_current_level = 1;
 	m_next_level_elapsed = -1;
-	// Unlocked levels set to MAX_LEVEL for now for testing purposes
-	m_unlocked_levels = MAX_LEVEL;
+	m_save_state = SaveState{};
+
+	if (m_save_state.load()) {
+		std::cout << "Loaded save state from file.\n" << std::endl;
+	}
 
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
 	m_interact = false;
+	m_draw_w = false;
+	m_screen_size = screen;
 
-	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
+	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
 	m_level_screen.init(screen);
 	m_pause_screen.init(screen);
 	m_right_top_menu.init(screen);
 	m_left_top_menu.init(screen);
-	m_current_level_top_menu.init(screen);
+	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
+	m_press_w.init(screen);
 	m_end_screen.init(screen);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
@@ -140,6 +142,7 @@ void World::destroy()
 	m_left_top_menu.destroy();
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
+	m_press_w.destroy();
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -149,30 +152,40 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-        // First move the world (entities)
-        for (auto entity : m_entities) {
-            entity->update(elapsed_ms);
-            // If one of our entities is a door, check for player collision
-            if (Door *door = dynamic_cast<Door *>(entity)) {
-                if (door->get_lit() && door->is_player_inside(&m_player) && m_interact) {
-                    m_current_level = door->get_level_index();
-                    m_current_level_top_menu.update(m_current_level);
-                    next_level();
-                    return true;
-                }
-            }
-        }
-        for (Entity *entity : m_entities) {
-            // Update entity hit by light IF it is not a door
-            if (dynamic_cast<Door *>(entity) == 0) {
-                entity->UpdateHitByLight();
-            }
-        }
-        // Then handle light equations
-        CollisionManager::GetInstance().UpdateDynamicLightEquations();
-        m_player.update(elapsed_ms);
+		// First move the world (entities)
+		for (auto entity : m_entities) {
+			entity->update(elapsed_ms);
+			// If one of our entities is a door, check for player collision
+			if (Door* door = dynamic_cast<Door*>(entity)) {
+				m_w_position = door->get_position();
+				if (door->get_lit() && door->is_player_inside(&m_player)) {
+						if (m_interact) {
+							m_save_state.current_level = door->get_level_index();
+							next_level();
+							m_current_level_top_menu.update(m_save_state.current_level);
+							m_draw_w = false;
+							return true;
+						}
+						else {
+							float offset = m_press_w.update();
+							m_press_w.set_position({ m_w_position.x, (m_w_position.y + offset) });
+							m_draw_w = true;
+						}
+				}
+			}
+		}
+		for (Entity* entity : m_entities)
+		{
+			// Update entity hit by light IF it is not a door
+			if (dynamic_cast<Door*>(entity) == 0) {
+				entity->UpdateHitByLight();
+			}
+		}
+		// Then handle light equations
+		CollisionManager::GetInstance().UpdateDynamicLightEquations();
+		m_player.update(elapsed_ms);
 
-        if (m_next_level_elapsed > -1) {
+		if (m_next_level_elapsed > -1) {
             m_next_level_elapsed += elapsed_ms;
             if (m_next_level_elapsed > NEXT_LEVEL_DELAY) {
                 reset_game();
@@ -251,7 +264,7 @@ void World::draw() {
 		float offset = 225;
 		// There are 4 boxes per row right now
 		int num_col = 4;
-		for (int i = 0; i < m_unlocked_levels; ++i) {
+		for (int i = 0; i < m_save_state.unlocked_levels; ++i) {
 			int x = i % num_col;
 			int y = i / num_col;
 			m_unlocked_level_sparkles[i].set_position(initial_pos, { offset * x, offset * y });
@@ -268,6 +281,10 @@ void World::draw() {
 	m_right_top_menu.draw(menu_projection_2D);
 	m_left_top_menu.draw(menu_projection_2D);
 	m_current_level_top_menu.draw(menu_projection_2D);
+
+	if(m_draw_w){
+		m_press_w.draw(projection_2D);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -304,18 +321,20 @@ void World::reset_game() {
 	m_entities.clear();
 
 	m_player.destroy();
-	levelGenerator.create_current_level(m_current_level, m_player, m_entities);
-	m_current_level_top_menu.set_current_level_texture(m_current_level);
+	m_press_w.destroy();
+	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
+	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
+	m_press_w.init(m_screen_size);
 	m_should_load_level_screen = false;
 }
 
 void World::load_level_screen(int key_pressed_level) {
-	if (m_current_level == key_pressed_level) {
+	if (m_save_state.current_level == key_pressed_level) {
 		m_should_load_level_screen = false;
 	} else {
-		if (m_unlocked_levels >= key_pressed_level) {
-			m_current_level = key_pressed_level;
+		if (m_save_state.unlocked_levels >= key_pressed_level) {
+			m_save_state.current_level = key_pressed_level;
 			reset_game();
 		} else {
 			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
@@ -325,14 +344,18 @@ void World::load_level_screen(int key_pressed_level) {
 
 void World::next_level() {
 	if (!m_game_completed) {
-		if (m_current_level < MAX_LEVEL) {
-            m_screen.new_level();
+		if (m_save_state.current_level < MAX_LEVEL) {
+			m_screen.new_level();
             m_next_level_elapsed = 0.f;
-		} else if (m_current_level == MAX_LEVEL) {
+		} else if (m_save_state.current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
 		}
-		m_unlocked_levels = std::max(m_current_level, m_unlocked_levels);
+		m_save_state.unlocked_levels = std::max(m_save_state.current_level, m_save_state.unlocked_levels);
+
+		if (m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
 	}
 }
 
@@ -392,14 +415,17 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	if (m_should_load_level_screen) {
 		if (key == GLFW_KEY_T) {
 			load_level_screen(-1);
-    }
-    else {
-		  for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
-			if (key == i) {
-			  load_level_screen(i - GLFW_KEY_1 + 1);
+		} else {
+			for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
+				if (key == i) {
+					load_level_screen(i - GLFW_KEY_1 + 1);
+				}
 			}
-		  }
-	  }
+		}
+
+		if (m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
   }
 
 	// Exit Game
@@ -425,7 +451,9 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		m_player.setLightMode(true);
+		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
+			m_player.setLightMode(true);
+		}
 	}
 
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)

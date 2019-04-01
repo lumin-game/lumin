@@ -10,11 +10,6 @@ public:
 		vec2 m_position;
 	};
 
-private:
-	static Texture player_spritesheet;
-	static const int TOTAL_FRAMES = 18;
-	static const int FRAME_SPEED = 4;
-
 public:
 	// Creates all the associated render resources and default transform
 	bool init();
@@ -40,6 +35,9 @@ public:
 	int GetPlayerHeight() const;
 
 private:
+	static Texture player_spritesheet;
+	static const int TOTAL_FRAMES = 18;
+	static const int FRAME_SPEED = 4;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
 	ParentData m_parent;
 	int m_current_frame;
