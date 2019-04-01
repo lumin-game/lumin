@@ -35,6 +35,8 @@ private:
 	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
 	int UpdateVertices();
 
+	ParametricLines ConvertLinesToAngle(ParametricLines lines, float cosA, float sinA);
+
 	// Data from the parent object (only player for now, but maybe lanterns too in future)
 	ParentData m_parent;
 

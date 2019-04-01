@@ -167,33 +167,20 @@ int LaserLightMesh::UpdateVertices()
 
 	// Bound lines is a list of entities and their boundary lines
 	// We also rotate these lines to our world coord rotation
-	std::vector<EntityBoundLine> boundLines;
+	std::vector<EntityLines> entityLines;
 	for (Entity* entity : entities)
 	{
-		ParametricLines lines;
-		for (ParametricLine line : entity->calculate_boundary_equations())
-		{
-			line.x_0 = line.x_0 - m_parent.m_position.x;
-			line.y_0 = line.y_0 - m_parent.m_position.y;
+		EntityLines entityLine;
+		entityLine.entity = entity;
+		entityLine.boundaryLines = ConvertLinesToAngle(entity->calculate_boundary_equations(), cosA, sinA);
+		
+		ParametricLines staticLines = ConvertLinesToAngle(entity->calculate_static_equations(), cosA, sinA);
+		ParametricLines dynamicLines = ConvertLinesToAngle(entity->calculate_dynamic_equations(), cosA, sinA);
 
-			vec2 startingPoint = { line.x_0, line.y_0 };
-			float newStartX = startingPoint.x * cosA + startingPoint.y * sinA;
-			float newStartY = startingPoint.x * -sinA + startingPoint.y * cosA;
-
-			vec2 endPoint = { line.x_t, line.y_t };
-			float newEndX = endPoint.x * cosA + endPoint.y * sinA;
-			float newEndY = endPoint.x * -sinA + endPoint.y * cosA;
-
-			line.x_0 = newStartX;
-			line.y_0 = newStartY;
-			line.x_t = newEndX;
-			line.y_t = newEndY;
-			
-			lines.push_back(line);
-		}
-
-		EntityBoundLine boundLine = { entity, lines };
-		boundLines.push_back(boundLine);
+		entityLine.lightCollisionLines = staticLines;
+		entityLine.lightCollisionLines.insert(entityLine.lightCollisionLines.end(), dynamicLines.begin(), dynamicLines.end());
+ 
+		entityLines.push_back(entityLine);
 	}
 
 	// Check collisions, these will be the vertices of our polygon
@@ -209,39 +196,35 @@ int LaserLightMesh::UpdateVertices()
 		vec2 hitPosition = { corner.x, m_laserLength };
 
 		// Keep track of all entities hit
-		std::vector<EntityHit> entitiesHit;
-		for (EntityBoundLine& entityBounds : boundLines)
+		for (EntityLines& entityLine : entityLines)
 		{
-			for (ParametricLine line : entityBounds.lines)
+			for (ParametricLine lightLine : entityLine.lightCollisionLines)
 			{
 				vec2 collisionLocation;
-				if (colManager.LinesCollide(rayTrace, line, collisionLocation))
+				if (colManager.LinesCollide(rayTrace, lightLine, collisionLocation))
 				{
-					EntityHit entityHit = { entityBounds.entity, collisionLocation };
-					entitiesHit.push_back(entityHit);
+					if (collisionLocation.Magnitude() < hitPosition.Magnitude())
+					{
+						hitPosition = collisionLocation;
+					}
 				}
 			}
 		}
 
-		// Sort by increasing distance away from origin
-		std::sort(entitiesHit.begin(), entitiesHit.end(), [](const EntityHit& ntHit1, const EntityHit& ntHit2)
-		{
-			float dist1 = ntHit1.hitLocation.Magnitude();
-			float dist2 = ntHit2.hitLocation.Magnitude();
-			return dist1 < dist2;
-		});		
+		rayTrace.y_t = hitPosition.y;
 
-		// Everything before the first light collidable hit has been hit by light, set to lit
-		for (EntityHit& entityHit : entitiesHit)
+		for (EntityLines& entityLine : entityLines)
 		{
-			if (entityHit.entity->activated_by_light())
+			for (ParametricLine boundLine : entityLine.boundaryLines)
 			{
-				entityHit.entity->set_lit(true);
-			}
-			if (entityHit.entity->is_light_collidable())
-			{
-				hitPosition = entityHit.hitLocation;
-				break;
+				vec2 collisionLocation;
+				if (colManager.LinesCollide(rayTrace, boundLine, collisionLocation))
+				{
+					if (entityLine.entity->activated_by_light())
+					{
+						entityLine.entity->set_lit(true);
+					}
+				}
 			}
 		}
 
@@ -286,6 +269,33 @@ int LaserLightMesh::UpdateVertices()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
 	return indices.size();
+}
+
+ParametricLines LaserLightMesh::ConvertLinesToAngle(ParametricLines lines, float cosA, float sinA)
+{
+	ParametricLines outLines;
+	for (ParametricLine line : lines)
+	{
+		line.x_0 = line.x_0 - m_parent.m_position.x;
+		line.y_0 = line.y_0 - m_parent.m_position.y;
+
+		vec2 startingPoint = { line.x_0, line.y_0 };
+		float newStartX = startingPoint.x * cosA + startingPoint.y * sinA;
+		float newStartY = startingPoint.x * -sinA + startingPoint.y * cosA;
+
+		vec2 endPoint = { line.x_t, line.y_t };
+		float newEndX = endPoint.x * cosA + endPoint.y * sinA;
+		float newEndY = endPoint.x * -sinA + endPoint.y * cosA;
+
+		line.x_0 = newStartX;
+		line.y_0 = newStartY;
+		line.x_t = newEndX;
+		line.y_t = newEndY;
+
+		outLines.push_back(line);
+	}
+
+	return outLines;
 }
 
 vec2 LaserLightMesh::get_position() const

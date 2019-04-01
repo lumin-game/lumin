@@ -175,20 +175,37 @@ void RadiusLightMesh::UpdateVertices()
 	});
 
 	// Bound lines is a list of entities and their boundary lines
-	std::vector<EntityBoundLine> boundLines;
+	std::vector<EntityLines> entityLines;
 	for (Entity* entity : entities)
 	{
-		ParametricLines lines;
-		for (ParametricLine line : entity->calculate_boundary_equations())
-		{
-			line.x_0 = line.x_0 - m_parent.m_position.x;
-			line.y_0 = line.y_0 - m_parent.m_position.y;
+		EntityLines entityLine;
+		entityLine.entity = entity;
 
-			lines.push_back(line);
+		for (ParametricLine boundLine : entity->calculate_boundary_equations())
+		{
+			boundLine.x_0 = boundLine.x_0 - m_parent.m_position.x;
+			boundLine.y_0 = boundLine.y_0 - m_parent.m_position.y;
+
+			entityLine.boundaryLines.push_back(boundLine);
 		}
 
-		EntityBoundLine boundLine = { entity, lines };
-		boundLines.push_back(boundLine);
+		for (ParametricLine staticLine : entity->calculate_static_equations())
+		{
+			staticLine.x_0 = staticLine.x_0 - m_parent.m_position.x;
+			staticLine.y_0 = staticLine.y_0 - m_parent.m_position.y;
+
+			entityLine.lightCollisionLines.push_back(staticLine);
+		}
+
+		for (ParametricLine dynamicLine : entity->calculate_dynamic_equations())
+		{
+			dynamicLine.x_0 = dynamicLine.x_0 - m_parent.m_position.x;
+			dynamicLine.y_0 = dynamicLine.y_0 - m_parent.m_position.y;
+
+			entityLine.lightCollisionLines.push_back(dynamicLine);
+		}
+
+		entityLines.push_back(entityLine);
 	}
 
 	// For each point, rayTrace from origin to it. The result will be one vertex for our polygon
@@ -203,40 +220,36 @@ void RadiusLightMesh::UpdateVertices()
 
 		vec2 hitPos = { rayTrace.x_t, rayTrace.y_t };
 
-		// Keep track of all entities hit
-		std::vector<EntityHit> entitiesHit;
-		for (EntityBoundLine& entityBounds : boundLines)
+		for (EntityLines& entityLine : entityLines)
 		{
-			for (ParametricLine lightEq : entityBounds.lines)
+			for (ParametricLine lightEq : entityLine.lightCollisionLines)
 			{
 				vec2 collisionLocation;
 				if (colManager.LinesCollide(rayTrace, lightEq, collisionLocation))
 				{
-					EntityHit entityHit = { entityBounds.entity, collisionLocation };
-					entitiesHit.push_back(entityHit);
+					if (collisionLocation.Magnitude() < hitPos.Magnitude())
+					{
+						hitPos = collisionLocation;
+					}
 				}
 			}
 		}
 
-		// Sort by increasing distance away from origin
-		std::sort(entitiesHit.begin(), entitiesHit.end(), [](const EntityHit& ntHit1, const EntityHit& ntHit2)
-		{
-			float dist1 = ntHit1.hitLocation.Magnitude();
-			float dist2 = ntHit2.hitLocation.Magnitude();
-			return dist1 < dist2;
-		});
+		rayTrace.x_t = hitPos.x;
+		rayTrace.y_t = hitPos.y;
 
-		// Everything before the first light collidable hit has been hit by light, set to lit
-		for (EntityHit& entityHit : entitiesHit)
+		for (EntityLines& entityLine : entityLines)
 		{
-			if (entityHit.entity->activated_by_light())
+			for (ParametricLine boundLine : entityLine.boundaryLines)
 			{
-				entityHit.entity->set_lit(true);
-			}
-			if (entityHit.entity->is_light_collidable())
-			{
-				hitPos = entityHit.hitLocation;
-				break;
+				vec2 collisionLocation;
+				if (colManager.LinesCollide(rayTrace, boundLine, collisionLocation))
+				{
+					if (entityLine.entity->activated_by_light())
+					{
+						entityLine.entity->set_lit(true);
+					}
+				}
 			}
 		}
 

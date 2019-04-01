@@ -171,16 +171,11 @@ struct ParametricLine
 
 typedef std::vector<ParametricLine> ParametricLines;
 
-struct EntityBoundLine
+struct EntityLines
 {
 	class Entity* entity;
-	ParametricLines lines;
-};
-
-struct EntityHit
-{
-	class Entity* entity;
-	vec2 hitLocation;
+	ParametricLines boundaryLines;
+	ParametricLines lightCollisionLines;
 };
 
 enum StaticTile
