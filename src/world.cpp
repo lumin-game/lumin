@@ -95,6 +95,7 @@ bool World::init(vec2 screen) {
 	m_right_top_menu.init(screen);
 	m_left_top_menu.init(screen);
 	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
+	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
 
