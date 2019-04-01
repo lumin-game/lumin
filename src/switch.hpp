@@ -14,7 +14,7 @@ public:
 	const char* get_lit_texture_path() const override {
 		return mToggleSwitch ? textures_path("button_on.png") : textures_path("switch_on.png");
 	}
-	const char* get_audio_path() const override { return audio_path("switch_on.wav"); }
+	const char* get_audio_path() const override { return audio_path("switch_sound.wav"); }
 	bool is_light_dynamic() const override { return true; }
 
 	void activate() override;
