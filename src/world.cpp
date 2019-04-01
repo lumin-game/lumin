@@ -4,6 +4,7 @@
 #include "door.hpp"
 #include "switch.hpp"
 
+const float NEXT_LEVEL_DELAY = 450.f;
 #define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
@@ -75,6 +76,7 @@ bool World::init(vec2 screen) {
 	// Initialize the screen texture
 	m_screen_tex.create_from_screen(m_window);
 
+	m_next_level_elapsed = -1;
 	m_save_state = SaveState{};
 
 	if (m_save_state.load()) {
@@ -161,7 +163,6 @@ bool World::update(float elapsed_ms) {
 							m_save_state.current_level = door->get_level_index();
 							next_level();
 							m_current_level_top_menu.update(m_save_state.current_level);
-							m_draw_w = false;
 							return true;
 						}
 						else {
@@ -182,7 +183,17 @@ bool World::update(float elapsed_ms) {
 		// Then handle light equations
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
+
+		if (m_next_level_elapsed > -1) {
+            m_next_level_elapsed += elapsed_ms;
+            if (m_next_level_elapsed > NEXT_LEVEL_DELAY) {
+                reset_game();
+                m_next_level_elapsed = -1;
+            }
+        }
 	}
+
+	m_screen.update(elapsed_ms);
 
 	return true;
 }
@@ -314,7 +325,13 @@ void World::reset_game() {
 	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
 	m_press_w.init(m_screen_size);
+
 	m_should_load_level_screen = false;
+	m_draw_w = false;
+
+	if (m_save_state.save()) {
+		std::cout << "Saved game state to file.\n" << std::endl;
+	}
 }
 
 void World::load_level_screen(int key_pressed_level) {
@@ -333,16 +350,13 @@ void World::load_level_screen(int key_pressed_level) {
 void World::next_level() {
 	if (!m_game_completed) {
 		if (m_save_state.current_level < MAX_LEVEL) {
-			reset_game();
+			m_screen.new_level();
+            m_next_level_elapsed = 0.f;
 		} else if (m_save_state.current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
 		}
 		m_save_state.unlocked_levels = std::max(m_save_state.current_level, m_save_state.unlocked_levels);
-
-		if (m_save_state.save()) {
-			std::cout << "Saved game state to file.\n" << std::endl;
-		}
 	}
 }
 
@@ -408,10 +422,6 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 					load_level_screen(i - GLFW_KEY_1 + 1);
 				}
 			}
-		}
-
-		if (m_save_state.save()) {
-			std::cout << "Saved game state to file.\n" << std::endl;
 		}
   }
 

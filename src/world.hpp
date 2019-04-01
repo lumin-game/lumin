@@ -23,6 +23,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <ctime>
+#include <string>
 
 #define MAX_LEVEL 11
 
@@ -126,6 +127,7 @@ private:
 	CurrentLevel m_current_level_top_menu;
 	PressW m_press_w;
 
+	float m_next_level_elapsed;
 	SaveState m_save_state;
 
 	// Game entities
