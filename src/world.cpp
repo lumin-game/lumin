@@ -79,10 +79,6 @@ bool World::init(vec2 screen) {
 	m_next_level_elapsed = -1;
 	m_save_state = SaveState{};
 
-	if (m_save_state.load()) {
-		std::cout << "Loaded save state from file.\n" << std::endl;
-	}
-
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
@@ -90,7 +86,6 @@ bool World::init(vec2 screen) {
 	m_draw_w = false;
 	m_screen_size = screen;
 
-	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
 	m_level_screen.init(screen);
 	m_pause_screen.init(screen);
 	m_right_top_menu.init(screen);
@@ -98,6 +93,13 @@ bool World::init(vec2 screen) {
 	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
+
+	if (m_save_state.load()) {
+		std::cout << "Loaded save state from file.\n" << std::endl;
+		m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
+	}
+
+	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
 
 	for (int i = 0; i < MAX_LEVEL; ++i) {
 		m_unlocked_level_sparkles.push_back(UnlockedLevelSparkle());
