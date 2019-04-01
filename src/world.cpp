@@ -117,6 +117,7 @@ bool World::init(vec2 screen) {
 		fprintf(stderr, "Failed to open audio device");
 		return false;
 	}
+	m_light_selection_sound = Mix_LoadWAV(audio_path("light_selection.wav"));
 
 	return m_screen.init();
 }
@@ -128,6 +129,9 @@ void World::destroy()
 
 	if (m_background_music != nullptr)
 		Mix_FreeMusic(m_background_music);
+	
+	if (m_light_selection_sound != nullptr)
+		Mix_FreeChunk(m_light_selection_sound);
 
 	Mix_CloseAudio();
 
@@ -451,10 +455,11 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 }
 
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
-{
+{ 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
+			Mix_PlayChannel(-1, m_light_selection_sound, 0);
 			m_player.setLightMode(true);
 		}
 	}
