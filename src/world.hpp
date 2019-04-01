@@ -141,8 +141,6 @@ private:
 	bool m_paused;
 	bool m_game_completed;
 	bool m_interact;
-	bool m_is_door_open;
-	bool m_is_player_near_door;
 	bool m_draw_w;
 
 	vec2 m_w_position;
