@@ -14,13 +14,13 @@ public:
 	void deactivate() override;
 
 	bool is_light_dynamic() const override { return true; }
+	virtual bool activated_by_light() const { return false; }
+
 
 	void set_movement_properties(bool shouldCurve, std::vector<vec2> blockLocations, std::vector<vec2> curveLocations, float speed, bool moving_immediately, bool loop_movement, bool loop_reverses);
 
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
-
-	virtual bool activated_by_light() const override { return false; }
 
 	vec2 get_velocity();
 

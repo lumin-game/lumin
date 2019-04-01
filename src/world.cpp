@@ -160,7 +160,7 @@ bool World::update(float elapsed_ms) {
 			// If one of our entities is a door, check for player collision
 			if (Door* door = dynamic_cast<Door*>(entity)) {
 				m_w_position = door->get_position();
-				if (door->get_lit() && door->is_player_inside(&m_player)) {
+				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
 							m_save_state.current_level = door->get_level_index();
 							next_level();
@@ -177,10 +177,7 @@ bool World::update(float elapsed_ms) {
 		}
 		for (Entity* entity : m_entities)
 		{
-			// Update entity hit by light IF it is not a door
-			if (dynamic_cast<Door*>(entity) == 0) {
-				entity->UpdateHitByLight();
-			}
+			entity->UpdateHitByLight();
 		}
 		// Then handle light equations
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
@@ -225,7 +222,7 @@ void World::draw() {
 	glfwGetFramebufferSize(m_window, &w, &h);
 
 	// Check for discrepancy between window/frame buffer (high DPI display)
-	int ww, hh;
+	int ww, hh;	
 	glfwGetWindowSize(m_window, &ww, &hh);
 	auto retinaScale = (float) (w / ww);
 

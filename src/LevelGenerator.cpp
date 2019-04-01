@@ -70,7 +70,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                         entity = new Door();
                         // Make default state of door open; if we later link it to a switch,
                         // we turn its default state to off as part of the linking process.
-                        entity->set_lit(true);
+                        entity->activate();
                         break;
                     case '@':
                         entity = new Lantern();
@@ -113,7 +113,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
 
                 // Door logic!
                 if (Door *door = dynamic_cast<Door *>(entity2->second)) {
-                    door->set_lit(false);
+                    door->deactivate();
                 }
 
             }
