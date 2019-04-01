@@ -289,7 +289,7 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
 	createdEntity.entity = level_entity;
 
 	outCreateEntities.push_back(createdEntity);
-	return true;
+    return true;
 }
 
 template <class TEntity>

@@ -120,13 +120,6 @@ void PlayerMesh::draw(const mat3& projection)
     glBufferData(GL_ARRAY_BUFFER, sizeof(TexturedVertex) * 4, vertices, GL_STATIC_DRAW);
 
 	transform_begin();
-
-	// see Transformations and Rendering in the specification pdf
-	// the following functions are available:
-	// transform_translate()
-	// transform_rotate()
-	// transform_scale()
-
 	transform_translate(m_parent.m_position);
 	transform_scale(m_scale);
 

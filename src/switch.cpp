@@ -19,6 +19,9 @@ void Switch::deactivate() {
 		if (entity != nullptr) {
 			entity->deactivate();
 		}
+		else {
+			m_entities.erase(entity);
+		}
 	}
 }
 
