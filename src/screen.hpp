@@ -16,7 +16,7 @@ public:
 
 	void new_level();
 
-	void update();
+	void update(float elapsed_ms);
 
 	// Renders the water
 	void draw(const mat3& projection)override;
@@ -29,6 +29,6 @@ public:
 private:
 	bool m_render_level_screen;
 	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
-	float m_new_level_time;
+	float m_new_level_elapsed;
 	float m_new_level_fade;
 };

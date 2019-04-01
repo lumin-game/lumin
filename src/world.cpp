@@ -8,7 +8,7 @@
 
 #define MAX_LEVEL 12
 
-const float next_level_delay = 0.95;
+const float NEXT_LEVEL_DELAY = 450.f;
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -80,7 +80,7 @@ bool World::init(vec2 screen) {
 	m_screen_tex.create_from_screen(m_window);
 
 	m_current_level = 1;
-	m_next_level_time = -1;
+	m_next_level_elapsed = -1;
 	// Unlocked levels set to MAX_LEVEL for now for testing purposes
 	m_unlocked_levels = MAX_LEVEL;
 
@@ -172,20 +172,16 @@ bool World::update(float elapsed_ms) {
         CollisionManager::GetInstance().UpdateDynamicLightEquations();
         m_player.update(elapsed_ms);
 
-//		if (m_next_level_time > 0 && (glfwGetTime() - m_next_level_time > next_level_delay)) {
-//		    reset_game();
-//		    m_next_level_time = -1;
-//		}
-
-        if (m_next_level_time > 0) {
-            if (glfwGetTime() - m_next_level_time > next_level_delay) {
+        if (m_next_level_elapsed > -1) {
+            m_next_level_elapsed += elapsed_ms;
+            if (m_next_level_elapsed > NEXT_LEVEL_DELAY) {
                 reset_game();
-                m_next_level_time = -1;
+                m_next_level_elapsed = -1;
             }
         }
 	}
 
-	m_screen.update();
+	m_screen.update(elapsed_ms);
 
 	return true;
 }
@@ -331,8 +327,7 @@ void World::next_level() {
 	if (!m_game_completed) {
 		if (m_current_level < MAX_LEVEL) {
             m_screen.new_level();
-            m_next_level_time = glfwGetTime();
-			// reset_game();
+            m_next_level_elapsed = 0.f;
 		} else if (m_current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;

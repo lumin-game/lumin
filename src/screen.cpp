@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-const float max_fade_time = 2.f;
+const float MAX_FADE_TIME = 1000.f;
 
 bool Screen::init() {
-	m_new_level_time = -1;
+	m_new_level_elapsed = -1;
 	m_new_level_fade = -1;
   	return render_screen();
 }
@@ -19,19 +19,17 @@ void Screen::destroy() {
 }
 
 void Screen::new_level() {
-	m_new_level_time = glfwGetTime();
+	m_new_level_elapsed = 0.f;
 }
 
-void Screen::update() {
-	if (m_new_level_time != -1) {
-		m_new_level_fade = (glfwGetTime() - m_new_level_time);
-		if (m_new_level_fade < max_fade_time) {
-			m_new_level_fade = std::min(m_new_level_fade, max_fade_time - m_new_level_fade);
-//			if (m_new_level_fade > max_fade_time / 2) {
-//				m_new_level_fade = 0.f - m_new_level_fade;
-//			}
+void Screen::update(float elapsed_ms) {
+	if (m_new_level_elapsed != -1) {
+		m_new_level_elapsed += elapsed_ms;
+        m_new_level_fade = m_new_level_elapsed;
+		if (m_new_level_elapsed < MAX_FADE_TIME) {
+			m_new_level_fade = std::min(m_new_level_fade, MAX_FADE_TIME - m_new_level_fade);
 		} else {
-			m_new_level_time = -1;
+			m_new_level_elapsed = -1;
 			m_new_level_fade = -1;
 		}
 	}
@@ -80,11 +78,11 @@ void Screen::draw_screen(){
 	// Set screen_texture sampling to texture unit 0
 	// Set clock
 	GLuint screen_text_uloc = glGetUniformLocation(effect.program, "screen_texture");
-	GLuint dead_timer_uloc = glGetUniformLocation(effect.program, "dead_timer");
+	GLuint dead_timer_uloc = glGetUniformLocation(effect.program, "new_level_timer");
 	GLuint should_darken_uloc = glGetUniformLocation(effect.program, "should_darken");
-	bool should_darken = m_new_level_fade > max_fade_time / 2;
+	bool should_darken = m_new_level_fade > MAX_FADE_TIME / 2;
 	glUniform1i(should_darken_uloc, should_darken);
-	glUniform1f(dead_timer_uloc, (m_new_level_fade > 0) ? (float)(m_new_level_fade * 10.0f) : -1);
+	glUniform1f(dead_timer_uloc, (m_new_level_fade > 0) ? (float)(m_new_level_fade * 0.021f) : -1);
 	glUniform1i(screen_text_uloc, 0);
 
 	// Draw the screen texture on the quad geometry
