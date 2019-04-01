@@ -22,6 +22,48 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#define MAX_LEVEL 11
+
+struct SaveState {
+    int current_level = 1;
+    int unlocked_levels = MAX_LEVEL;
+
+    bool save() {
+    	std::ofstream file;
+    	file.open("lumin.sav");
+    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels);
+    	file.close();
+    	return true;
+    }
+
+    bool load() {
+		std::ifstream in("lumin.sav");
+		if (!in) {
+			std::cerr << "Cannot open file. \n" << std::endl;
+			return false;
+		}
+
+		std::string line;
+		int i = 0;
+		while (std::getline(in, line)) {
+			switch (i) {
+				case 0:
+					current_level = std::stoi(line);
+					break;
+				case 1:
+					unlocked_levels = std::stoi(line);
+					break;
+				default:
+					break;
+			}
+
+			i += 1;
+		}
+
+		return true;
+    }
+};
+
 // Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class World
@@ -81,10 +123,7 @@ private:
 	RightTopMenu m_right_top_menu;
 	CurrentLevel m_current_level_top_menu;
 
-	int m_current_level;
-
-	// number of levels that user has unlocked
-	int m_unlocked_levels;
+	SaveState m_save_state;
 
 	// Game entities
 	Player m_player;
