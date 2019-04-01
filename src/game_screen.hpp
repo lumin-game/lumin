@@ -16,17 +16,18 @@ public:
 
 	void draw(const mat3& projection)override;
 
-	virtual void set_position(vec2 position, vec2 offset = { 0, 0 }) {
-		m_position = position + offset;
-	}
+	virtual void set_position(vec2 position, vec2 offset = { 0, 0 });
 
-	virtual const vec2 set_translation_scale() { return { 1.f, 1.f }; };
-	virtual const vec2 set_translation_position() { return { 0, 0 }; };
+	virtual void set_translation_scale();
+
+	virtual void set_translation_position(vec2 screen, bool is_left);
 
 	vec2 get_bounding_box()const;
 
+	vec2 calculate_position(vec2 screen, bool is_left);
+
 protected:
 	Texture screen_texture;
-	vec2 m_scale; // 1.f in each dimension. 1.f is as big as the associated texture
+	vec2 m_scale;
 	vec2 m_position;
 };

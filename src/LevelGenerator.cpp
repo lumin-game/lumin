@@ -121,7 +121,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                 auto entity = dynamicEntities.find(name);
 
                 if (entity == dynamicEntities.end()) {
-                    fprintf(stderr, "Couldn't create relationship for entity '%c'\n", name);
+                    fprintf(stderr, "Couldn't set property for entity '%c'\n", name);
                     continue;
                 }
 
@@ -129,8 +129,14 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                     continue;
                 }
 
+                // Switch property declaration
+                if (auto *s = dynamic_cast<Switch *>(entity->second)) {
+                   if (charVector[2] == 'T') {
+                       s->set_toggle_switch(true);
+                   }
+
                 // Moving platform movement declaration
-                if (MovableWall *mw = dynamic_cast<MovableWall*>(entity->second)) {
+				} else if (MovableWall *mw = dynamic_cast<MovableWall*>(entity->second)) {
 
                     if (dynamicEntityLocs.find(name) == dynamicEntityLocs.end())
                     {
@@ -283,6 +289,7 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
 	createdEntity.entity = level_entity;
 
 	outCreateEntities.push_back(createdEntity);
+    return true;
 }
 
 template <class TEntity>

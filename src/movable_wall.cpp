@@ -43,10 +43,28 @@ void MovableWall::set_movement_properties(
 
 void MovableWall::activate() {
 	if (can_move) {
+		if (is_moving) { // if it's currently moving it is going in reverse from being deactivated so it won't need to travel the entire distance
+			currentTime = (msToDestination - currentTime) + timeAtLastPoint;
+		}
 		is_moving = true;
+		isReversed = false;
 		currentTargetIndex = -1;
 		AdvanceToNextPoint();
 	}
+}
+
+void MovableWall::deactivate() {
+	if (can_move) {
+		if (is_moving) {
+			//we want the time since timeAtLastPoint to be the same as the time until it hits its current destination
+			// time until it hits its current destination: msToDestination - currentTime
+			currentTime = (msToDestination - currentTime) + timeAtLastPoint;
+		}
+		is_moving = true;
+		isReversed = true;
+		currentTargetIndex = 0;
+		AdvanceToNextPoint();
+		}
 }
 
 void MovableWall::AdvanceToNextPoint()
@@ -68,13 +86,17 @@ void MovableWall::AdvanceToNextPoint()
 	{
 		isReversed = false;
 		nextIndex = 0;
+
+		if (!movementLoops) {
+			is_moving = false;
+			return;
+		}
 	}
 	else if (nextIndex >= size)
 	{
 		if (!movementLoops)
 		{
 			is_moving = false;
-			can_move = false;
 			return;
 		}
 		else if (reverseWhenLooping)
