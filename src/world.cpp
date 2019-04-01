@@ -5,6 +5,7 @@
 #include "switch.hpp"
 
 const float NEXT_LEVEL_DELAY = 450.f;
+#define MAX_SKIPS 3
 #define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
@@ -94,6 +95,9 @@ bool World::init(vec2 screen) {
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
 
+	// TODO: render this on the top left screen as well
+	m_skips_allowed = 3;
+
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
 		m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
@@ -162,6 +166,9 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
+							if (m_skips_allowed <= MAX_SKIPS) {
+								m_skips_allowed++;
+							}
 							m_save_state.current_level = door->get_level_index();
 							next_level();
 							m_current_level_top_menu.update(m_save_state.current_level);
@@ -398,6 +405,13 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		}
 		else if (!m_paused && key == GLFW_KEY_R) {
 			reset_game();
+		}
+		else if (key == GLFW_KEY_N) {
+			if (m_skips_allowed > 0) {
+				m_save_state.current_level += 1;
+				m_skips_allowed--;
+				next_level();
+			}
 		}
 	}
 

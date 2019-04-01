@@ -108,6 +108,7 @@ private:
 
 private:
 	std::string m_load_level;
+	int m_skips_allowed;
 	// Window handle
 	GLFWwindow* m_window;
 
