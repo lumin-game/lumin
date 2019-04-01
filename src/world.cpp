@@ -4,8 +4,7 @@
 #include "door.hpp"
 #include "switch.hpp"
 
-// stlib
-
+#define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -439,7 +438,9 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		m_player.setLightMode(true);
+		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
+			m_player.setLightMode(true);
+		}
 	}
 
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
