@@ -16,6 +16,6 @@ public:
 	virtual void update(float ms) override;
 
 private:
-	bool isCollidable = false;
-	bool shouldBeCollidable = false;
+	bool isCollidable = true;
+	bool shouldBeCollidable = true;
 };
