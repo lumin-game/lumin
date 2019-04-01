@@ -421,11 +421,12 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			if (key == GLFW_KEY_ENTER) {
 				load_level_screen(stoi(m_load_level));
 			}
-			else if ((action == GLFW_PRESS) && ((key == GLFW_KEY_0)|| (key == GLFW_KEY_1) || (key == GLFW_KEY_2) || (key == GLFW_KEY_3) ||
-				(key == GLFW_KEY_4) || (key == GLFW_KEY_5) || (key == GLFW_KEY_6) || (key == GLFW_KEY_7) ||
-				(key == GLFW_KEY_8) || (key == GLFW_KEY_9)) ){
-
-				m_load_level += key;
+			else if (action == GLFW_PRESS) {
+				for (int i = GLFW_KEY_0; i < GLFW_KEY_0 + 10; i++) {
+					if (key == i) {
+						m_load_level += key;
+					}
+				}
 			}
 		}
   }
