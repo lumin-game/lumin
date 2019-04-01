@@ -136,7 +136,6 @@ private:
 	Player m_player;
 	std::vector<Entity*> m_entities;
 	Mix_Music* m_background_music;
-	Mix_Chunk* m_light_selection_sound;
 
 	// C++ rng
 	std::default_random_engine m_rng;
