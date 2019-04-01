@@ -274,6 +274,7 @@ void World::draw() {
 	}
 
 	if (m_game_completed) {
+		m_draw_w = false;
 		m_end_screen.draw(menu_projection_2D);
 	}
 	m_right_top_menu.draw(menu_projection_2D);
@@ -382,6 +383,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
 			m_should_load_level_screen = !m_should_load_level_screen;
+			m_load_level = "";
 			m_paused = false;
 		}
 		else if (key == GLFW_KEY_L) {
@@ -416,9 +418,14 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		if (key == GLFW_KEY_T) {
 			load_level_screen(-1);
 		} else {
-			for (int i = GLFW_KEY_1; i <= GLFW_KEY_1 + MAX_LEVEL; i++){
-				if (key == i) {
-					load_level_screen(i - GLFW_KEY_1 + 1);
+			if (key == GLFW_KEY_ENTER) {
+				load_level_screen(stoi(m_load_level));
+			}
+			else if (action == GLFW_PRESS) {
+				for (int i = GLFW_KEY_0; i < GLFW_KEY_0 + 10; i++) {
+					if (key == i) {
+						m_load_level += key;
+					}
 				}
 			}
 		}
@@ -444,7 +451,7 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 }
 
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
-{
+{ 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
