@@ -66,6 +66,8 @@ public:
 	// Return true if they are
 	bool BoxCollide(vec2 box1Pos, vec2 box1Bound, vec2 box2Pos, vec2 box2Bound) const;
 
+	bool BoxCollideWithPlayer(vec2 boxPos, vec2 boxBound) const;
+
 	// Returns the relevant equations for light calculations for a light source at pos with radius
 	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
 
@@ -87,9 +89,6 @@ private:
 	// Game entities : Light collision equations
 	std::map<const Entity*, const ParametricLines> staticLightCollisionLines;
 	std::map<const Entity*, const ParametricLines> dynamicLightCollisionLines;
-
-	// List of box entities that have collision
-	std::vector<Entity*> collisionEntities;
 	
 	// Ptr to player, we can keep our position this way. Const as we should never change it.
 	Player* player;

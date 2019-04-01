@@ -54,10 +54,6 @@ void CollisionManager::RegisterEntity(Entity* entity)
 	{
 		staticLightCollisionLines.emplace(entity, entity->calculate_static_equations());
 	}
-	if (entity->is_player_collidable())
-	{
-		collisionEntities.push_back(entity);
-	}
 }
 
 void CollisionManager::UnregisterEntity(Entity* entity)
@@ -66,14 +62,6 @@ void CollisionManager::UnregisterEntity(Entity* entity)
 
 	staticLightCollisionLines.erase(entity);
 	dynamicLightCollisionLines.erase(entity);
-	for (auto iter = collisionEntities.begin(); iter != collisionEntities.end(); ++iter)
-	{
-		if (*iter == entity)
-		{
-			collisionEntities.erase(iter);
-			break;
-		}
-	}
 }
 
 bool CollisionManager::CollidesWithPlayer(vec2 boxPosition, vec2 boxBound, vec2 boxDisplacement, CollisionResult& outResult) const
@@ -145,8 +133,13 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 	CollisionResult collisionResults;
 	collisionResults.resultXPos = xPos + xDist;
 	collisionResults.resultYPos = yPos + yDist;
-	for (Entity* entity : collisionEntities)
+	for (Entity* entity : registeredEntities)
 	{
+		if (!entity->is_player_collidable())
+		{
+			continue;
+		}
+
 		// Center-to-center distance between two boxes
 		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
 		float distanceY = std::fabs(entity->get_position().y - yPos - yDist);
@@ -211,6 +204,16 @@ bool CollisionManager::BoxCollide(vec2 box1Pos, vec2 box1Bound, vec2 box2Pos, ve
 	float yMargin = (box1Bound.y + box2Bound.y) / 2;
 
 	return distanceX < xMargin && distanceY < yMargin;
+}
+
+bool CollisionManager::BoxCollideWithPlayer(vec2 boxPos, vec2 boxBound) const
+{
+	if (!player)
+	{
+		return false;
+	}
+
+	return BoxCollide(player->get_position(), player->getPlayerDimensions(), boxPos, boxBound);
 }
 
 const ParametricLines CollisionManager::CalculateLightEquations(float xPos, float yPos, float lightRadius) const
