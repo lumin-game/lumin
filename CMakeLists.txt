@@ -42,6 +42,7 @@ set(SOURCE_FILES
         src/game_screen.cpp
         src/level_unlocked_sparkle.cpp
         src/current_level.cpp
+        src/press_w.cpp
         src/screen.cpp
         src/world.cpp
         src/CollisionManager.cpp
@@ -51,6 +52,8 @@ set(SOURCE_FILES
 		src/LevelGenerator.cpp
         src/lantern.cpp
 		src/fog.cpp
+		src/LightWall.cpp
+		src/DarkWall.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -71,6 +74,7 @@ set(SOURCE_FILES
         src/current_level.hpp
         src/right_top_menu.hpp
         src/left_top_menu.hpp
+        src/press_w.hpp
         src/screen.hpp
         src/world.hpp
         src/CollisionManager.hpp
@@ -78,7 +82,9 @@ set(SOURCE_FILES
         src/firefly.hpp
         src/door.hpp
         src/LevelGenerator.hpp
-        src/lantern.hpp)
+        src/lantern.hpp
+		src/LightWall.hpp
+		src/DarkWall.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

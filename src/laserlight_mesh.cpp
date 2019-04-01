@@ -220,10 +220,7 @@ int LaserLightMesh::UpdateVertices()
 				vec2 collisionLocation;
 				if (colManager.LinesCollide(rayTrace, boundLine, collisionLocation))
 				{
-					if (entityLine.entity->activated_by_light())
-					{
 						entityLine.entity->set_lit(true);
-					}
 				}
 			}
 		}

@@ -10,7 +10,7 @@ bool GameScreen::init(vec2 screen) {
 	// Make the size slightly larger then the screen to crop the boundary
     if (!screen_texture.load_from_file(get_texture_path()))
     {
-      fprintf(stderr, "Failed to load level screen texture!");
+      fprintf(stderr, "Failed to load game screen texture!");
       return false;
     }
 
@@ -54,7 +54,6 @@ bool GameScreen::init(vec2 screen) {
     return false;
   set_translation_scale();
   set_translation_position(screen, true);
-
   return true;
 }
 

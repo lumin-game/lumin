@@ -8,6 +8,8 @@
 #include "glass.hpp"
 #include "fog.hpp"
 #include "lantern.hpp"
+#include "LightWall.hpp"
+#include "DarkWall.hpp"
 
 #include <iostream>
 #include <string.h>
@@ -68,7 +70,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                         entity = new Door();
                         // Make default state of door open; if we later link it to a switch,
                         // we turn its default state to off as part of the linking process.
-                        entity->set_lit(true);
+                        entity->activate();
                         break;
                     case '@':
                         entity = new Lantern();
@@ -111,7 +113,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
 
                 // Door logic!
                 if (Door *door = dynamic_cast<Door *>(entity2->second)) {
-                    door->set_lit(false);
+                    door->deactivate();
                 }
 
             }
@@ -260,10 +262,10 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
             level_entity = createTile<Glass>(x_pos, y_pos);
             break;
         case DARKWALL:
-            // TODO: add dark wall entity
-            break;
+			level_entity = createTile<DarkWall>(x_pos, y_pos);
+			break;
         case LIGHTWALL:
-            // TODO: add light wall entity
+			level_entity = createTile<LightWall>(x_pos, y_pos);
             break;
         case FOG:
             level_entity = createTile<Fog>(x_pos, y_pos);
