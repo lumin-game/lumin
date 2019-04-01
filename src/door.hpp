@@ -8,13 +8,15 @@ public:
     const char* get_texture_path() const override { return textures_path("door_closed.png"); }
     const char* get_lit_texture_path() const override { return textures_path("door_open.png"); }
 
+    bool init(float x_pos, float y_pos) override;
+
     // Light up the door when it's activated (likely by a linked switch)
 	void activate() override { is_open = true; }
 	void deactivate() override { is_open = false; }
 	void draw(const mat3& projection) override;
 
-	bool alwaysRender() { return true; }
-	bool activated_by_light() const { return false; }
+	bool alwaysRender() override { return true; }
+	bool activated_by_light() const override { return false; }
 
     bool is_player_inside(Player* player_pos);
 	int get_level_index();

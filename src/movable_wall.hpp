@@ -22,7 +22,7 @@ public:
 	ParametricLines calculate_static_equations() const override;
 	ParametricLines calculate_dynamic_equations() const override;
 
-	virtual bool activated_by_light() const { return false; }
+	virtual bool activated_by_light() const override { return false; }
 
 	vec2 get_velocity();
 

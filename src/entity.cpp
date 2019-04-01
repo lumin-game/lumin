@@ -69,6 +69,8 @@ bool Entity::init(float x_pos, float y_pos) {
 
 	m_entity_sound = Mix_LoadWAV(get_audio_path());
 
+	darkness_modifier = 1.f;
+
 	if (get_audio_path() != nullptr && m_entity_sound == nullptr) {
 		fprintf(stderr, "Failed to load audio file!");
 		return false;
@@ -111,13 +113,24 @@ void Entity::UpdateHitByLight()
 }
 
 void Entity::update(float elapsed_ms) {
+	const float LIGHTING_TRANSITION_SPEED = 0.0025f;
+	const float MINIMUM_BRIGHTNESS = 0.3f;
+
+	if (!get_lit()) {
+		darkness_modifier -= LIGHTING_TRANSITION_SPEED*elapsed_ms;
+		if (darkness_modifier < MINIMUM_BRIGHTNESS) {
+			darkness_modifier = MINIMUM_BRIGHTNESS;
+		}
+	}
+	else {
+		darkness_modifier += LIGHTING_TRANSITION_SPEED*elapsed_ms;
+		if (darkness_modifier > 1) {
+			darkness_modifier = 1.f;
+		}
+	}
 }
 
 void Entity::draw(const mat3& projection) {
-	if (!alwaysRender() && !get_lit())
-	{
-		return;
-	}
 
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
@@ -158,7 +171,8 @@ void Entity::draw(const mat3& projection) {
 	// Setting uniform values to the currently bound program
 	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
 	EntityColor color = get_color();
-	float fvColor[4] = { color.r, color.g, color.b, color.a };
+	float fvColor[4] = { color.r*darkness_modifier, color.g*darkness_modifier, color.b*darkness_modifier, color.a };
+
 	glUniform4fv(color_uloc, 1, fvColor);
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 

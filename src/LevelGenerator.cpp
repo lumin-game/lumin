@@ -8,6 +8,8 @@
 #include "glass.hpp"
 #include "fog.hpp"
 #include "lantern.hpp"
+#include "LightWall.hpp"
+#include "DarkWall.hpp"
 
 #include <iostream>
 #include <string.h>
@@ -260,10 +262,10 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
             level_entity = createTile<Glass>(x_pos, y_pos);
             break;
         case DARKWALL:
-            // TODO: add dark wall entity
-            break;
+			level_entity = createTile<DarkWall>(x_pos, y_pos);
+			break;
         case LIGHTWALL:
-            // TODO: add light wall entity
+			level_entity = createTile<LightWall>(x_pos, y_pos);
             break;
         case FOG:
             level_entity = createTile<Fog>(x_pos, y_pos);
@@ -289,6 +291,7 @@ bool LevelGenerator::add_tile(int x_pos, int y_pos, StaticTile tile, Player& out
 	createdEntity.entity = level_entity;
 
 	outCreateEntities.push_back(createdEntity);
+    return true;
 }
 
 template <class TEntity>

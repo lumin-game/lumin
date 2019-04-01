@@ -5,7 +5,7 @@
 class CurrentLevel : public Renderable
 {
 public:
-	bool init(vec2 screen);
+	bool init(vec2 screen, vec2 offset);
 
 	void destroy();
 
@@ -25,8 +25,9 @@ public:
 private:
   TexturedVertex vertices[4];
 	static Texture current_level_texture;
-	static const int TOTAL_LEVELS = 10;
-	vec2 m_scale;
+	// TODO: modify this value once we know the total number of levels
+	static const int TOTAL_LEVELS = 15;
+	vec2 m_scale = { 0.11, 0.11 };
 	vec2 m_position;
 	int m_current_level;
 };
