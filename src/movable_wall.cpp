@@ -147,6 +147,12 @@ void MovableWall::update(float ms) {
 		float y_dist = move_dest_Y - pos.y;
 
 		float dest_distance = sqrt((x_dist*x_dist) + (y_dist*y_dist));
+
+		if (dest_distance == 0)
+		{
+			return;
+		}
+
 		float x_normalized = x_dist / dest_distance;
 		float y_normalized = y_dist / dest_distance;
 
