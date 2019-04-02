@@ -159,7 +159,7 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-		if (m_save_state.current_level == LASER_UNLOCK) {
+		if (m_save_state.current_level == LASER_UNLOCK + 1) {
 			if (m_display_laser_screen_elapsed > 0) {
 				m_show_laser_screen = true;
 				m_display_laser_screen_elapsed--;
