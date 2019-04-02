@@ -69,6 +69,7 @@ set(SOURCE_FILES
         src/level_screen.hpp
 		src/game_screen.hpp
         src/pause_screen.hpp
+        src/laser_screen.hpp
 		src/end_screen.hpp
         src/level_unlocked_sparkle.hpp
         src/current_level.hpp
