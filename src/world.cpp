@@ -84,10 +84,13 @@ bool World::init(vec2 screen) {
 	m_game_completed = false;
 	m_interact = false;
 	m_draw_w = false;
+	m_show_laser_screen = false;
+	m_display_laser_screen_elapsed = 250.f;
 	m_screen_size = screen;
 
 	m_level_screen.init(screen);
 	m_pause_screen.init(screen);
+	m_laser_screen.init(screen);
 	m_right_top_menu.init(screen);
 	m_left_top_menu.init(screen);
 	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
@@ -141,6 +144,7 @@ void World::destroy()
 	m_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
+	m_laser_screen.destroy();
 	m_right_top_menu.destroy();
 	m_left_top_menu.destroy();
 	m_current_level_top_menu.destroy();
@@ -155,6 +159,18 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
+		if (m_save_state.current_level == LASER_UNLOCK + 1) {
+			if (m_display_laser_screen_elapsed > 0) {
+				m_show_laser_screen = true;
+				m_display_laser_screen_elapsed--;
+			}
+			if (m_display_laser_screen_elapsed == 0) {
+				m_show_laser_screen = false;
+			}
+		} else {
+			// reset m_display_laser_screen_elapsed time so that laser splash screen shows up again (after switching levels)
+			m_display_laser_screen_elapsed = 250.f;
+		}
 		// First move the world (entities)
 		for (auto entity : m_entities) {
 			entity->update(elapsed_ms);
@@ -254,6 +270,9 @@ void World::draw() {
 
 	/////////////////////
 	// Truly render to the screen
+	if (m_show_laser_screen) {
+		m_laser_screen.draw(menu_projection_2D);
+	}
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
@@ -352,7 +371,7 @@ void World::next_level() {
 	if (!m_game_completed) {
 		if (m_save_state.current_level < MAX_LEVEL) {
 			m_screen.new_level();
-            m_next_level_elapsed = 0.f;
+      m_next_level_elapsed = 0.f;
 		} else if (m_save_state.current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
