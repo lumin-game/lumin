@@ -85,7 +85,7 @@ bool World::init(vec2 screen) {
 	m_interact = false;
 	m_draw_w = false;
 	m_show_laser_screen = false;
-	m_display_laser_screen_elapsed = 300.f;
+	m_display_laser_screen_elapsed = 250.f;
 	m_screen_size = screen;
 
 	m_level_screen.init(screen);
@@ -161,12 +161,15 @@ bool World::update(float elapsed_ms) {
 	if (!m_paused) {
 		if (m_save_state.current_level == LASER_UNLOCK) {
 			if (m_display_laser_screen_elapsed > 0) {
+				m_show_laser_screen = true;
 				m_display_laser_screen_elapsed--;
 			}
-			m_show_laser_screen = true;
-			if (m_display_laser_screen_elapsed == 0){
+			if (m_display_laser_screen_elapsed == 0) {
 				m_show_laser_screen = false;
 			}
+		} else {
+			// reset m_display_laser_screen_elapsed time so that laser splash screen shows up again (after switching levels)
+			m_display_laser_screen_elapsed = 250.f;
 		}
 		// First move the world (entities)
 		for (auto entity : m_entities) {
