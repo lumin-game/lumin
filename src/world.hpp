@@ -27,7 +27,7 @@
 #include <ctime>
 #include <string>
 
-#define MAX_LEVEL 14
+#define MAX_LEVEL 15
 
 struct SaveState {
     int current_level = 1;
