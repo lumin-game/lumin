@@ -236,7 +236,7 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                     hint_path.push_back(charVector[3]);
                     hint_path.push_back(charVector[4]);
                     hint_path += ".png";
-                    hint->setHintPath(hint_path);
+                    hint->set_hint_path(hint_path);
                 }
             }
             else {
