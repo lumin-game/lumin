@@ -86,7 +86,8 @@ set(SOURCE_FILES
         src/lantern.hpp
 		src/LightWall.hpp
 		src/DarkWall.hpp
-        src/hint.hpp src/hint.cpp)
+		src/hint.hpp
+		src/hint.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
