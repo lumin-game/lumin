@@ -54,6 +54,7 @@ set(SOURCE_FILES
 		src/fog.cpp
 		src/LightWall.cpp
 		src/DarkWall.cpp
+		src/hint.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -86,8 +87,7 @@ set(SOURCE_FILES
         src/lantern.hpp
 		src/LightWall.hpp
 		src/DarkWall.hpp
-		src/hint.hpp
-		src/hint.cpp)
+		src/hint.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
