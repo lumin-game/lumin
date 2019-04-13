@@ -85,7 +85,7 @@ set(SOURCE_FILES
         src/LevelGenerator.hpp
         src/lantern.hpp
 		src/LightWall.hpp
-		src/DarkWall.hpp)
+		src/DarkWall.hpp src/hint.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)

@@ -10,6 +10,7 @@
 #include "lantern.hpp"
 #include "LightWall.hpp"
 #include "DarkWall.hpp"
+#include "hint.hpp"
 
 #include <iostream>
 #include <string.h>
@@ -74,6 +75,9 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
                         break;
                     case '@':
                         entity = new Lantern();
+                        break;
+                    case '!':
+                        entity = new Hint();
                         break;
 
                     default:
@@ -219,16 +223,21 @@ void LevelGenerator::create_current_level(int level, Player& outPlayer, std::vec
 
                     // TODO: map different movement types to the 4th character in the declaration
                     mw->set_movement_properties(shouldCurve, blockLocations, blockCurves, 0.2, moveImmediate, loopMovement, reverseOnLoop);
-                }
-
-				if (Door *door = dynamic_cast<Door *>(entity->second)) {
+                } else if (Door *door = dynamic_cast<Door *>(entity->second)) {
 					int level = 0;
 					for (int i = 2; i < 4; i++) {
 						level *= 10;
 						level += charVector[i] - '0';
 					}
 					door->set_level_index(level);
-				}
+				} else if (Hint *hint = dynamic_cast<Hint *>(entity->second)) {
+                    std::string hint_path;
+                    hint_path.push_back(charVector[2]);
+                    hint_path.push_back(charVector[3]);
+                    hint_path.push_back(charVector[4]);
+                    hint_path += ".png";
+                    hint->setHintPath(hint_path);
+                }
             }
             else {
                 // Keep track of dynamic dynamicEntities
