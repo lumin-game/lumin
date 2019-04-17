@@ -160,7 +160,7 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-		if (m_save_state.current_level == LASER_UNLOCK + 1) {
+		if (m_save_state.current_level == LASER_UNLOCK) {
 			if (m_display_laser_screen_elapsed > 0) {
 				m_show_laser_screen = true;
 				m_display_laser_screen_elapsed--;
@@ -284,12 +284,12 @@ void World::draw() {
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
-		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
-		initial_pos.y = m_player.get_position().y - 20;
+		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 365;
+		initial_pos.y = m_player.get_position().y - 175;
 		// Offset is the distance calculated between each level boxes
-		float offset = 225;
+		float offset = 1200 / 9;
 		// There are 4 boxes per row right now
-		int num_col = 4;
+		int num_col = 5;
 		for (int i = 0; i < m_save_state.unlocked_levels; ++i) {
 			int x = i % num_col;
 			int y = i / num_col;
