@@ -11,12 +11,19 @@ public:
     bool init(float x_pos, float y_pos) override;
 
     // Light up the door when it's activated (likely by a linked switch)
-	void activate() override { is_open = true; }
+	void activate() override {
+		if (!is_open) {
+			Mix_PlayChannel(-1, get_sound(), 0);
+		}
+		is_open = true;
+	}
 	void deactivate() override { is_open = false; }
 	void draw(const mat3& projection) override;
 
 	bool alwaysRender() override { return true; }
 	bool activated_by_light() const override { return false; }
+
+	const char* get_audio_path() const override { return audio_path("open_door.wav"); }
 
     bool is_player_inside(Player* player_pos);
 	int get_level_index();
