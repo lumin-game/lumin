@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include "LightBeam.hpp"
 
 class Switch : public Entity {
 public:
@@ -20,7 +21,12 @@ public:
 	void activate() override;
 	void deactivate() override;
 
+	void update(float ms) override;
+	void draw(const mat3& projection) override;
+
+
 	void set_toggle_switch(bool isToggle);
 private:
 	bool mToggleSwitch = false;
+	std::vector<LightBeam*> light_beams;
 };
