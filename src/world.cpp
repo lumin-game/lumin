@@ -222,7 +222,6 @@ bool World::update(float elapsed_ms) {
 }
 
 mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
-
 	float left = player_pos.x - (float)w / retinaScale / 2;
 	float top = player_pos.y - (float)h / retinaScale / 2;
 	float right = player_pos.x + (float)w / retinaScale / 2;
@@ -232,8 +231,6 @@ mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_
 	float sy = 1.6f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
-
-	float scale = 0.75f;
 
 	return { { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 }
@@ -248,10 +245,13 @@ void World::draw() {
 	int w, h;
 	glfwGetFramebufferSize(m_window, &w, &h);
 
+	float scaled_width = w * SCREEN_SCALE;
+	float scaled_height = h * SCREEN_SCALE;
+
 	// Check for discrepancy between window/frame buffer (high DPI display)
 	int ww, hh;	
 	glfwGetWindowSize(m_window, &ww, &hh);
-	auto retinaScale = (float) (w / ww);
+	auto retinaScale = (float) (scaled_width / ww);
 
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
@@ -263,8 +263,6 @@ void World::draw() {
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	float scaled_width = w * SCREEN_SCALE;
-	float scaled_height = h * SCREEN_SCALE;
 	mat3 projection_2D = draw_projection_matrix(scaled_width, scaled_height, retinaScale, m_player.get_position());
 
 	for (Entity* entity : m_entities) {
@@ -276,10 +274,7 @@ void World::draw() {
 	}
 
 	m_player.draw(projection_2D);
-
-	scaled_width = w / SCREEN_SCALE;
-	scaled_height = h / SCREEN_SCALE;
-	mat3 menu_projection_2D = draw_projection_matrix(scaled_width, scaled_height, retinaScale, { 0, 0 });
+	mat3 menu_projection_2D = draw_projection_matrix(w, h, retinaScale, { 0, 0 });
 
 	/////////////////////
 	// Truly render to the screen
