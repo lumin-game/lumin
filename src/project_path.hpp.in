@@ -1,0 +1,5 @@
+#pragma once
+
+// Please don't change the content of this header
+
+#cmakedefine PROJECT_SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@/"
