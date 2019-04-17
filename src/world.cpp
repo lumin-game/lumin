@@ -222,13 +222,17 @@ bool World::update(float elapsed_ms) {
 }
 
 mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
-	float left = player_pos.x - (float)w / retinaScale / 2;
-	float top = player_pos.y - (float)h / retinaScale / 2;
-	float right = player_pos.x + (float)w / retinaScale / 2;
-	float bottom =  player_pos.y + (float)h / retinaScale / 2;
 
-	float sx = 1.6f / (right - left);
-	float sy = 1.6f / (top - bottom);
+	float scaled_width = w * SCREEN_SCALE;
+	float scaled_height = h * SCREEN_SCALE;
+
+	float left = player_pos.x - scaled_width / retinaScale / 2;
+	float top = player_pos.y - scaled_height / retinaScale / 2;
+	float right = player_pos.x + scaled_width / retinaScale / 2;
+	float bottom =  player_pos.y + scaled_height / retinaScale / 2;
+
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 
@@ -245,13 +249,10 @@ void World::draw() {
 	int w, h;
 	glfwGetFramebufferSize(m_window, &w, &h);
 
-	float scaled_width = w * SCREEN_SCALE;
-	float scaled_height = h * SCREEN_SCALE;
-
 	// Check for discrepancy between window/frame buffer (high DPI display)
 	int ww, hh;	
 	glfwGetWindowSize(m_window, &ww, &hh);
-	auto retinaScale = (float) (scaled_width / ww);
+	auto retinaScale = (float) (w / ww);
 
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
@@ -263,7 +264,7 @@ void World::draw() {
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	mat3 projection_2D = draw_projection_matrix(scaled_width, scaled_height, retinaScale, m_player.get_position());
+	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
 	for (Entity* entity : m_entities) {
 		entity->predraw();
@@ -274,7 +275,10 @@ void World::draw() {
 	}
 
 	m_player.draw(projection_2D);
-	mat3 menu_projection_2D = draw_projection_matrix(w, h, retinaScale, { 0, 0 });
+
+	float scaled_width = w / SCREEN_SCALE;
+	float scaled_height = h / SCREEN_SCALE;
+	mat3 menu_projection_2D = draw_projection_matrix(scaled_width, scaled_height, retinaScale, { 0, 0 });
 
 	/////////////////////
 	// Truly render to the screen
@@ -284,7 +288,7 @@ void World::draw() {
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
-		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
+		initial_pos.x = m_player.get_position().x - ( w / retinaScale / 2) + 300;
 		initial_pos.y = m_player.get_position().y - 20;
 		// Offset is the distance calculated between each level boxes
 		float offset = 225;
