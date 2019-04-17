@@ -64,7 +64,7 @@ void MovableWall::deactivate() {
 		isReversed = true;
 		currentTargetIndex = 0;
 		AdvanceToNextPoint();
-		}
+	}
 }
 
 void MovableWall::AdvanceToNextPoint()
