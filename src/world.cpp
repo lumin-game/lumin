@@ -5,6 +5,7 @@
 #include "switch.hpp"
 
 const float NEXT_LEVEL_DELAY = 450.f;
+const float SCREEN_SCALE = 1.2f;
 #define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
@@ -218,10 +219,13 @@ bool World::update(float elapsed_ms) {
 }
 
 mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
-	float left = player_pos.x - (float) w / retinaScale / 2;
-	float top = player_pos.y - (float) h / retinaScale / 2;
-	float right = player_pos.x + (float) w / retinaScale / 2;
-	float bottom = player_pos.y + (float) h / retinaScale / 2;
+	float scaled_width = w * SCREEN_SCALE;
+	float scaled_height = h * SCREEN_SCALE;
+
+	float left = player_pos.x - scaled_width / retinaScale / 2;
+	float top = player_pos.y - scaled_height / retinaScale / 2;
+	float right = player_pos.x + scaled_width / retinaScale / 2;
+	float bottom = player_pos.y + scaled_height / retinaScale / 2;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
@@ -258,8 +262,6 @@ void World::draw() {
 
 	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
-	m_player.draw(projection_2D);
-
 	for (Entity* entity : m_entities) {
 		entity->predraw();
 	}
@@ -269,7 +271,10 @@ void World::draw() {
 	}
 
 	m_player.draw(projection_2D);
-	mat3 menu_projection_2D = draw_projection_matrix(w, h, retinaScale, { 0, 0 });
+
+	float scaled_width = w / SCREEN_SCALE;
+	float scaled_height = h / SCREEN_SCALE;
+	mat3 menu_projection_2D = draw_projection_matrix(scaled_width, scaled_height, retinaScale, { 0, 0 });
 
 	/////////////////////
 	// Truly render to the screen
