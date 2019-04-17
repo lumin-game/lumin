@@ -28,15 +28,17 @@
 #include <string>
 
 #define MAX_LEVEL 15
+#define MAX_SKIPS 3
 
 struct SaveState {
     int current_level = 1;
     int unlocked_levels = MAX_LEVEL;
+	int skips_allowed = MAX_SKIPS;
 
     bool save() {
     	std::ofstream file;
     	file.open("lumin.sav");
-    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels);
+    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels) << "\n" << std::to_string(skips_allowed);
     	file.close();
     	return true;
     }
@@ -58,7 +60,8 @@ struct SaveState {
 				case 1:
 					unlocked_levels = std::stoi(line);
 					break;
-				default:
+				case 2:
+					skips_allowed = std::stoi(line);
 					break;
 			}
 
@@ -108,7 +111,6 @@ private:
 
 private:
 	std::string m_load_level;
-	int m_skips_allowed;
 	// Window handle
 	GLFWwindow* m_window;
 

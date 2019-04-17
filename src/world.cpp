@@ -5,7 +5,6 @@
 #include "switch.hpp"
 
 const float NEXT_LEVEL_DELAY = 450.f;
-#define MAX_SKIPS 3
 #define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
@@ -99,9 +98,6 @@ bool World::init(vec2 screen) {
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
 
-	// TODO: render this on the top left screen as well
-	m_skips_allowed = 3;
-
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
 		m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
@@ -183,8 +179,8 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							if (m_skips_allowed <= MAX_SKIPS) {
-								m_skips_allowed++;
+							if (m_save_state.skips_allowed <= MAX_SKIPS) {
+								m_save_state.skips_allowed++;
 							}
 							m_save_state.current_level = door->get_level_index();
 							next_level();
@@ -394,15 +390,15 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 	// HANDLE PLAYER MOVEMENT HERE
 	// key is of 'type' GLFW_KEY_
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_W) {
+		if (key == GLFW_KEY_W || key == GLFW_KEY_UP) {
 			m_player.setJumpPressed(true);
 			m_interact = true;
 		}
-		else if (key == GLFW_KEY_A) {
+		else if (key == GLFW_KEY_A || key == GLFW_KEY_LEFT) {
 			m_player.setRightPressed(false);
 			m_player.setLeftPressed(true);
 		}
-		else if (key == GLFW_KEY_D) {
+		else if (key == GLFW_KEY_D || key == GLFW_KEY_RIGHT) {
 			m_player.setLeftPressed(false);
 			m_player.setRightPressed(true);
 		}
@@ -427,23 +423,23 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			reset_game();
 		}
 		else if (key == GLFW_KEY_N) {
-			if (m_skips_allowed > 0) {
+			if (m_save_state.skips_allowed > 0) {
 				m_save_state.current_level += 1;
-				m_skips_allowed--;
+				m_save_state.skips_allowed--;
 				next_level();
 			}
 		}
 	}
 
 	if (action == GLFW_RELEASE) {
-		if (key == GLFW_KEY_W) {
+		if (key == GLFW_KEY_W || key == GLFW_KEY_UP) {
 			m_player.setJumpPressed(false);
 			m_interact = false;
 		}
-		else if (key == GLFW_KEY_A) {
+		else if (key == GLFW_KEY_A || key == GLFW_KEY_LEFT) {
 			m_player.setLeftPressed(false);
 		}
-		else if (key == GLFW_KEY_D) {
+		else if (key == GLFW_KEY_D || key == GLFW_KEY_RIGHT) {
 			m_player.setRightPressed(false);
 		}
 	}
