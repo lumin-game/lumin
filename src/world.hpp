@@ -5,11 +5,13 @@
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"
-#include "level_screen.hpp"
+#include "game-screens/level_screen.hpp"
 #include "pause_screen.hpp"
-#include "laser_screen.hpp"
-#include "end_screen.hpp"
-#include "level_unlocked_sparkle.hpp"
+#include "game-screens/laser_screen.hpp"
+#include "game-screens/end_screen.hpp"
+#include "game-screens/load_game_screen.hpp"
+#include "game-screens/new_game_screen.hpp"
+#include "game-screens/level_unlocked_sparkle.hpp"
 #include "right_top_menu.hpp"
 #include "left_top_menu.hpp"
 #include "current_level.hpp"
@@ -128,6 +130,8 @@ private:
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
 	LaserScreen m_laser_screen;
+	LoadGameScreen m_load_game_screen;
+	NewGameScreen m_new_game_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 	LeftTopMenu m_left_top_menu;
 	RightTopMenu m_right_top_menu;
@@ -152,6 +156,7 @@ private:
 	bool m_interact;
 	bool m_draw_w;
 	bool m_show_laser_screen;
+	bool m_should_game_start_screen;
 	float m_display_laser_screen_elapsed;
 
 	vec2 m_w_position;

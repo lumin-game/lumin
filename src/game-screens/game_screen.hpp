@@ -22,6 +22,8 @@ public:
 
 	virtual void set_translation_position(vec2 screen, bool is_left);
 
+	void on_click();
+
 	vec2 get_bounding_box()const;
 
 	vec2 calculate_position(vec2 screen, bool is_left);

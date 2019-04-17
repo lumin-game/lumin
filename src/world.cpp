@@ -80,6 +80,7 @@ bool World::init(vec2 screen) {
 	m_next_level_elapsed = -1;
 	m_save_state = SaveState{};
 
+	m_should_game_start_screen = true;
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
@@ -89,6 +90,8 @@ bool World::init(vec2 screen) {
 	m_display_laser_screen_elapsed = 250.f;
 	m_screen_size = screen;
 
+	m_load_game_screen.init(screen);
+	m_new_game_screen.init(screen);
 	m_level_screen.init(screen);
 	m_pause_screen.init(screen);
 	m_laser_screen.init(screen);
@@ -143,6 +146,8 @@ void World::destroy()
 
 	m_player.destroy();
 	m_screen.destroy();
+	m_load_game_screen.destroy();
+	m_new_game_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
 	m_laser_screen.destroy();
@@ -278,6 +283,13 @@ void World::draw() {
 
 	/////////////////////
 	// Truly render to the screen
+	if (m_should_game_start_screen) {
+		if (m_save_state.load()) {
+			m_load_game_screen.draw(menu_projection_2D);
+		} else {
+		    m_new_game_screen.draw(menu_projection_2D);
+		}
+	}
 	if (m_show_laser_screen) {
 		m_laser_screen.draw(menu_projection_2D);
 	}
@@ -495,6 +507,8 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	{
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 			m_player.setLightMode(!m_player.getLightMode());
+		} else if (m_should_load_level_screen) {
+
 		}
 		// vec2 initial_pos = { 258, 171 };
 		vec2 initial_pos = { 261, 171 };
