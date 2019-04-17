@@ -5,6 +5,7 @@
 #include "switch.hpp"
 
 const float NEXT_LEVEL_DELAY = 450.f;
+const float SCREEN_SCALE = 1.2f;
 #define LASER_UNLOCK 10
 
 // Same as static in c, local to compilation unit
@@ -93,6 +94,7 @@ bool World::init(vec2 screen) {
 	m_current_level_top_menu.init(screen, m_left_top_menu.get_bounding_box());
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
+
 
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
@@ -202,10 +204,13 @@ bool World::update(float elapsed_ms) {
 }
 
 mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_pos){
-	float left = player_pos.x - (float) w / retinaScale / 2;
-	float top = player_pos.y - (float) h / retinaScale / 2;
-	float right = player_pos.x + (float) w / retinaScale / 2;
-	float bottom =  player_pos.y + (float) h / retinaScale / 2;
+	float scaled_width = w * SCREEN_SCALE;
+	float scaled_height = h * SCREEN_SCALE;
+
+	float left = player_pos.x - scaled_width / retinaScale / 2;
+	float top = player_pos.y - scaled_height / retinaScale / 2;
+	float right = player_pos.x + scaled_width / retinaScale / 2;
+	float bottom =  player_pos.y + scaled_height / retinaScale / 2;
 
 	float sx = 1.6f / (right - left);
 	float sy = 1.6f / (top - bottom);
