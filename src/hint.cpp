@@ -9,8 +9,8 @@ void Hint::set_hint_path(const std::string &hint_path) {
     texture = &lit_texture;
 
     // Resize and reposition texture
-    float wr = texture->width * 0.5f;
-    float hr = texture->height * 0.5f;
+    float wr = texture->width;
+    float hr = texture->height;
 
     TexturedVertex vertices[4];
     vertices[0].position = { -wr, +hr, -0.02f };

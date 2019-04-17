@@ -19,6 +19,7 @@ public:
 
 	void activate() override;
 	void deactivate() override;
+	void reset();
 
 	void set_toggle_switch(bool isToggle);
 private:
