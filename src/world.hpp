@@ -7,6 +7,7 @@
 #include "screen.hpp"
 #include "level_screen.hpp"
 #include "pause_screen.hpp"
+#include "laser_screen.hpp"
 #include "end_screen.hpp"
 #include "level_unlocked_sparkle.hpp"
 #include "right_top_menu.hpp"
@@ -26,7 +27,7 @@
 #include <ctime>
 #include <string>
 
-#define MAX_LEVEL 14
+#define MAX_LEVEL 15
 
 struct SaveState {
     int current_level = 1;
@@ -103,7 +104,6 @@ private:
 	void on_key(GLFWwindow*, int key, int, int action, int mod);
 	void on_mouse_move(GLFWwindow* window, double xpos, double ypos);
 	void on_mouse_button(GLFWwindow* window, int button, int action, int mods);
-
 	void next_level();
 
 private:
@@ -124,6 +124,7 @@ private:
 	EndScreen m_end_screen;
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
+	LaserScreen m_laser_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 	LeftTopMenu m_left_top_menu;
 	RightTopMenu m_right_top_menu;
@@ -147,7 +148,10 @@ private:
 	bool m_game_completed;
 	bool m_interact;
 	bool m_draw_w;
+	bool m_show_laser_screen;
+	float m_display_laser_screen_elapsed;
 
 	vec2 m_w_position;
 	vec2 m_screen_size;
+
 };
