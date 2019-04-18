@@ -5,32 +5,6 @@
 #include "player.hpp"
 #include "movable_wall.hpp"
 
-void CollisionManager::RegisterRadiusLight(const RadiusLightMesh* light)
-{
-	if (radiusLightSources.find(light) == radiusLightSources.end())
-	{
-		radiusLightSources.emplace(light);
-	}
-}
-
-void CollisionManager::UnregisterRadiusLight(const RadiusLightMesh* light)
-{
-	radiusLightSources.erase(light);
-}
-
-void CollisionManager::RegisterLaserLight(const LaserLightMesh* light)
-{
-	if (laserLightSources.find(light) == laserLightSources.end())
-	{
-		laserLightSources.emplace(light);
-	}
-}
-
-void CollisionManager::UnregisterLaserLight(const LaserLightMesh* light)
-{
-	laserLightSources.erase(light);
-}
-
 void CollisionManager::RegisterPlayer(Player* playerPtr)
 {
 	player = playerPtr;
@@ -216,44 +190,24 @@ bool CollisionManager::BoxCollideWithPlayer(vec2 boxPos, vec2 boxBound) const
 	return BoxCollide(player->get_position(), player->getPlayerDimensions(), boxPos, boxBound);
 }
 
-const ParametricLines CollisionManager::CalculateLightEquations(float xPos, float yPos, float lightRadius) const
+const RadiusLightMesh* CollisionManager::GetPlayerRadiusLightMesh() const
 {
-	ParametricLines outEquations;
-	for (std::pair<const Entity*, ParametricLines> entry : staticLightCollisionLines)
-	{
-		CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
-	}
-	for (std::pair<const Entity*, ParametricLines> entry : dynamicLightCollisionLines)
-	{
-		CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
-	}
+    if (!player)
+    {
+        return nullptr;
+    }
 
-	return outEquations;
+    return player->getPlayerRadiusLight();
 }
 
-void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const
+const LaserLightMesh* CollisionManager::GetPlayerLaserLightMesh() const
 {
-	const Entity* entity = entry.first;
-	// Center-to-center distance between two boxes
-	float distanceX = fmax(0.f, std::fabs(entity->get_position().x - xPos) - entity->get_bounding_box().x / 2);
-	float distanceY = fmax(0.f, std::fabs(entity->get_position().y - yPos) - entity->get_bounding_box().y / 2);
-	float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+    if (!player)
+    {
+        return nullptr;
+    }
 
-	if (distance < lightRadius)
-	{
-		for (const ParametricLine& staticLine : entry.second)
-		{
-			// Since only position is at play, (and no scaling)
-			// We only have to do a simple translation
-			ParametricLine collEq;
-			collEq.x_0 = staticLine.x_0 - xPos;
-			collEq.x_t = staticLine.x_t;
-			collEq.y_0 = staticLine.y_0 - yPos;
-			collEq.y_t = staticLine.y_t;
-
-			outLines.push_back(collEq);
-		}
-	}
+    return player->getPlayerLaserLight();
 }
 
 const std::vector<Entity*> CollisionManager::GetEntitiesInRange(float xPos, float yPos, float lightRadius) const
@@ -276,79 +230,6 @@ const std::vector<Entity*> CollisionManager::GetEntitiesInRange(float xPos, floa
 	}
 
 	return outEntities;
-}
-
-void CollisionManager::CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outSet, float xPos, float yPos, float lightRadius) const
-{
-	const float xDiff = entity->get_position().x - xPos;
-	const float yDiff = entity->get_position().y - yPos;
-	const float xRadius = entity->get_bounding_box().x / 2;
-	const float yRadius = entity->get_bounding_box().y / 2;
-	float distanceX = fmax(0.f, std::fabs(xDiff) - xRadius);
-	float distanceY = fmax(0.f, std::fabs(yDiff) - yRadius);
-	float distanceSqr = distanceX * distanceX + distanceY * distanceY;
-
-	vec2 posToEntity = { xDiff, yDiff };
-
-	if (distanceSqr < ((lightRadius) * lightRadius))
-	{
-		vec2 topRight = { posToEntity.x + xRadius, posToEntity.y - yRadius };
-		vec2 topLeft = { posToEntity.x - xRadius, posToEntity.y - yRadius };
-		vec2 bottomRight = { posToEntity.x + xRadius, posToEntity.y + yRadius };
-		vec2 bottomLeft = { posToEntity.x - xRadius, posToEntity.y + yRadius };
-
-		outSet.push_back(topRight);
-		outSet.push_back(topLeft);
-		outSet.push_back(bottomRight);
-		outSet.push_back(bottomLeft);
-	}
-}
-
-bool CollisionManager::findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const {
-
-	bool foundLight = false;
-	outClosestLight = { 0.f, 0.f };
-	float currentClosestDist = 10000000.f;
-
-	for (auto it = radiusLightSources.begin(); it != radiusLightSources.end(); ++it)
-	{
-		bool hasCollision = false;
-		const RadiusLightMesh* light = *it;
-		vec2 lightPos = light->get_position();
-
-		float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));
-		float distanceY = fmax(0.f, std::fabs(entityPos.y - lightPos.y));
-		float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
-
-		if (distance < light->getLightRadius() && distance != 0) // check that distance != 0 so that if the position being checked is a light source it doesn't return itself as the closest light source
-		{
-			vec2 entityToLight = lightPos - entityPos;
-			ParametricLine rayTrace;
-			rayTrace.x_0 = 0.f;
-			rayTrace.x_t = entityToLight.x;
-			rayTrace.y_0 = 0.f;
-			rayTrace.y_t = entityToLight.y;
-
-			const ParametricLines blockingEquations = CalculateLightEquations(entityPos.x, entityPos.y, light->getLightRadius());
-			for (const ParametricLine& blockingLine : blockingEquations)
-			{
-				if (LinesCollide(rayTrace, blockingLine))
-				{
-					hasCollision = true;
-					break;
-				}
-			}
-
-			if (hasCollision == false && distance < currentClosestDist)
-			{
-				foundLight = true;
-				outClosestLight = lightPos;
-				currentClosestDist = distance;
-			}
-		}
-	}
-
-	return foundLight;
 }
 
 bool CollisionManager::LinesCollide(ParametricLine line1, ParametricLine line2) const
@@ -418,4 +299,76 @@ void CollisionManager::UpdateDynamicLightEquations()
 			dynamicLightCollisionLines.emplace(entity, entity->calculate_dynamic_equations());
 		}
 	}
+}
+
+const ParametricLines CollisionManager::CalculateLightEquations(float xPos, float yPos, float lightRadius) const
+{
+    ParametricLines outEquations;
+    for (std::pair<const Entity*, ParametricLines> entry : staticLightCollisionLines)
+    {
+        CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
+    }
+    for (std::pair<const Entity*, ParametricLines> entry : dynamicLightCollisionLines)
+    {
+        CalculateLightEquationForEntry(entry, outEquations, xPos, yPos, lightRadius);
+    }
+
+    return outEquations;
+}
+
+void CollisionManager::CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const
+{
+    const Entity* entity = entry.first;
+    // Center-to-center distance between two boxes
+    float distanceX = fmax(0.f, std::fabs(entity->get_position().x - xPos) - entity->get_bounding_box().x / 2);
+    float distanceY = fmax(0.f, std::fabs(entity->get_position().y - yPos) - entity->get_bounding_box().y / 2);
+    float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+
+    if (distance < lightRadius)
+    {
+        for (const ParametricLine& staticLine : entry.second)
+        {
+            // Since only position is at play, (and no scaling)
+            // We only have to do a simple translation
+            ParametricLine collEq;
+            collEq.x_0 = staticLine.x_0 - xPos;
+            collEq.x_t = staticLine.x_t;
+            collEq.y_0 = staticLine.y_0 - yPos;
+            collEq.y_t = staticLine.y_t;
+
+            outLines.push_back(collEq);
+        }
+    }
+}
+
+bool CollisionManager::isLitByRadius(vec2 entityPos, const RadiusLightMesh* light) const
+{
+    vec2 lightPos = light->get_position();
+
+    float distanceX = fmax(0.f, std::fabs(entityPos.x - lightPos.x));
+    float distanceY = fmax(0.f, std::fabs(entityPos.y - lightPos.y));
+    float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+
+    if (distance < light->getLightRadius())
+    {
+        vec2 entityToLight = lightPos - entityPos;
+        ParametricLine rayTrace;
+        rayTrace.x_0 = 0.f;
+        rayTrace.x_t = entityToLight.x;
+        rayTrace.y_0 = 0.f;
+        rayTrace.y_t = entityToLight.y;
+
+        const ParametricLines blockingEquations = CalculateLightEquations(entityPos.x, entityPos.y, light->getLightRadius());
+        for (const ParametricLine& blockingLine : blockingEquations)
+        {
+            if (LinesCollide(rayTrace, blockingLine))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }

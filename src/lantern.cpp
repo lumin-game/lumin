@@ -24,8 +24,8 @@ void Lantern::update(float ms) {
     }
     for (SingleFirefly &firefly : fireflies) {
         firefly.position += firefly.velocity * ms;
-        firefly.position = {std::clamp(firefly.position.x, -LANTERN_MAX_RANGE, LANTERN_MAX_RANGE),
-                            std::clamp(firefly.position.y, -LANTERN_MAX_RANGE, LANTERN_MAX_RANGE)};
+        firefly.position = {std::min(std::max(firefly.position.x, -LANTERN_MAX_RANGE), LANTERN_MAX_RANGE),
+                            std::min(std::max(firefly.position.y, -LANTERN_MAX_RANGE), LANTERN_MAX_RANGE)};
         firefly.velocity += firefly.CalculateForce(fireflies) * ms;
     }
 }

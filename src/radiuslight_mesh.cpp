@@ -31,16 +31,12 @@ bool RadiusLightMesh::init()
 	if (!effect.load_from_file(shader_path("radiuslight.vs.glsl"), shader_path("radiuslight.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterRadiusLight(this);
-
 	return true;
 }
 
 // Releases all graphics resources
 void RadiusLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterRadiusLight(this);
-
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -154,8 +150,8 @@ void RadiusLightMesh::UpdateVertices()
 			const float angle = std::atan2(corner.y, corner.x);
 			const float clockwise = angle - smallRadian;
 			const float antiClockwise = angle + smallRadian;
-			const vec2 clockwisePoint = { cos(clockwise), sin(clockwise) };
-			const vec2 antiClockwisePoint = { cos(antiClockwise), sin(antiClockwise) };
+			const vec2 clockwisePoint = { (float) cos(clockwise), (float) sin(clockwise) };
+			const vec2 antiClockwisePoint = { (float) cos(antiClockwise), (float) sin(antiClockwise) };
 
 			orderedPoints.push_back(clockwisePoint * m_lightRadius * 2);
 			orderedPoints.push_back(corner);
