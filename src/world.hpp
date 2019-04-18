@@ -26,6 +26,7 @@
 #include <SDL_mixer.h>
 #include <ctime>
 #include <string>
+#include <math.h> 
 
 #define MAX_LEVEL 15
 #define MAX_SKIPS 3
