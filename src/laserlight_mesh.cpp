@@ -32,16 +32,12 @@ bool LaserLightMesh::init()
 	if (!effect.load_from_file(shader_path("laserlight.vs.glsl"), shader_path("laserlight.fs.glsl")))
 		return false;
 
-	CollisionManager::GetInstance().RegisterLaserLight(this);
-
 	return true;
 }
 
 // Releases all graphics resources
 void LaserLightMesh::destroy()
 {
-	CollisionManager::GetInstance().UnregisterLaserLight(this);
-
 	glDeleteBuffers(1, &mesh.vbo);
 	glDeleteBuffers(1, &mesh.ibo);
 	glDeleteVertexArrays(1, &mesh.vao);
@@ -60,7 +56,7 @@ void LaserLightMesh::draw(const mat3& projection)
 	// transform_scale()
 
 	transform_translate(m_parent.m_position);
-	float lightAngle = std::atan2(m_parent.m_mousePosition.y, m_parent.m_mousePosition.x) - PI / 2;
+	lightAngle = std::atan2(m_parent.m_mousePosition.y, m_parent.m_mousePosition.x) - PI / 2;
 	transform_rotate(lightAngle);
 	transform_end();
 
@@ -108,7 +104,6 @@ void LaserLightMesh::draw(const mat3& projection)
 int LaserLightMesh::UpdateVertices()
 {
 	// Find angle where we're going to face
-	float lightAngle = std::atan2(m_parent.m_mousePosition.y, m_parent.m_mousePosition.x) - PI/2;
 	float cosA = std::cos(lightAngle);
 	float sinA = std::sin(lightAngle);
 
@@ -184,6 +179,7 @@ int LaserLightMesh::UpdateVertices()
 	}
 
 	// Check collisions, these will be the vertices of our polygon
+	actualLength = 0.f;
 	std::vector<vec2> polyVertices;
 	for (const vec2& corner : relevantPoints)
 	{
@@ -225,6 +221,7 @@ int LaserLightMesh::UpdateVertices()
 			}
 		}
 
+        actualLength = std::max(actualLength, hitPosition.y);
 		polyVertices.push_back(hitPosition);
 	}
 

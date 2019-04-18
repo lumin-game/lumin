@@ -2,6 +2,8 @@
 #include "CollisionManager.hpp"
 #include <random>
 
+#define PI 3.14159265
+
 vec2 Firefly::SingleFirefly::CalculateForce(std::vector<SingleFirefly>& fireflies) const
 {
 	vec2 force = { 0.f, 0.f };
@@ -93,7 +95,7 @@ void Firefly::SingleFirefly::destroy()
 void Firefly::SingleFirefly::update(float ms, std::vector<SingleFirefly>& fireflies)
 {
 	position += velocity * ms;
-	position = { std::clamp(position.x, -FIREFLY_MAX_RANGE, FIREFLY_MAX_RANGE), std::clamp(position.y, -FIREFLY_MAX_RANGE, FIREFLY_MAX_RANGE) };
+    position = { std::min(std::max(position.x, -FIREFLY_MAX_RANGE), FIREFLY_MAX_RANGE), std::min(std::max(position.y, -FIREFLY_MAX_RANGE), FIREFLY_MAX_RANGE) };
 	velocity += CalculateForce(fireflies) * ms;
 }
 
@@ -181,8 +183,45 @@ void Firefly::update(float ms)
 	const float VELOCITY_STEP = 0.025f;
 	const float VELOCITY_SLOWING_STEP = 0.04f;
 
-	vec2 destLight;
-	if (CollisionManager::GetInstance().findClosestVisibleLightSource(m_position, destLight)) { // Follow closest light source if one is in sight
+    const RadiusLightMesh* playerLight = CollisionManager::GetInstance().GetPlayerRadiusLightMesh();
+    vec2 destLight;
+
+    bool shouldFollowPlayer = playerLight ? CollisionManager::GetInstance().isLitByRadius(get_position(), playerLight): false;
+    if (shouldFollowPlayer) {
+        destLight = playerLight->get_position();
+    }
+    else {
+        const LaserLightMesh *playerLaser = CollisionManager::GetInstance().GetPlayerLaserLightMesh();
+        if (playerLaser) {
+            ParametricLine laserLine;
+            float a = playerLaser->get_position().x;
+            float b = playerLaser->actualLength * std::cos(playerLaser->lightAngle + PI/2);
+            float c = playerLaser->get_position().y;
+            float d = playerLaser->actualLength * std::sin(playerLaser->lightAngle + PI/2);
+            float e = get_position().x;
+            float f = get_position().y;
+
+            float t = (b * e + d * f - b * a - d * c) / (b * b + d * d);
+
+            t = std::min(std::max(0.f, t), 1.f);
+            vec2 closestPoint = {a + b * t, c + d * t};
+
+
+            if ((closestPoint - get_position()).Magnitude() < lightMesh.getLightRadius()) {
+                vec2 targetPoint = {a + b * 0.95f, c + d * 0.95f};
+                fireflies[0].position = targetPoint;
+                bool closestPointLit = CollisionManager::GetInstance().isLitByRadius(closestPoint, &lightMesh);
+                bool targetPointLit = CollisionManager::GetInstance().isLitByRadius(targetPoint, &lightMesh);
+
+                if (closestPointLit || targetPointLit) {
+                    shouldFollowPlayer = true;
+                    destLight = targetPoint;
+                }
+            }
+        }
+    }
+
+	if (shouldFollowPlayer) { // Follow player if they have radius light on
 		if (destLight.x != m_position.x) {
 			m_velocity.x += (VELOCITY_STEP * (ms / 100)) * ((destLight.x - m_position.x > 0) ? 1 : -1);
 		}
@@ -193,11 +232,11 @@ void Firefly::update(float ms)
 	}
 	else { // Slow fireflies down if a light is not in sight
 		if (m_velocity.y != 0) {
-			m_velocity.y += fmin(abs(m_velocity.y), VELOCITY_SLOWING_STEP * (ms / 100)) * ((m_velocity.y < 0) ? 1 : -1);
+			m_velocity.y += fmin(fabs(m_velocity.y), VELOCITY_SLOWING_STEP * (ms / 100)) * ((m_velocity.y < 0) ? 1 : -1);
 		}
 
 		if (m_velocity.x != 0) {
-			m_velocity.x += fmin(abs(m_velocity.x), VELOCITY_SLOWING_STEP * (ms / 100)) * ((m_velocity.x < 0) ? 1 : -1);
+            m_velocity.x += fmin(fabs(m_velocity.x), VELOCITY_SLOWING_STEP * (ms / 100)) * ((m_velocity.x < 0) ? 1 : -1);
 		}
 	}
 	float xDist = m_velocity.x * ms;

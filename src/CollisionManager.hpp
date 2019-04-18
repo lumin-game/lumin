@@ -36,14 +36,6 @@ public:
 	CollisionManager(CollisionManager const &) = delete;
 	void operator=(CollisionManager const &) = delete;
 
-	// Registers a light
-	void RegisterRadiusLight(const RadiusLightMesh* light);
-	void UnregisterRadiusLight(const RadiusLightMesh* light);
-	
-	// Registers a light
-	void RegisterLaserLight(const LaserLightMesh* light);
-	void UnregisterLaserLight(const LaserLightMesh* light);
-
 	// Registers an entity. Should be called on entity init, or to update an entity after it has moved
 	void RegisterEntity(Entity* entity);
 
@@ -68,13 +60,8 @@ public:
 
 	bool BoxCollideWithPlayer(vec2 boxPos, vec2 boxBound) const;
 
-	// Returns the relevant equations for light calculations for a light source at pos with radius
-	const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
-
 	// Returns a list of all the vertices of light-blocking objects that are found within a light's radius
 	const std::vector<Entity*> GetEntitiesInRange(float xPos, float yPos, float lightRadius) const;
-
-	bool findClosestVisibleLightSource(const vec2 entityPos, vec2& outClosestLight) const;
 
 	void UpdateDynamicLightEquations();
 
@@ -82,6 +69,15 @@ public:
 	bool LinesCollide(ParametricLine line1, ParametricLine line2, vec2& collisionPos) const;
 
 	std::set<Entity*> GetEntities() const { return registeredEntities; };
+
+	const RadiusLightMesh* GetPlayerRadiusLightMesh() const;
+	const LaserLightMesh* GetPlayerLaserLightMesh() const;
+
+    bool isLitByRadius(vec2 entityPos, const RadiusLightMesh* light) const;
+
+    const ParametricLines CalculateLightEquations(float xPos, float yPos, float lightRadius) const;
+    void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
+
 
 private:
 	std::set<Entity*> registeredEntities;
@@ -92,11 +88,4 @@ private:
 	
 	// Ptr to player, we can keep our position this way. Const as we should never change it.
 	Player* player;
-
-	// List of light in the level
-	std::set<const RadiusLightMesh*> radiusLightSources;
-	std::set<const LaserLightMesh*> laserLightSources;
-
-	void CalculateLightEquationForEntry(std::pair<const Entity*, ParametricLines> entry, ParametricLines& outLines, float xPos, float yPos, float lightRadius) const;
-	void CalculateVerticesForEntry(const Entity* entity, std::vector<vec2> &outVector, float xPos, float yPos, float lightRadius) const;
 };
