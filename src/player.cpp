@@ -182,4 +182,20 @@ void Player::setLightMode(bool isLaser)
 
 bool Player::getLightMode() {
 	return isLaserMode;
+const RadiusLightMesh* Player::getPlayerRadiusLight() {
+    if (isLaserMode)
+    {
+        return nullptr;
+    }
+
+    return &radiusLightMesh;
+}
+
+const LaserLightMesh* Player::getPlayerLaserLight() {
+    if (isLaserMode)
+    {
+        return &laserLightMesh;
+    }
+
+    return nullptr;
 }
