@@ -27,7 +27,7 @@
 #include <ctime>
 #include <string>
 
-#define MAX_LEVEL 20
+#define MAX_LEVEL 19
 #define MAX_SKIPS 3
 
 struct SaveState {
