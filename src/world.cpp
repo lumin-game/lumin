@@ -496,8 +496,11 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 			m_player.setLightMode(true);
 		}
-		vec2 initial_pos = { 258, 171 };
-		float grid_length = 133;
+		// vec2 initial_pos = { 258, 171 };
+		vec2 initial_pos = { 261, 171 };
+		int square_length = 122;
+		int square_gap = 12;
+		int grid_length = square_length + square_gap;
 		int num_col = 5;
 		int grid_x = 0;
 		int grid_y = 0;
@@ -506,8 +509,10 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 			if (xpos >= initial_pos.x && xpos <= (float) w / retinaScale - initial_pos.x && ypos >= initial_pos.y && ypos <= (float) h / retinaScale - initial_pos.y) {
 				grid_x = floor((xpos - (int)initial_pos.x)/grid_length);
 				grid_y = floor((ypos - (int)initial_pos.y)/grid_length);
-				load_level = 1 + grid_x + grid_y * num_col;
-				load_level_screen(load_level);
+				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
+					load_level = 1 + grid_x + grid_y * num_col;
+					load_level_screen(load_level);
+				}
 			}
 		}
 	}
