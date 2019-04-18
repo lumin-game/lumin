@@ -27,7 +27,7 @@
 #include <ctime>
 #include <string>
 
-#define MAX_LEVEL 15
+#define MAX_LEVEL 17
 #define MAX_SKIPS 3
 
 struct SaveState {
@@ -55,7 +55,7 @@ struct SaveState {
 		while (std::getline(in, line)) {
 			switch (i) {
 				case 0:
-					current_level = std::stoi(line);
+					current_level = std::min(MAX_LEVEL-1, std::stoi(line));
 					break;
 				case 1:
 					unlocked_levels = std::stoi(line);

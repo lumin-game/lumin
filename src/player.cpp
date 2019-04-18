@@ -179,3 +179,7 @@ void Player::setLightMode(bool isLaser)
 {
 	isLaserMode = isLaser;
 }
+
+bool Player::getLightMode() {
+	return isLaserMode;
+}

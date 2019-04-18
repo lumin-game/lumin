@@ -487,16 +487,11 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
 { 
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if ( button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
-			m_player.setLightMode(true);
+			m_player.setLightMode(!m_player.getLightMode());
 		}
-	}
-
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-	{
-		m_player.setLightMode(false);
 	}
 }
 
