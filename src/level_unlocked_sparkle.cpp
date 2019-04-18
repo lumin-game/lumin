@@ -57,7 +57,7 @@ bool UnlockedLevelSparkle::init() {
   // Loading shaders
   if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
     return false;
-	m_scale = { 1.f, 1.f };
+	m_scale = { 0.7f, 0.7f };
   m_position = { 0, 0 };
 
   return true;

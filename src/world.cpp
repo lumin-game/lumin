@@ -284,12 +284,10 @@ void World::draw() {
 	if (m_should_load_level_screen) {
 		m_level_screen.draw(menu_projection_2D);
 		vec2 initial_pos;
-		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 300;
-		initial_pos.y = m_player.get_position().y - 20;
-		// Offset is the distance calculated between each level boxes
-		float offset = 225;
-		// There are 4 boxes per row right now
-		int num_col = 4;
+		initial_pos.x = m_player.get_position().x - (w / retinaScale / 2) + 320;
+		initial_pos.y = m_player.get_position().y - 220;
+		float offset = 160;
+		int num_col = 5;
 		for (int i = 0; i < m_save_state.unlocked_levels; ++i) {
 			int x = i % num_col;
 			int y = i / num_col;
@@ -486,11 +484,36 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 }
 
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
-{ 
+{
+	int w, h, ww, hh;
+	glfwGetFramebufferSize(m_window, &w, &h);
+	glfwGetWindowSize(m_window, &ww, &hh);
+	auto retinaScale = (float) (w / ww);
+	double xpos, ypos;
+	glfwGetCursorPos(m_window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 			m_player.setLightMode(true);
+		}
+		// vec2 initial_pos = { 258, 171 };
+		vec2 initial_pos = { 261, 171 };
+		int square_length = 122;
+		int square_gap = 12;
+		int grid_length = square_length + square_gap;
+		int num_col = 5;
+		int grid_x = 0;
+		int grid_y = 0;
+		float load_level = 0;
+		if (m_should_load_level_screen) {
+			if (xpos >= initial_pos.x && xpos <= (float) w / retinaScale - initial_pos.x && ypos >= initial_pos.y && ypos <= (float) h / retinaScale - initial_pos.y) {
+				grid_x = floor((xpos - (int)initial_pos.x)/grid_length);
+				grid_y = floor((ypos - (int)initial_pos.y)/grid_length);
+				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
+					load_level = 1 + grid_x + grid_y * num_col;
+					load_level_screen(load_level);
+				}
+			}
 		}
 	}
 
