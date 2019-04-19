@@ -2,9 +2,8 @@
 #include <vector>
 #include <common.hpp>
 #include "entity.hpp"
-#include "switch.hpp"
 
-class LightBeam : public Entity {
+class LightBeamParticle : public Entity {
 
 public:
 	const char* get_texture_path() const override {
@@ -14,12 +13,14 @@ public:
 		return textures_path("glass.png");
 	}
 
-	void setParameters(vec2 dest, Switch* parent);
-
 	void update(float ms) override;
 
+	void draw(const mat3& projection) override;
+
+	bool is_destroyed();
 
 private:
 	vec2 destination;
-	Switch* parent_switch;
+	float m_opacity = 1.0f;
+	bool destroyed = false;
 };

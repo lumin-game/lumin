@@ -1,11 +1,11 @@
 #pragma once
 
 #include "entity.hpp"
+#include "LightBeamParticle.hpp"
 #include <iostream>
 
 #include <SDL.h>
 #include <SDL_mixer.h>
-#include "LightBeam.hpp"
 
 class Switch : public Entity {
 public:
@@ -24,9 +24,12 @@ public:
 	void update(float ms) override;
 	void draw(const mat3& projection) override;
 
-
 	void set_toggle_switch(bool isToggle);
+
+	void add_beam_particle(LightBeamParticle* particle);
+
 private:
 	bool mToggleSwitch = false;
-	std::vector<LightBeam*> light_beams;
+	std::set<Entity*> light_beams;
+	std::set<LightBeamParticle*> light_beam_particles;
 };
