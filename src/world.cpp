@@ -6,7 +6,7 @@
 
 const float NEXT_LEVEL_DELAY = 450.f;
 const float SCREEN_SCALE = 1.2f;
-#define LASER_UNLOCK 10
+#define LASER_UNLOCK 11
 
 // Same as static in c, local to compilation unit
 namespace {
@@ -204,13 +204,15 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
 
-		if (m_next_level_elapsed > -1) {
-            m_next_level_elapsed += elapsed_ms;
-            if (m_next_level_elapsed > NEXT_LEVEL_DELAY) {
-                reset_game();
-                m_next_level_elapsed = -1;
-            }
-        }
+		if (m_save_state.current_level != LASER_UNLOCK + 1) {
+			if (m_next_level_elapsed > -1) {
+				m_next_level_elapsed += elapsed_ms;
+				if (m_next_level_elapsed > NEXT_LEVEL_DELAY) {
+					reset_game();
+					m_next_level_elapsed = -1;
+				}
+			}
+		}
 	}
 
 	m_screen.update(elapsed_ms);
@@ -353,6 +355,7 @@ void World::reset_game() {
 	m_press_w.init(m_screen_size);
 
 	m_should_load_level_screen = false;
+	m_show_laser_screen = false;
 	m_draw_w = false;
 
 	if (m_save_state.save()) {
@@ -376,8 +379,13 @@ void World::load_level_screen(int key_pressed_level) {
 void World::next_level() {
 	if (!m_game_completed) {
 		if (m_save_state.current_level < MAX_LEVEL) {
-			m_screen.new_level();
-      m_next_level_elapsed = 0.f;
+			if (m_save_state.current_level != LASER_UNLOCK + 1) {
+				m_screen.new_level();
+				m_next_level_elapsed = 0.f;
+			}
+			else {
+				reset_game();
+			}
 		} else if (m_save_state.current_level == MAX_LEVEL) {
 			m_game_completed = true;
 			return;
