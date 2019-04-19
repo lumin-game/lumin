@@ -267,6 +267,8 @@ void World::draw() {
 
 	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
+	m_player.draw(projection_2D);
+
 	for (Entity* entity : m_entities) {
 		entity->predraw();
 	}
@@ -383,6 +385,7 @@ void World::load_level_screen(int key_pressed_level) {
 			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
 		}
 	}
+	m_should_game_start_screen = false;
 }
 
 void World::next_level() {
@@ -495,6 +498,10 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 	m_player.setMousePosition({(float) xpos + wOffset, (float) ypos + hOffset});
 }
 
+bool is_button_clicked(double xpos, double ypos, vec2 start_pos, vec2 end_pos) {
+	return (xpos > start_pos.x && xpos < end_pos.x && ypos > start_pos.y && ypos < end_pos.y);
+}
+
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
 	int w, h, ww, hh;
@@ -505,10 +512,39 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	glfwGetCursorPos(m_window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
+		// check for clicks on the top menu bar
+		vec2 exit_pos_start = {932, 10};
+		vec2 exit_pos_end = {970, 25};
+
+		vec2 menu_pos_start = {986, 10};
+		vec2 menu_pos_end = {1039, 25};
+
+		vec2 pause_pos_start = {1051, 10};
+		vec2 pause_pos_end = {1102, 25};
+
+		vec2 reset_pos_start = {1113, 10};
+		vec2 reset_pos_end = {1164, 25};
+
+		if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
+			destroy();
+			exit(0);
+		} else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
+			m_should_load_level_screen = !m_should_load_level_screen;
+			m_load_level = "";
+			m_paused = false;
+		} else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
+			m_paused = !m_paused;
+			m_should_load_level_screen = false;
+		} else if (is_button_clicked (xpos, ypos, reset_pos_start, reset_pos_end)) {
+			if (m_paused) {
+				m_paused = false;
+			} else {
+				reset_game();
+			}
+		}
+
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 			m_player.setLightMode(!m_player.getLightMode());
-		} else if (m_should_load_level_screen) {
-
 		}
 		// vec2 initial_pos = { 258, 171 };
 		vec2 initial_pos = { 261, 171 };
@@ -526,6 +562,31 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
 					load_level = 1 + grid_x + grid_y * num_col;
 					load_level_screen(load_level);
+				}
+			}
+		} else if (m_should_game_start_screen) {
+			if (m_save_state.load()) {
+				// if there's already a state saved, start screen will have both "new game" and "load game" options
+				vec2 new_pos_start = {300, 567};
+				vec2 new_pos_end = {573, 679};
+
+				vec2 load_pos_start = {630, 569};
+				vec2 load_pos_end = {902, 676};
+
+				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
+					// start new game from level 1
+					load_level_screen(1);
+				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
+					// load game from save state
+					load_level_screen(m_save_state.current_level);
+				}
+			} else {
+				vec2 new_pos_start = {463, 567};
+				vec2 new_pos_end = {738, 678};
+
+				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
+					// start new game from level 1
+					load_level_screen(1);
 				}
 			}
 		}
