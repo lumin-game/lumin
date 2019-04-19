@@ -42,6 +42,8 @@ public:
 
 	void setLightMode(bool isLaser);
 
+	bool getLightMode();
+
 	vec2 getPlayerDimensions() {
 		return { (float) playerWidth, (float) playerHeight };
 	}
