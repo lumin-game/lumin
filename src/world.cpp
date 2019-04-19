@@ -267,8 +267,6 @@ void World::draw() {
 
 	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
-	m_player.draw(projection_2D);
-
 	for (Entity* entity : m_entities) {
 		entity->predraw();
 	}
