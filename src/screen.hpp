@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "level_screen.hpp"
+#include "game-screens/level_screen.hpp"
 
 
 class Screen : public Renderable
