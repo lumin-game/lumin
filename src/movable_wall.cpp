@@ -171,7 +171,7 @@ void MovableWall::update(float ms) {
 				// Hacky fix to terminate movement early if we're close enough to the
 				// target location, regardless of the msToDestination calculation.
 				if (!movementLoops && std::abs(newPos.x - currentTargetLocation.x) < 1 && std::abs(newPos.y - currentTargetLocation.y) < 1) {
-					std::cout << "Stopped movement early with hacky logic" << std::endl;
+					// std::cout << "Stopped movement early with hacky logic" << std::endl;
 					is_moving = false;
 					newPos.x = currentTargetLocation.x;
 					newPos.y = currentTargetLocation.y;
@@ -196,7 +196,7 @@ void MovableWall::update(float ms) {
 
 		if (collidesWithPlayer)
 		{
-			CollisionManager::GetInstance().MovePlayer({ collisionResult.resultXPos, collisionResult.resultYPos });			
+			CollisionManager::GetInstance().MovePlayer({ collisionResult.resultXPos, collisionResult.resultYPos });
 		}
 
 		set_position(newPos);
@@ -217,7 +217,7 @@ ParametricLines MovableWall::calculate_dynamic_equations() const
 	return Entity::calculate_static_equations();
 }
 
-vec2 MovableWall::get_velocity() 
+vec2 MovableWall::get_velocity()
 {
 	return velocity;
 }
