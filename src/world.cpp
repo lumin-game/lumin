@@ -185,7 +185,7 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							if (m_save_state.skips_allowed <= MAX_SKIPS) {
+							if (m_save_state.skips_allowed < MAX_SKIPS) {
 								m_save_state.skips_allowed++;
 							}
 							m_save_state.current_level = door->get_level_index();
@@ -574,6 +574,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
+					m_save_state.skips_allowed = MAX_SKIPS;
 				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
 					// load game from save state
 					load_level_screen(m_save_state.current_level);
@@ -585,6 +586,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
+					m_save_state.skips_allowed = MAX_SKIPS;
 				}
 			}
 		}
