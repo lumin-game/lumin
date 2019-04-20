@@ -210,6 +210,10 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
 
+		if (m_player.get_position().y > 2000) {
+			reset_game();
+		}
+
 		if (m_save_state.current_level != LASER_UNLOCK + 1) {
 			if (m_next_level_elapsed > -1) {
 				m_next_level_elapsed += elapsed_ms;
