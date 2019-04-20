@@ -26,7 +26,7 @@ private:
   TexturedVertex vertices[4];
 	static Texture current_level_texture;
 	// TODO: modify this value once we know the total number of levels
-	static const int TOTAL_LEVELS = 15;
+	static const int TOTAL_LEVELS = 20;
 	vec2 m_scale = { 0.11, 0.11 };
 	vec2 m_position;
 	int m_current_level;
