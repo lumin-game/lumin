@@ -450,7 +450,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			reset_game();
 		}
 		else if (key == GLFW_KEY_N) {
-			if (m_save_state.skips_allowed > 0) {
+			if (!m_should_game_start_screen && m_save_state.skips_allowed > 0) {
 				m_save_state.current_level += 1;
 				m_save_state.skips_allowed--;
 				next_level();
