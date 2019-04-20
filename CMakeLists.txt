@@ -55,6 +55,8 @@ set(SOURCE_FILES
 		src/LightWall.cpp
 		src/DarkWall.cpp
 		src/hint.cpp
+		src/LightBeamParticle.cpp
+		src/LightBeam.cpp
 
         src/project_path.hpp
         src/common.hpp
@@ -89,7 +91,9 @@ set(SOURCE_FILES
         src/lantern.hpp
 		src/LightWall.hpp
 		src/DarkWall.hpp
-		src/hint.hpp)
+		src/hint.hpp
+		src/LightBeamParticle.hpp
+		src/LightBeam.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
