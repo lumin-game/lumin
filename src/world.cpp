@@ -180,7 +180,7 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							if (m_save_state.skips_allowed <= MAX_SKIPS) {
+							if (m_save_state.skips_allowed < MAX_SKIPS) {
 								m_save_state.skips_allowed++;
 							}
 							m_save_state.current_level = door->get_level_index();
