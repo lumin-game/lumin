@@ -31,7 +31,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/project_path.hpp.in" "${CMAKE_CU
 # file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 
 set(SOURCE_FILES
-        src/a1.cpp
+        src/lumin.cpp
         src/common.cpp
         src/entity.cpp
         src/player.cpp
@@ -39,8 +39,8 @@ set(SOURCE_FILES
         src/radiuslight_mesh.cpp
         src/laserlight_mesh.cpp
         src/movable_wall.cpp
-        src/game_screen.cpp
-        src/level_unlocked_sparkle.cpp
+        src/game-screens/game_screen.cpp
+        src/game-screens/level_unlocked_sparkle.cpp
         src/current_level.cpp
         src/press_w.cpp
         src/screen.cpp
@@ -67,12 +67,14 @@ set(SOURCE_FILES
         src/radiuslight_mesh.hpp
         src/laserlight_mesh.hpp
         src/movable_wall.hpp
-        src/level_screen.hpp
-		src/game_screen.hpp
+        src/game-screens/level_screen.hpp
+        src/game-screens/game_screen.hpp
         src/pause_screen.hpp
-        src/laser_screen.hpp
-		src/end_screen.hpp
-        src/level_unlocked_sparkle.hpp
+        src/game-screens/laser_screen.hpp
+        src/game-screens/end_screen.hpp
+        src/game-screens/level_unlocked_sparkle.hpp
+        src/game-screens/new_game_screen.hpp
+        src/game-screens/load_game_screen.hpp
         src/current_level.hpp
         src/right_top_menu.hpp
         src/left_top_menu.hpp

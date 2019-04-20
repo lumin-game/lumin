@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game_screen.hpp"
+#include "game-screens/game_screen.hpp"
 
 class RightTopMenu : public GameScreen
 {

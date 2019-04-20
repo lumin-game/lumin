@@ -80,6 +80,7 @@ bool World::init(vec2 screen) {
 	m_next_level_elapsed = -1;
 	m_save_state = SaveState{};
 
+	m_should_game_start_screen = true;
 	m_should_load_level_screen = false;
 	m_paused = false;
 	m_game_completed = false;
@@ -89,6 +90,8 @@ bool World::init(vec2 screen) {
 	m_display_laser_screen_elapsed = 250.f;
 	m_screen_size = screen;
 
+	m_load_game_screen.init(screen);
+	m_new_game_screen.init(screen);
 	m_level_screen.init(screen);
 	m_pause_screen.init(screen);
 	m_laser_screen.init(screen);
@@ -143,6 +146,8 @@ void World::destroy()
 
 	m_player.destroy();
 	m_screen.destroy();
+	m_load_game_screen.destroy();
+	m_new_game_screen.destroy();
 	m_level_screen.destroy();
 	m_pause_screen.destroy();
 	m_laser_screen.destroy();
@@ -180,7 +185,7 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							if (m_save_state.skips_allowed < MAX_SKIPS) {
+							if (m_save_state.skips_allowed < MAX_SKIPS && m_save_state.current_level != door->get_level_index()) {
 								m_save_state.skips_allowed++;
 							}
 							m_save_state.current_level = door->get_level_index();
@@ -280,6 +285,13 @@ void World::draw() {
 
 	/////////////////////
 	// Truly render to the screen
+	if (m_should_game_start_screen) {
+		if (m_save_state.load()) {
+			m_load_game_screen.draw(menu_projection_2D);
+		} else {
+		    m_new_game_screen.draw(menu_projection_2D);
+		}
+	}
 	if (m_show_laser_screen) {
 		m_laser_screen.draw(menu_projection_2D);
 	}
@@ -354,6 +366,7 @@ void World::reset_game() {
 	m_player.init();
 	m_press_w.init(m_screen_size);
 
+	m_show_laser_screen = false;
 	m_should_load_level_screen = false;
 	m_show_laser_screen = false;
 	m_draw_w = false;
@@ -374,6 +387,7 @@ void World::load_level_screen(int key_pressed_level) {
 			fprintf(stderr, "Sorry, you need to unlock more levels to switch to this level.");
 		}
 	}
+	m_should_game_start_screen = false;
 }
 
 void World::next_level() {
@@ -491,6 +505,10 @@ void World::on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 	m_player.setMousePosition({(float) xpos + wOffset, (float) ypos + hOffset});
 }
 
+bool is_button_clicked(double xpos, double ypos, vec2 start_pos, vec2 end_pos) {
+	return (xpos > start_pos.x && xpos < end_pos.x && ypos > start_pos.y && ypos < end_pos.y);
+}
+
 void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
 	int w, h, ww, hh;
@@ -501,6 +519,37 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	glfwGetCursorPos(m_window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
+		// check for clicks on the top menu bar
+		vec2 exit_pos_start = {932, 10};
+		vec2 exit_pos_end = {970, 25};
+
+		vec2 menu_pos_start = {986, 10};
+		vec2 menu_pos_end = {1039, 25};
+
+		vec2 pause_pos_start = {1051, 10};
+		vec2 pause_pos_end = {1102, 25};
+
+		vec2 reset_pos_start = {1113, 10};
+		vec2 reset_pos_end = {1164, 25};
+
+		if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
+			destroy();
+			exit(0);
+		} else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
+			m_should_load_level_screen = !m_should_load_level_screen;
+			m_load_level = "";
+			m_paused = false;
+		} else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
+			m_paused = !m_paused;
+			m_should_load_level_screen = false;
+		} else if (is_button_clicked (xpos, ypos, reset_pos_start, reset_pos_end)) {
+			if (m_paused) {
+				m_paused = false;
+			} else {
+				reset_game();
+			}
+		}
+
 		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 			m_player.setLightMode(!m_player.getLightMode());
 		}
@@ -520,6 +569,35 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
 					load_level = 1 + grid_x + grid_y * num_col;
 					load_level_screen(load_level);
+				}
+			}
+		} else if (m_should_game_start_screen) {
+			if (m_save_state.load()) {
+				// if there's already a state saved, start screen will have both "new game" and "load game" options
+				vec2 new_pos_start = {300, 567};
+				vec2 new_pos_end = {573, 679};
+
+				vec2 load_pos_start = {630, 569};
+				vec2 load_pos_end = {902, 676};
+
+				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
+					// start new game from level 1
+					load_level_screen(1);
+					m_save_state.unlocked_levels = 1;
+					m_save_state.skips_allowed = MAX_SKIPS;
+				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
+					// load game from save state
+					load_level_screen(m_save_state.current_level);
+				}
+			} else {
+				vec2 new_pos_start = {463, 567};
+				vec2 new_pos_end = {738, 678};
+
+				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
+					// start new game from level 1
+					load_level_screen(1);
+					m_save_state.unlocked_levels = 1;
+					m_save_state.skips_allowed = MAX_SKIPS;
 				}
 			}
 		}
