@@ -166,7 +166,7 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-		if (m_save_state.current_level == LASER_UNLOCK + 1) {
+		if (m_save_state.current_level == LASER_UNLOCK + 1 && !m_should_game_start_screen) {
 			if (m_display_laser_screen_elapsed > 0) {
 				m_show_laser_screen = true;
 				m_display_laser_screen_elapsed--;
@@ -523,7 +523,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	auto retinaScale = (float) (w / ww);
 	double xpos, ypos;
 	glfwGetCursorPos(m_window, &xpos, &ypos);
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !m_should_game_start_screen)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		// check for clicks on the top menu bar
 		vec2 exit_pos_start = {932, 10};
@@ -538,29 +538,35 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 		vec2 reset_pos_start = {1113, 10};
 		vec2 reset_pos_end = {1164, 25};
 
-		if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
-			if (m_save_state.current_level > 0 && m_save_state.save()) {
-				std::cout << "Saved game state to file.\n" << std::endl;
+		if (!m_should_game_start_screen) {
+			if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
+				if (m_save_state.current_level > 0 && m_save_state.save()) {
+					std::cout << "Saved game state to file.\n" << std::endl;
+				}
+				destroy();
+				exit(0);
 			}
-			destroy();
-			exit(0);
-		} else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
-			m_should_load_level_screen = !m_should_load_level_screen;
-			m_load_level = "";
-			m_paused = false;
-		} else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
-			m_paused = !m_paused;
-			m_should_load_level_screen = false;
-		} else if (is_button_clicked (xpos, ypos, reset_pos_start, reset_pos_end)) {
-			if (m_paused) {
+			else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
+				m_should_load_level_screen = !m_should_load_level_screen;
+				m_load_level = "";
 				m_paused = false;
-			} else {
-				reset_game();
 			}
-		}
+			else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
+				m_paused = !m_paused;
+				m_should_load_level_screen = false;
+			}
+			else if (is_button_clicked(xpos, ypos, reset_pos_start, reset_pos_end)) {
+				if (m_paused) {
+					m_paused = false;
+				}
+				else {
+					reset_game();
+				}
+			}
 
-		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
-			m_player.setLightMode(!m_player.getLightMode());
+			if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
+				m_player.setLightMode(!m_player.getLightMode());
+			}
 		}
 		// vec2 initial_pos = { 258, 171 };
 		vec2 initial_pos = { 261, 171 };
