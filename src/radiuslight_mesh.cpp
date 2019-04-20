@@ -14,7 +14,7 @@
 #include "world.hpp"
 
 #define PI 3.14159265
-#define SECTORSIZE 18
+#define SECTORSIZE 25
 
 // For performance testing
 // using Clock = std::chrono::high_resolution_clock;
