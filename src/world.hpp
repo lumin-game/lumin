@@ -34,9 +34,10 @@
 #define MAX_SKIPS 3
 
 struct SaveState {
-    int current_level = 1;
+    int current_level = 0;
     int unlocked_levels = MAX_LEVEL;
 	int skips_allowed = MAX_SKIPS;
+	bool data_found = false;
 
     bool save() {
     	std::ofstream file;
@@ -46,7 +47,7 @@ struct SaveState {
     	return true;
     }
 
-    bool load() {
+	bool load() {
 		std::ifstream in("lumin.sav");
 		if (!in) {
 			std::cerr << "Cannot open file. \n" << std::endl;
@@ -57,22 +58,22 @@ struct SaveState {
 		int i = 0;
 		while (std::getline(in, line)) {
 			switch (i) {
-				case 0:
-					current_level = std::min(MAX_LEVEL-1, std::stoi(line));
-					break;
-				case 1:
-					unlocked_levels = std::stoi(line);
-					break;
-				case 2:
-					skips_allowed = std::stoi(line);
-					break;
+			case 0:
+				current_level = std::min(MAX_LEVEL - 1, std::stoi(line));
+				break;
+			case 1:
+				unlocked_levels = std::stoi(line);
+				break;
+			case 2:
+				skips_allowed = std::stoi(line);
+				break;
 			}
 
 			i += 1;
 		}
-
+		data_found = true;
 		return true;
-    }
+	}
 };
 
 // Container for all our entities and game logic. Individual rendering / update is
