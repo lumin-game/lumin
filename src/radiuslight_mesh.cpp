@@ -14,6 +14,7 @@
 #include "world.hpp"
 
 #define PI 3.14159265
+#define SECTORSIZE 18
 
 // For performance testing
 // using Clock = std::chrono::high_resolution_clock;
@@ -183,7 +184,7 @@ void RadiusLightMesh::UpdateVertices()
 	});
 
 	// Bound lines is a list of entities and their boundary lines
-	std::array<std::vector<EntityLines>, 36> entityLinesByAngles;
+	std::array<std::vector<EntityLines>, SECTORSIZE> entityLinesByAngles;
 	for (Entity* entity : entities)
 	{
 		EntityLines entityLine;
@@ -240,7 +241,7 @@ void RadiusLightMesh::UpdateVertices()
 		float raytraceAngle = std::atan2(-corner.y, corner.x);
 		raytraceAngle = raytraceAngle < 0 ? raytraceAngle + 2 * PI : raytraceAngle;
 		raytraceAngle = raytraceAngle * 360.f / (2 * PI);
-		int raytraceIndex = raytraceAngle / 10;
+		int raytraceIndex = std::floor(raytraceAngle / (360.f / SECTORSIZE));
 
 		vec2 hitPos = { rayTrace.x_t, rayTrace.y_t };
 
@@ -337,8 +338,8 @@ void RadiusLightMesh::DetermineLineSectors(ParametricLine line, std::set<int>& i
 	// Angle from is always smaller than angle to
 	float angleToDeg = angleTo * 360.f / (2 * PI);
 	float angleFromDeg = angleFrom * 360.f / (2 * PI);
-	int angleFromIndex = angleFromDeg / 10;
-	int angleToIndex = angleToDeg / 10;
+	int angleFromIndex = std::floor(angleFromDeg / (360.f / SECTORSIZE));
+	int angleToIndex = std::floor(angleToDeg / (360.f / SECTORSIZE));
 
 	if (angleToIndex == angleFromIndex)
 	{
@@ -346,7 +347,7 @@ void RadiusLightMesh::DetermineLineSectors(ParametricLine line, std::set<int>& i
 		return;
 	}
 
-	int direction = angleToIndex - angleFromIndex > 18 ? -1 : +1;
+	int direction = angleToIndex - angleFromIndex > (SECTORSIZE / 2) ? -1 : +1;
 	int i = angleFromIndex;
 	while(true)
 	{
@@ -357,7 +358,7 @@ void RadiusLightMesh::DetermineLineSectors(ParametricLine line, std::set<int>& i
 			return;
 		}
 
-		i = (i + direction) % 36 >= 0 ? (i + direction) % 36 : (i + direction) % 36 + 36;
+		i = (i + direction) % SECTORSIZE >= 0 ? (i + direction) % SECTORSIZE : (i + direction) % SECTORSIZE + SECTORSIZE;
 	}
 }
 
