@@ -364,6 +364,7 @@ void World::reset_game() {
 	m_player.init();
 	m_press_w.init(m_screen_size);
 
+	m_show_laser_screen = false;
 	m_should_load_level_screen = false;
 	m_draw_w = false;
 
