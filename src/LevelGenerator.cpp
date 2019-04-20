@@ -334,6 +334,32 @@ void LevelGenerator::create_level(std::vector<std::vector<char>>& grid, Player& 
 
 	for (const CreatedEntity& createdEntity : createdEntities)
 	{
+		Wall* wall = dynamic_cast<Wall*>(createdEntity.entity);
+		if (wall && wall->no_neighboring_walls())
+		{
+			for (const CreatedEntity& otherEntity : createdEntities)
+			{
+				if ((otherEntity.x == createdEntity.x - 1 && otherEntity.y == createdEntity.y)
+					|| (otherEntity.x == createdEntity.x && otherEntity.y == createdEntity.y - 1))
+				{
+					Wall* neighborTile = dynamic_cast<Wall*>(otherEntity.entity);
+					if (neighborTile && neighborTile->no_neighboring_walls())
+					{
+						if (otherEntity.x == createdEntity.x - 1)
+						{
+							wall->GetNeighborStruct().left = true;
+							neighborTile->GetNeighborStruct().right = true;
+						}
+						else
+						{
+							wall->GetNeighborStruct().bottom = true;
+							neighborTile->GetNeighborStruct().top = true;
+						}
+					}
+				}
+			}
+		}
+
 		Fog* fogTile = dynamic_cast<Fog*>(createdEntity.entity);
 		if (fogTile)
 		{

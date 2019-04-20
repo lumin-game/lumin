@@ -55,6 +55,7 @@ set(SOURCE_FILES
 		src/LightWall.cpp
 		src/DarkWall.cpp
 		src/hint.cpp
+		src/wall.cpp
 
         src/project_path.hpp
         src/common.hpp

@@ -10,6 +10,9 @@ public:
 	bool is_light_collidable() const override { return isCollidable; }
 	virtual EntityColor get_color() const override { return EntityColor({ 0.8, 0.8, 0.8, 1.0 }); }
 
+	bool is_light_dynamic() const override { return false; }
+	virtual bool no_neighboring_walls() const { return false; }
+
 	virtual void activate() override;
 	virtual void deactivate() override;
 
