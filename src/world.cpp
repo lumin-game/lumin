@@ -422,16 +422,22 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
-			m_should_load_level_screen = !m_should_load_level_screen;
-			m_load_level = "";
-			m_paused = false;
+			// Disable level selection when launch screen is open
+			if (!m_should_game_start_screen) {
+				m_should_load_level_screen = !m_should_load_level_screen;
+				m_load_level = "";
+				m_paused = false;
+			}
 		}
 		else if (key == GLFW_KEY_L) {
 			m_player.toggleShowPolygon();
 		}
 		else if (key == GLFW_KEY_P) {
-			m_paused = !m_paused;
-			m_should_load_level_screen = false;
+			// Disable level selection when launch screen is open
+			if (!m_should_game_start_screen) {
+				m_paused = !m_paused;
+				m_should_load_level_screen = false;
+			}
 		}
 		else if (m_paused && key == GLFW_KEY_R) {
 			m_paused = false;
