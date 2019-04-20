@@ -156,6 +156,7 @@ void World::destroy()
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	m_press_w.destroy();
+
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -165,7 +166,7 @@ void World::destroy()
 // Update our game world
 bool World::update(float elapsed_ms) {
 	if (!m_paused) {
-		if (m_save_state.current_level == LASER_UNLOCK + 1) {
+		if (m_save_state.current_level == LASER_UNLOCK + 1 && !m_should_game_start_screen) {
 			if (m_display_laser_screen_elapsed > 0) {
 				m_show_laser_screen = true;
 				m_display_laser_screen_elapsed--;
@@ -286,7 +287,7 @@ void World::draw() {
 	/////////////////////
 	// Truly render to the screen
 	if (m_should_game_start_screen) {
-		if (m_save_state.load()) {
+		if (m_save_state.data_found) {
 			m_load_game_screen.draw(menu_projection_2D);
 		} else {
 		    m_new_game_screen.draw(menu_projection_2D);
@@ -317,9 +318,12 @@ void World::draw() {
 		m_draw_w = false;
 		m_end_screen.draw(menu_projection_2D);
 	}
-	m_right_top_menu.draw(menu_projection_2D);
-	m_left_top_menu.draw(menu_projection_2D);
-	m_current_level_top_menu.draw(menu_projection_2D);
+
+	if (!m_should_game_start_screen) {
+		m_right_top_menu.draw(menu_projection_2D);
+		m_left_top_menu.draw(menu_projection_2D);
+		m_current_level_top_menu.draw(menu_projection_2D);
+	}
 
 	if(m_draw_w){
 		m_press_w.draw(projection_2D);
@@ -430,16 +434,22 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		// press M key once to load level select screen, press it again to make it disappear unless key buttons(1-5) are selected
 		// this can be modified later after incorporating UI buttons
 		else if (key == GLFW_KEY_M) {
-			m_should_load_level_screen = !m_should_load_level_screen;
-			m_load_level = "";
-			m_paused = false;
+			// Disable level selection when launch screen is open
+			if (!m_should_game_start_screen) {
+				m_should_load_level_screen = !m_should_load_level_screen;
+				m_load_level = "";
+				m_paused = false;
+			}
 		}
 		else if (key == GLFW_KEY_L) {
 			m_player.toggleShowPolygon();
 		}
 		else if (key == GLFW_KEY_P) {
-			m_paused = !m_paused;
-			m_should_load_level_screen = false;
+			// Disable level selection when launch screen is open
+			if (!m_should_game_start_screen) {
+				m_paused = !m_paused;
+				m_should_load_level_screen = false;
+			}
 		}
 		else if (m_paused && key == GLFW_KEY_R) {
 			m_paused = false;
@@ -448,7 +458,7 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 			reset_game();
 		}
 		else if (key == GLFW_KEY_N) {
-			if (m_save_state.skips_allowed > 0) {
+			if (!m_should_game_start_screen && m_save_state.skips_allowed > 0) {
 				m_save_state.current_level += 1;
 				m_save_state.skips_allowed--;
 				next_level();
@@ -488,6 +498,10 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 
 	// Exit Game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+		// Autosaves the game when user hits ESC
+		if (m_save_state.current_level > 0 && m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
 		destroy();
 		exit(0);
 	}
@@ -532,26 +546,35 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 		vec2 reset_pos_start = {1113, 10};
 		vec2 reset_pos_end = {1164, 25};
 
-		if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
-			destroy();
-			exit(0);
-		} else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
-			m_should_load_level_screen = !m_should_load_level_screen;
-			m_load_level = "";
-			m_paused = false;
-		} else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
-			m_paused = !m_paused;
-			m_should_load_level_screen = false;
-		} else if (is_button_clicked (xpos, ypos, reset_pos_start, reset_pos_end)) {
-			if (m_paused) {
-				m_paused = false;
-			} else {
-				reset_game();
+		if (!m_should_game_start_screen) {
+			if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
+				if (m_save_state.current_level > 0 && m_save_state.save()) {
+					std::cout << "Saved game state to file.\n" << std::endl;
+				}
+				destroy();
+				exit(0);
 			}
-		}
+			else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
+				m_should_load_level_screen = !m_should_load_level_screen;
+				m_load_level = "";
+				m_paused = false;
+			}
+			else if (is_button_clicked(xpos, ypos, pause_pos_start, pause_pos_end)) {
+				m_paused = !m_paused;
+				m_should_load_level_screen = false;
+			}
+			else if (is_button_clicked(xpos, ypos, reset_pos_start, reset_pos_end)) {
+				if (m_paused) {
+					m_paused = false;
+				}
+				else {
+					reset_game();
+				}
+			}
 
-		if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
-			m_player.setLightMode(!m_player.getLightMode());
+			if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
+				m_player.setLightMode(!m_player.getLightMode());
+			}
 		}
 		// vec2 initial_pos = { 258, 171 };
 		vec2 initial_pos = { 261, 171 };
@@ -572,7 +595,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				}
 			}
 		} else if (m_should_game_start_screen) {
-			if (m_save_state.load()) {
+			if (m_save_state.data_found) {
 				// if there's already a state saved, start screen will have both "new game" and "load game" options
 				vec2 new_pos_start = {300, 567};
 				vec2 new_pos_end = {573, 679};
@@ -582,7 +605,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
-					load_level_screen(1);
+					load_level_screen(1); 
 					m_save_state.unlocked_levels = 1;
 					m_save_state.skips_allowed = MAX_SKIPS;
 				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
@@ -596,7 +619,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
-					m_save_state.unlocked_levels = 1;
+					m_save_state.unlocked_levels = 1; 
 					m_save_state.skips_allowed = MAX_SKIPS;
 				}
 			}
