@@ -14,7 +14,7 @@ public:
 	void deactivate() override;
 
 	bool is_light_dynamic() const override { return true; }
-	virtual bool activated_by_light() const { return false; }
+	virtual bool activated_by_light() const override { return false; }
 
 
 	void set_movement_properties(bool shouldCurve, std::vector<vec2> blockLocations, std::vector<vec2> curveLocations, float speed, bool moving_immediately, bool loop_movement, bool loop_reverses);

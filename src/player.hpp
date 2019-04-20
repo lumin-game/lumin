@@ -26,6 +26,9 @@ public:
 	// Returns the current player position
 	vec2 get_position()const;
 
+	const RadiusLightMesh* getPlayerRadiusLight();
+	const LaserLightMesh* getPlayerLaserLight();
+
 	// Moves the player's position by the specified offset
 	void move(vec2 off);
 
@@ -38,6 +41,8 @@ public:
 	void setPlayerPosition(vec2 pos);
 
 	void setLightMode(bool isLaser);
+
+	bool getLightMode();
 
 	vec2 getPlayerDimensions() {
 		return { (float) playerWidth, (float) playerHeight };

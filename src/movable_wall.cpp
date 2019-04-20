@@ -12,7 +12,6 @@ bool MovableWall::init(float xPos, float yPos)
 	initial_position = { xPos, yPos };
 	currentTime = 0.f;
 	return Wall::init(xPos, yPos);
-	velocity = { 0,0 };
 }
 
 void MovableWall::set_movement_properties(
@@ -64,7 +63,7 @@ void MovableWall::deactivate() {
 		isReversed = true;
 		currentTargetIndex = 0;
 		AdvanceToNextPoint();
-		}
+	}
 }
 
 void MovableWall::AdvanceToNextPoint()
@@ -168,6 +167,15 @@ void MovableWall::update(float ms) {
 			if (!curving)
 			{
 				newPos = { pos.x + (x_normalized * move_speed * ms), pos.y + (y_normalized * move_speed * ms) };
+
+				// Hacky fix to terminate movement early if we're close enough to the
+				// target location, regardless of the msToDestination calculation.
+				if (!movementLoops && std::abs(newPos.x - currentTargetLocation.x) < 1 && std::abs(newPos.y - currentTargetLocation.y) < 1) {
+					// std::cout << "Stopped movement early with hacky logic" << std::endl;
+					is_moving = false;
+					newPos.x = currentTargetLocation.x;
+					newPos.y = currentTargetLocation.y;
+				}
 			}
 			else
 			{
@@ -188,7 +196,7 @@ void MovableWall::update(float ms) {
 
 		if (collidesWithPlayer)
 		{
-			CollisionManager::GetInstance().MovePlayer({ collisionResult.resultXPos, collisionResult.resultYPos });			
+			CollisionManager::GetInstance().MovePlayer({ collisionResult.resultXPos, collisionResult.resultYPos });
 		}
 
 		set_position(newPos);
@@ -209,7 +217,7 @@ ParametricLines MovableWall::calculate_dynamic_equations() const
 	return Entity::calculate_static_equations();
 }
 
-vec2 MovableWall::get_velocity() 
+vec2 MovableWall::get_velocity()
 {
 	return velocity;
 }

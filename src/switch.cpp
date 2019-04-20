@@ -15,7 +15,14 @@ void Switch::activate() {
 	Mix_PlayChannel(-1, get_sound(), 0);
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
-			entity->activate();
+			// If a switch is connected to another switch, we treat it as
+			// a "reset switch", so deactivate that switch instead.
+			if (auto *s = dynamic_cast<Switch *>(entity)) {
+				s->reset();
+			}
+			else {
+				entity->activate();
+			}
 
 			LightBeam* lightBeam = new LightBeam();
 			lightBeam->init(m_position.x, m_position.y);
@@ -35,8 +42,15 @@ void Switch::deactivate() {
 		if (entity != nullptr) {
 			entity->deactivate();
 		}
-		else {
-			m_entities.erase(entity);
+	}
+}
+
+void Switch::reset() {
+	set_lit(false);
+
+	for (auto* entity : m_entities) {
+		if (entity != nullptr) {
+			entity->deactivate();
 		}
 	}
 }

@@ -31,6 +31,12 @@ public:
 		m_enablePolygon = !m_enablePolygon;
 	};
 
+    // how long the laser actually is
+    float actualLength;
+
+    // Angle the laser is facing
+    float lightAngle;
+
 private:
 	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
 	int UpdateVertices();

@@ -22,6 +22,7 @@ public:
 
 	void activate() override;
 	void deactivate() override;
+	void reset();
 
 	void update(float ms) override;
 	void draw(const mat3& projection) override;

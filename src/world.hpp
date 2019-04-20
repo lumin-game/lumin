@@ -5,11 +5,13 @@
 #include "player.hpp"
 #include "entity.hpp"
 #include "screen.hpp"
-#include "level_screen.hpp"
+#include "game-screens/level_screen.hpp"
 #include "pause_screen.hpp"
-#include "laser_screen.hpp"
-#include "end_screen.hpp"
-#include "level_unlocked_sparkle.hpp"
+#include "game-screens/laser_screen.hpp"
+#include "game-screens/end_screen.hpp"
+#include "game-screens/load_game_screen.hpp"
+#include "game-screens/new_game_screen.hpp"
+#include "game-screens/level_unlocked_sparkle.hpp"
 #include "right_top_menu.hpp"
 #include "left_top_menu.hpp"
 #include "current_level.hpp"
@@ -26,17 +28,20 @@
 #include <SDL_mixer.h>
 #include <ctime>
 #include <string>
+#include <math.h> 
 
-#define MAX_LEVEL 15
+#define MAX_LEVEL 19
+#define MAX_SKIPS 3
 
 struct SaveState {
     int current_level = 1;
     int unlocked_levels = MAX_LEVEL;
+	int skips_allowed = MAX_SKIPS;
 
     bool save() {
     	std::ofstream file;
     	file.open("lumin.sav");
-    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels);
+    	file << std::to_string(current_level) << "\n" << std::to_string(unlocked_levels) << "\n" << std::to_string(skips_allowed);
     	file.close();
     	return true;
     }
@@ -53,12 +58,13 @@ struct SaveState {
 		while (std::getline(in, line)) {
 			switch (i) {
 				case 0:
-					current_level = std::stoi(line);
+					current_level = std::min(MAX_LEVEL-1, std::stoi(line));
 					break;
 				case 1:
 					unlocked_levels = std::stoi(line);
 					break;
-				default:
+				case 2:
+					skips_allowed = std::stoi(line);
 					break;
 			}
 
@@ -124,6 +130,8 @@ private:
 	LevelScreen m_level_screen;
 	PauseScreen m_pause_screen;
 	LaserScreen m_laser_screen;
+	LoadGameScreen m_load_game_screen;
+	NewGameScreen m_new_game_screen;
 	std::vector<UnlockedLevelSparkle> m_unlocked_level_sparkles;
 	LeftTopMenu m_left_top_menu;
 	RightTopMenu m_right_top_menu;
@@ -148,6 +156,7 @@ private:
 	bool m_interact;
 	bool m_draw_w;
 	bool m_show_laser_screen;
+	bool m_should_game_start_screen;
 	float m_display_laser_screen_elapsed;
 
 	vec2 m_w_position;

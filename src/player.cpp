@@ -108,7 +108,7 @@ void Player::update(float ms)
 		m_y_velocity = collisionResult.resultYPush;
 	}
 
-	if(m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)
+	if (m_x_velocity != 0.f && m_screen_x_movement != 0.f && m_screen_y_movement == 0.f)
 	{
 		// only update player animation if player is walking along horizontal surface
 		playerMesh.updateFrame();
@@ -178,4 +178,26 @@ void Player::setPlayerPosition(vec2 pos) {
 void Player::setLightMode(bool isLaser)
 {
 	isLaserMode = isLaser;
+}
+
+bool Player::getLightMode() {
+	return isLaserMode;
+}
+
+const RadiusLightMesh* Player::getPlayerRadiusLight() {
+    if (isLaserMode)
+    {
+        return nullptr;
+    }
+
+    return &radiusLightMesh;
+}
+
+const LaserLightMesh* Player::getPlayerLaserLight() {
+    if (isLaserMode)
+    {
+        return &laserLightMesh;
+    }
+
+    return nullptr;
 }
