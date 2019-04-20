@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include <set>
 
 class World;
 
@@ -36,6 +37,8 @@ public:
 private:
 	// Recreate polygonial mesh based on objects that block light around us. Happens per frame.
 	void UpdateVertices();
+
+	void DetermineLineSectors(ParametricLine line, std::set<int>& indexesToAdd);
 
 	int indicesToDraw = 0;
 
