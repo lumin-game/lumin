@@ -31,7 +31,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/project_path.hpp.in" "${CMAKE_CU
 # file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
 
 set(SOURCE_FILES
-        src/a1.cpp
+        src/lumin.cpp
         src/common.cpp
         src/entity.cpp
         src/player.cpp
