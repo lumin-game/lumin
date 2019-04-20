@@ -580,17 +580,16 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				m_player.setLightMode(!m_player.getLightMode());
 			}
 		}
-		// vec2 initial_pos = { 258, 171 };
-		vec2 initial_pos = { 261, 171 };
-		int square_length = 122;
-		int square_gap = 12;
+		vec2 initial_pos = { 258, 168 };
+		int square_length = 125;
+		int square_gap = 13;
 		int grid_length = square_length + square_gap;
 		int num_col = 5;
 		int grid_x = 0;
 		int grid_y = 0;
 		float load_level = 0;
 		if (m_should_load_level_screen) {
-			if (xpos >= initial_pos.x && xpos <= (float) w / retinaScale - initial_pos.x && ypos >= initial_pos.y && ypos <= (float) h / retinaScale - initial_pos.y) {
+			if (xpos >= initial_pos.x && xpos <= (float) w / retinaScale - initial_pos.x && ypos >= initial_pos.y && ypos <= (float) initial_pos.y + grid_length * 4) {
 				grid_x = floor((xpos - (int)initial_pos.x)/grid_length);
 				grid_y = floor((ypos - (int)initial_pos.y)/grid_length);
 				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
@@ -630,4 +629,3 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 		}
 	}
 }
-
