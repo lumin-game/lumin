@@ -108,11 +108,13 @@ void Entity::UpdateHitByLight()
 
 	m_was_lit = m_is_lit;
 	m_is_lit = false;
-
-
 }
 
 void Entity::update(float elapsed_ms) {
+	if (get_audio_path() && m_entity_sound == nullptr) {
+		m_entity_sound = Mix_LoadWAV(get_audio_path());
+	}
+
 	const float LIGHTING_TRANSITION_SPEED = 0.0025f;
 	const float MINIMUM_BRIGHTNESS = 0.3f;
 
