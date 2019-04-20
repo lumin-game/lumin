@@ -116,7 +116,7 @@ void RadiusLightMesh::predraw()
 
 void RadiusLightMesh::UpdateVertices()
 {
-	startTiming("Polygon");
+//	startTiming("Polygon");
 
 	// Update our collision equations based on where we are in the world
 	// CollisionManager is friend
