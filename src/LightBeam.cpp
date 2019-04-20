@@ -2,13 +2,18 @@
 #include <math.h>       /* sqrt */
 #include "LightBeamParticle.hpp"
 
+bool LightBeam::init(float pos_x, float pos_y) {
+	m_position = { pos_x, pos_y };
+	return true;
+}
+
 void LightBeam::setParameters(vec2 dest, Switch* parent) {
 	destination = dest;
 	parent_switch = parent;
 }
 
 void LightBeam::update(float ms) {
-	const float MOVEMENT_STEP= 80.f;
+	const float MOVEMENT_STEP= 120.f;
 
 	vec2 distanceVector = { destination.x - m_position.x, destination.y - m_position.y };
 	float distance = sqrt((distanceVector.x*distanceVector.x) + (distanceVector.y * distanceVector.y));
@@ -18,16 +23,28 @@ void LightBeam::update(float ms) {
 	float distWillTravel = sqrt((yNormalized*yNormalized) + (xNormalized*xNormalized));
 	
 	if (distWillTravel <= distance) {
-		//TODO only spawn particles if x ms has passed
-
 		m_position = { m_position.x + xNormalized, m_position.y + yNormalized };
 
-		LightBeamParticle* particle = new LightBeamParticle();
-		particle->init(m_position.x, m_position.y);
-		particle->set_lit(true);
-		parent_switch->add_beam_particle(particle);
+		ms_since_last_particle += ms;
+		if (ms_since_last_particle > MS_BETWEEN_PARTICLES) {
+			LightBeamParticle* particle = new LightBeamParticle();
+			particle->init(m_position.x, m_position.y);
+			parent_switch->add_beam_particle(particle);
+			ms_since_last_particle -= MS_BETWEEN_PARTICLES;
+		}
+
 	}
 	else {
-		//TODO destroy this beam here
+		destroyed = true;
+		destroy();
 	}
+}
+
+
+void LightBeam::draw(const mat3& projection) {
+	//do not
+}
+
+bool LightBeam::is_destroyed() {
+	return destroyed;
 }

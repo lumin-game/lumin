@@ -7,13 +7,17 @@ class LightBeamParticle : public Entity {
 
 public:
 	const char* get_texture_path() const override {
-		return textures_path("glass.png");
+		return nullptr;
 	}
 	const char* get_lit_texture_path() const override {
-		return textures_path("glass.png");
+		return nullptr;
 	}
 
+	void set_texture(Texture* tex);
+
 	void update(float ms) override;
+
+	bool init(float x_pos, float y_pos) override;
 
 	void draw(const mat3& projection) override;
 
@@ -21,6 +25,6 @@ public:
 
 private:
 	vec2 destination;
-	float m_opacity = 1.0f;
+	float m_opacity = 0.8f;
 	bool destroyed = false;
 };

@@ -1,7 +1,7 @@
 #include "LightBeamParticle.hpp"
 
 void LightBeamParticle::update(float ms) {
-	const float OPACITY_STEP = 0.2f;
+	const float OPACITY_STEP = 0.14f;
 
 	m_opacity -= OPACITY_STEP * (ms / 100);
 	if (m_opacity < 0) {
@@ -10,9 +10,67 @@ void LightBeamParticle::update(float ms) {
 	}
 }
 
+bool LightBeamParticle::init(float x_pos, float y_pos) {
+	
+	m_scale.x = 0.4f;
+	m_scale.y = 0.4f;
+
+	m_position.x = (float)x_pos;
+	m_position.y = (float)y_pos;
+
+	darkness_modifier = 1.0f;
+	return true;
+}
+
+void LightBeamParticle::set_texture(Texture* tex) {
+	texture = tex;
+
+	// The position corresponds to the center of the texture
+	float wr = texture->width * 0.5f;
+	float hr = texture->height * 0.5f;
+
+
+
+	TexturedVertex vertices[4];
+	vertices[0].position = { -wr, +hr, -0.02f };
+	vertices[0].texcoord = { 0.f, 1.f };
+	vertices[1].position = { +wr, +hr, -0.02f };
+	vertices[1].texcoord = { 1.f, 1.f };
+	vertices[2].position = { +wr, -hr, -0.02f };
+	vertices[2].texcoord = { 1.f, 0.f };
+	vertices[3].position = { -wr, -hr, -0.02f };
+	vertices[3].texcoord = { 0.f, 0.f };
+
+
+	// counterclockwise as it's the default opengl front winding direction
+	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
+
+	// Clearing errors
+	gl_flush_errors();
+
+	// Vertex Buffer creation
+	glGenBuffers(1, &mesh.vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TexturedVertex) * 4, vertices, GL_STATIC_DRAW);
+
+	// Index Buffer creation
+	glGenBuffers(1, &mesh.ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * 6, indices, GL_STATIC_DRAW);
+
+	// Vertex Array (Container for Vertex + Index buffer)
+	glGenVertexArrays(1, &mesh.vao);
+	if (gl_has_errors())
+		std::cout << "glsl errors occurred when setting light particle texture" << std::endl;
+
+	// Loading shaders
+	if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
+		std::cout << "couldn't load texture shader for light particles" << std::endl;
+}
+
 void LightBeamParticle::draw(const mat3& projection) {
 	// Transformation code, see Rendering and Transformation in the template specification for more info
-// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
+	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	transform_begin();
 	transform_translate(m_position);
 	transform_scale(m_scale);
@@ -57,6 +115,7 @@ void LightBeamParticle::draw(const mat3& projection) {
 
 	// Drawing!
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+	
 }
 
 bool LightBeamParticle::is_destroyed() {

@@ -2,6 +2,15 @@
 #include "CollisionManager.hpp"
 #include "LightBeam.hpp"
 
+bool Switch::init(float x_pos, float y_pos) {
+	if (!particle_texture.load_from_file(textures_path("light_particle.png"))) {
+		fprintf(stderr, "Failed to load switch particle texture!");
+		return false;
+	}
+
+	Entity::init(x_pos, y_pos);
+}
+
 void Switch::activate() {
 	Mix_PlayChannel(-1, get_sound(), 0);
 	for (auto* entity : m_entities) {
@@ -33,54 +42,52 @@ void Switch::deactivate() {
 }
 
 void Switch::update(float ms) {
-	for (Entity* light_beam : light_beams) {
-		if (light_beam != nullptr) {
-			light_beam->update(ms);
-		}
-		else {
-			light_beams.erase(light_beam);
-		}
-	}
 
-	std::cout << "num light beam particles" << light_beam_particles.size() << std::endl;
-
-	for (LightBeamParticle* light_part : light_beam_particles) {
-		if (light_part != nullptr && !light_part->is_destroyed()) {
-			light_part->update(ms);
-		}
-		else {
-			light_beam_particles.erase(light_part);
-			delete light_part;
+	for (std::set<Entity*>::iterator it = light_beams.begin(); it != light_beams.end();) {
+		if (LightBeam* beam = dynamic_cast<LightBeam*>(*it)) {
+			if (beam == nullptr || beam->is_destroyed()) {
+				it = light_beams.erase(it);
+				//Do i need to deallocate the memory here by calling delete?
+			}
+			else {
+				(*it)->update(ms);
+				++it;
+			}
 		}
 	}
 
-
+	for (std::set<LightBeamParticle*>::iterator it = light_beam_particles.begin(); it != light_beam_particles.end();) {
+		if ((*it) == nullptr || (*it)->is_destroyed()) {
+			it = light_beam_particles.erase(it);
+			//Do i need to deallocate the memory here by calling delete?
+		}
+		else {
+			(*it)->update(ms);
+			++it;
+		}
+	}
 }
 
 void Switch::draw(const mat3& projection) {
 	Entity::draw(projection);
-	for (Entity* light_beam : light_beams) {
-		if (light_beam != nullptr) {
-			light_beam->draw(projection);
-		}
-		else {
-			light_beams.erase(light_beam);
-		}
-	}
 
-	for (LightBeamParticle* light_part : light_beam_particles) {
-		if (light_part != nullptr && !light_part->is_destroyed()) {
-			light_part->draw(projection);
+	for (std::set<LightBeamParticle*>::iterator it = light_beam_particles.begin(); it != light_beam_particles.end();) {
+		if ((*it) == nullptr || (*it)->is_destroyed()) {
+			it = light_beam_particles.erase(it);
+			//Do i need to deallocate the memory by calling delete?
 		}
 		else {
-			light_beam_particles.erase(light_part);
-			delete light_part;
+			(*it)->draw(projection);
+			++it;
 		}
 	}
 }
 
 void Switch::add_beam_particle(LightBeamParticle* particle) {
-		light_beam_particles.insert(particle);
+	// sending all particles the texture from switch lets us only load the texture from file once per switch instead of once per particle
+	particle->set_texture(&particle_texture); 
+
+	light_beam_particles.insert(particle);
 }
 
 

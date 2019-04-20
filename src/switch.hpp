@@ -18,6 +18,8 @@ public:
 	const char* get_audio_path() const override { return audio_path("switch_sound.wav"); }
 	bool is_light_dynamic() const override { return true; }
 
+	bool init(float x_pos, float y_pos) override;
+
 	void activate() override;
 	void deactivate() override;
 
@@ -32,4 +34,5 @@ private:
 	bool mToggleSwitch = false;
 	std::set<Entity*> light_beams;
 	std::set<LightBeamParticle*> light_beam_particles;
+	Texture particle_texture;
 };
