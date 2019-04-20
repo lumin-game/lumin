@@ -156,6 +156,7 @@ void World::destroy()
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	m_press_w.destroy();
+
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
 	}
@@ -315,9 +316,12 @@ void World::draw() {
 		m_draw_w = false;
 		m_end_screen.draw(menu_projection_2D);
 	}
-	m_right_top_menu.draw(menu_projection_2D);
-	m_left_top_menu.draw(menu_projection_2D);
-	m_current_level_top_menu.draw(menu_projection_2D);
+
+	if (!m_should_game_start_screen) {
+		m_right_top_menu.draw(menu_projection_2D);
+		m_left_top_menu.draw(menu_projection_2D);
+		m_current_level_top_menu.draw(menu_projection_2D);
+	}
 
 	if(m_draw_w){
 		m_press_w.draw(projection_2D);
@@ -535,6 +539,9 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 		vec2 reset_pos_end = {1164, 25};
 
 		if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
+			if (m_save_state.current_level > 0 && m_save_state.save()) {
+				std::cout << "Saved game state to file.\n" << std::endl;
+			}
 			destroy();
 			exit(0);
 		} else if (is_button_clicked(xpos, ypos, menu_pos_start, menu_pos_end)) {
@@ -586,6 +593,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 					// start new game from level 1
 					load_level_screen(1); 
 					m_save_state.unlocked_levels = 1;
+					m_save_state.skips_allowed = MAX_SKIPS;
 				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
 					// load game from save state
 					load_level_screen(m_save_state.current_level);
@@ -597,7 +605,8 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
-					m_save_state.unlocked_levels = 1;
+					m_save_state.unlocked_levels = 1; 
+					m_save_state.skips_allowed = MAX_SKIPS;
 				}
 			}
 		}
