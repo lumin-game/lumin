@@ -284,7 +284,7 @@ void World::draw() {
 	/////////////////////
 	// Truly render to the screen
 	if (m_should_game_start_screen) {
-		if (m_save_state.load()) {
+		if (m_save_state.data_found) {
 			m_load_game_screen.draw(menu_projection_2D);
 		} else {
 		    m_new_game_screen.draw(menu_projection_2D);
@@ -480,6 +480,10 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 
 	// Exit Game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+		// Autosaves the game when user hits ESC
+		if (m_save_state.current_level > 0 && m_save_state.save()) {
+			std::cout << "Saved game state to file.\n" << std::endl;
+		}
 		destroy();
 		exit(0);
 	}
@@ -564,7 +568,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				}
 			}
 		} else if (m_should_game_start_screen) {
-			if (m_save_state.load()) {
+			if (m_save_state.data_found) {
 				// if there's already a state saved, start screen will have both "new game" and "load game" options
 				vec2 new_pos_start = {300, 567};
 				vec2 new_pos_end = {573, 679};
@@ -575,8 +579,6 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
-					m_save_state.unlocked_levels = 1;
-					m_save_state.skips_allowed = MAX_SKIPS;
 				} else if (is_button_clicked(xpos, ypos, load_pos_start, load_pos_end)) {
 					// load game from save state
 					load_level_screen(m_save_state.current_level);
@@ -588,8 +590,6 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				if (is_button_clicked(xpos, ypos, new_pos_start, new_pos_end)) {
 					// start new game from level 1
 					load_level_screen(1);
-					m_save_state.unlocked_levels = 1;
-					m_save_state.skips_allowed = MAX_SKIPS;
 				}
 			}
 		}
