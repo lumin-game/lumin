@@ -523,7 +523,7 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	auto retinaScale = (float) (w / ww);
 	double xpos, ypos;
 	glfwGetCursorPos(m_window, &xpos, &ypos);
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !m_should_game_start_screen)
 	{
 		// check for clicks on the top menu bar
 		vec2 exit_pos_start = {932, 10};
