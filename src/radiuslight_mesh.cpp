@@ -4,15 +4,25 @@
 
 // stlib
 #include <vector>
+#include <array>
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include <set>
+// #include <chrono> // used for testing performance
 
 // external
 #include "world.hpp"
 
 #define PI 3.14159265
+
+// For performance testing
+// using Clock = std::chrono::high_resolution_clock;
+//#define startTiming(Name) std::chrono::time_point<std::chrono::high_resolution_clock> whenBegan_Name = std::chrono::high_resolution_clock::now()
+//#define stopTiming(Name) std::chrono::time_point<std::chrono::high_resolution_clock> whenEnd_Name = std::chrono::high_resolution_clock::now(); \
+//						 float time_Name = (float)(std::chrono::duration_cast<std::chrono::microseconds>(whenEnd_Name - whenBegan_Name)).count() / 1000; \
+//						 std::cout << Name << " time: " << time_Name << std::endl
+
+
 
 bool RadiusLightMesh::init()
 {
@@ -106,6 +116,8 @@ void RadiusLightMesh::predraw()
 
 void RadiusLightMesh::UpdateVertices()
 {
+	startTiming("Polygon");
+
 	// Update our collision equations based on where we are in the world
 	// CollisionManager is friend
 	const CollisionManager& colManager = CollisionManager::GetInstance();
@@ -171,16 +183,20 @@ void RadiusLightMesh::UpdateVertices()
 	});
 
 	// Bound lines is a list of entities and their boundary lines
-	std::vector<EntityLines> entityLines;
+	std::array<std::vector<EntityLines>, 36> entityLinesByAngles;
 	for (Entity* entity : entities)
 	{
 		EntityLines entityLine;
 		entityLine.entity = entity;
 
+		std::set<int> indexesToAdd;
+
 		for (ParametricLine boundLine : entity->calculate_boundary_equations())
 		{
 			boundLine.x_0 = boundLine.x_0 - m_parent.m_position.x;
 			boundLine.y_0 = boundLine.y_0 - m_parent.m_position.y;
+
+			DetermineLineSectors(boundLine, indexesToAdd);
 
 			entityLine.boundaryLines.push_back(boundLine);
 		}
@@ -190,6 +206,8 @@ void RadiusLightMesh::UpdateVertices()
 			staticLine.x_0 = staticLine.x_0 - m_parent.m_position.x;
 			staticLine.y_0 = staticLine.y_0 - m_parent.m_position.y;
 
+			DetermineLineSectors(staticLine, indexesToAdd);
+
 			entityLine.lightCollisionLines.push_back(staticLine);
 		}
 
@@ -198,10 +216,15 @@ void RadiusLightMesh::UpdateVertices()
 			dynamicLine.x_0 = dynamicLine.x_0 - m_parent.m_position.x;
 			dynamicLine.y_0 = dynamicLine.y_0 - m_parent.m_position.y;
 
+			DetermineLineSectors(dynamicLine, indexesToAdd);
+
 			entityLine.lightCollisionLines.push_back(dynamicLine);
 		}
 
-		entityLines.push_back(entityLine);
+		for (int index : indexesToAdd)
+		{
+			entityLinesByAngles[index].push_back(entityLine);
+		}
 	}
 
 	// For each point, rayTrace from origin to it. The result will be one vertex for our polygon
@@ -214,9 +237,14 @@ void RadiusLightMesh::UpdateVertices()
 		rayTrace.y_0 = 0.f;
 		rayTrace.y_t = corner.y;
 
+		float raytraceAngle = std::atan2(-corner.y, corner.x);
+		raytraceAngle = raytraceAngle < 0 ? raytraceAngle + 2 * PI : raytraceAngle;
+		raytraceAngle = raytraceAngle * 360.f / (2 * PI);
+		int raytraceIndex = raytraceAngle / 10;
+
 		vec2 hitPos = { rayTrace.x_t, rayTrace.y_t };
 
-		for (EntityLines& entityLine : entityLines)
+		for (EntityLines& entityLine : entityLinesByAngles[raytraceIndex])
 		{
 			for (ParametricLine lightEq : entityLine.lightCollisionLines)
 			{
@@ -234,7 +262,7 @@ void RadiusLightMesh::UpdateVertices()
 		rayTrace.x_t = hitPos.x;
 		rayTrace.y_t = hitPos.y;
 
-		for (EntityLines& entityLine : entityLines)
+		for (EntityLines& entityLine : entityLinesByAngles[raytraceIndex])
 		{
 			for (ParametricLine boundLine : entityLine.boundaryLines)
 			{
@@ -287,6 +315,50 @@ void RadiusLightMesh::UpdateVertices()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
 	indicesToDraw = indices.size();
+
+//	stopTiming("Polygon");
+}
+
+
+void RadiusLightMesh::DetermineLineSectors(ParametricLine line, std::set<int>& indexesToAdd)
+{
+	float angleFrom = std::atan2(-line.y_0, line.x_0);
+	angleFrom = angleFrom < 0 ? angleFrom + 2*PI : angleFrom;
+	float angleTo = std::atan2(-(line.y_0 + line.y_t), line.x_0 + line.x_t);
+	angleTo = angleTo < 0 ? angleTo + 2*PI : angleTo;
+
+	if (angleFrom > angleTo)
+	{
+		float temp = angleTo;
+		angleTo = angleFrom;
+		angleFrom = temp;
+	}
+
+	// Angle from is always smaller than angle to
+	float angleToDeg = angleTo * 360.f / (2 * PI);
+	float angleFromDeg = angleFrom * 360.f / (2 * PI);
+	int angleFromIndex = angleFromDeg / 10;
+	int angleToIndex = angleToDeg / 10;
+
+	if (angleToIndex == angleFromIndex)
+	{
+		indexesToAdd.insert(angleToIndex);
+		return;
+	}
+
+	int direction = angleToIndex - angleFromIndex > 18 ? -1 : +1;
+	int i = angleFromIndex;
+	while(true)
+	{
+		indexesToAdd.insert(i);
+
+		if (i == angleToIndex)
+		{
+			return;
+		}
+
+		i = (i + direction) % 36 >= 0 ? (i + direction) % 36 : (i + direction) % 36 + 36;
+	}
 }
 
 vec2 RadiusLightMesh::get_position() const
