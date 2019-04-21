@@ -1,6 +1,7 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 #include "CollisionManager.hpp"
 #include "player.hpp"
 #include "movable_wall.hpp"
@@ -107,6 +108,9 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 	CollisionResult collisionResults;
 	collisionResults.resultXPos = xPos + xDist;
 	collisionResults.resultYPos = yPos + yDist;
+
+	std::vector<EntityDistance> collidingEntities;
+
 	for (Entity* entity : registeredEntities)
 	{
 		if (!entity->is_player_collidable())
@@ -114,6 +118,31 @@ const CollisionManager::CollisionResult CollisionManager::BoxTrace(int width, in
 			continue;
 		}
 
+		// Center-to-center distance between two boxes
+		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
+		float distanceY = std::fabs(entity->get_position().y - yPos - yDist);
+
+		// Margin is how much distance can be between the two centers before collision
+		float xMargin = (entity->get_bounding_box().x + width) / 2;
+		float yMargin = (entity->get_bounding_box().y + height) / 2;
+
+		if (distanceX < xMargin && distanceY < yMargin)
+		{
+			EntityDistance entDist;
+			entDist.entity = entity;
+			entDist.distanceSqr = distanceX * distanceX + distanceY * distanceY;
+			collidingEntities.push_back(entDist);
+		}
+	}
+
+	std::sort(collidingEntities.begin(), collidingEntities.end(), [](const EntityDistance ent1, const EntityDistance ent2)
+	{
+		return ent1.distanceSqr < ent2.distanceSqr;
+	});
+
+	for (struct EntityDistance colEntity : collidingEntities)
+	{
+		Entity* entity = colEntity.entity;
 		// Center-to-center distance between two boxes
 		float distanceX = std::fabs(entity->get_position().x - xPos - xDist);
 		float distanceY = std::fabs(entity->get_position().y - yPos - yDist);
