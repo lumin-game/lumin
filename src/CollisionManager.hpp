@@ -11,6 +11,12 @@ class CollisionManager
 
 public:
 
+struct EntityDistance
+{
+	Entity* entity;
+	float distanceSqr;
+};
+
 // CollisionResult is the result of moving one box a set distance.
 // Collisions are resolved one by one
 struct CollisionResult
