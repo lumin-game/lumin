@@ -350,7 +350,7 @@ void World::draw() {
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
-	//textRenderer.drawText("Hello world", 540.0f, 570.0f, 1.0, colour);
+
 	m_screen.draw(projection_2D);
 	//////////////////
 	// Presenting

@@ -9,16 +9,6 @@ bool TextRenderer::init() {
 	if (!effect.load_from_file(shader_path("textured.vs.glsl"), shader_path("textured.fs.glsl")))
 		return false;
 
-	glGenVertexArrays(1, &mesh.vao);
-	glGenBuffers(1, &mesh.vbo);
-	glBindVertexArray(mesh.vao);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) // All functions return a value different than 0 whenever an error occurred
 	{
@@ -74,8 +64,29 @@ bool TextRenderer::init() {
 			face->glyph->advance.x
 		};
 		Characters.insert(std::pair<GLchar, Character>(c, character));
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
+	} 
+	
+	// counterclockwise as it's the default opengl front winding direction
+	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
+
+	// Clearing errors
+	gl_flush_errors();
+
+	// Vertex Buffer creation
+	glGenBuffers(1, &mesh.vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TexturedVertex) * 4, NULL, GL_DYNAMIC_DRAW);
+
+	// Index Buffer creation
+	glGenBuffers(1, &mesh.ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * 6, indices, GL_STATIC_DRAW);
+
+	// Vertex Array (Container for Vertex + Index buffer)
+	glGenVertexArrays(1, &mesh.vao);
+	if (gl_has_errors())
+		return false;
+
 	// Destroy FreeType once we're finished
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
@@ -92,17 +103,41 @@ void TextRenderer::destroy() {
 }
 
 void TextRenderer::draw(const mat3& projection) {
+	transform_begin();
+	transform_translate({ 425.f, -360.f });
+	transform_scale(m_scale);
+	transform_end();
 
+	std::string text = "Hello world";
+	GLfloat x = 0.f;
+	GLfloat y = 0.f;
+	GLfloat scale = 1.f;
 	// Setting shaders
 	glUseProgram(effect.program);
-	glActiveTexture(GL_TEXTURE0);
+
+	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	
+	GLint transform_uloc = glGetUniformLocation(effect.program, "transform");
+	GLint color_uloc = glGetUniformLocation(effect.program, "fcolor");
+	GLint projection_uloc = glGetUniformLocation(effect.program, "projection");
+
+	// Setting vertices and indices
 	glBindVertexArray(mesh.vao);
 
-	drawText("Hello world", 540.f, 570.f, 10.f, vec3({ 1.f, 0.f, 0.f }));
-}
+	// Input data location as in the vertex buffer
+	GLint in_position_loc = glGetAttribLocation(effect.program, "in_position");
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
 
-void TextRenderer::drawText(std::string text, GLfloat x, GLfloat y, GLfloat scale, vec3 color) {
-	glUniform3f(glGetUniformLocation(effect.program, "textColor"), color.x, color.y, color.z);
+	float color[4] = { 1.f, 1.f, 1.f, 1.f };
+
+	// Setting uniform values to the currently bound program
+	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform);
+	glUniform4fv(color_uloc, 1, color);
+	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+	
+	glActiveTexture(GL_TEXTURE0);
 	// Iterate through all characters
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++)
@@ -110,10 +145,10 @@ void TextRenderer::drawText(std::string text, GLfloat x, GLfloat y, GLfloat scal
 		Character ch = Characters[*c];
 
 		GLfloat xpos = x + ch.Bearing.x * scale;
-		GLfloat ypos = y + (this->Characters['H'].Bearing.y - ch.Bearing.y) * scale;
+		GLfloat ypos = y + (ch.size.y - ch.Bearing.y) * scale;
 
-		GLfloat w = ch.Size.x * scale;
-		GLfloat h = ch.Size.y * scale;
+		GLfloat w = ch.size.x * scale;
+		GLfloat h = ch.size.y * scale;
 		// Update VBO for each character
 		GLfloat vertices[6][4] = {
 			{ xpos,     ypos + h,   0.0, 1.0 },
@@ -124,18 +159,21 @@ void TextRenderer::drawText(std::string text, GLfloat x, GLfloat y, GLfloat scal
 			{ xpos + w, ypos + h,   1.0, 1.0 },
 			{ xpos + w, ypos,       1.0, 0.0 }
 		};
-		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 		// Update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.textureID);
 		// Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// Now advance cursors for next glyph
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+
 		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (1/64th times 2^6 = 64)
 	}
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//drawText("Hello world", 425.f, -364.f, 10.f, color);
+}
+
+void TextRenderer::drawText(std::string text, GLfloat x, GLfloat y, GLfloat scale, float color[]) {
+	
 }

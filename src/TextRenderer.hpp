@@ -11,12 +11,12 @@ public:
 	bool init();
 	void destroy();
 	void draw(const mat3& projection)override;
-	void drawText(std::string text, GLfloat x, GLfloat y, GLfloat scale, vec3 color);
+	void drawText(std::string text, GLfloat x, GLfloat y, GLfloat scale, float color[]);
 
 private:
 	struct Character {
-		GLuint TextureID;
-		glm::ivec2 Size;
+		GLuint textureID;
+		glm::ivec2 size;
 		glm::ivec2 Bearing;
 		GLuint Advance;
 	};
