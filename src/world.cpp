@@ -330,8 +330,6 @@ void World::draw() {
 		m_right_top_menu.draw(menu_projection_2D);
 		m_left_top_menu.draw(menu_projection_2D);
 		m_current_level_top_menu.draw(menu_projection_2D);
-
-		textRenderer.draw(menu_projection_2D);
 	}
 
 	if(m_draw_w){
@@ -350,8 +348,9 @@ void World::draw() {
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
-
-	m_screen.draw(projection_2D);
+	textRenderer.draw(menu_projection_2D);
+	
+	//m_screen.draw(projection_2D);
 	//////////////////
 	// Presenting
 	glfwSwapBuffers(m_window);

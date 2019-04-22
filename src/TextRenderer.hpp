@@ -1,5 +1,8 @@
 #include <common.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <string>
 #include <map>
 #include <iostream>
@@ -20,6 +23,14 @@ private:
 		glm::ivec2 Bearing;
 		GLuint Advance;
 	};
+	FT_Library ft;
+	// Load font as face
+	FT_Face face;
+
+	GLuint vbo;
+	GLuint attribute_coord;
+	GLuint uniform_tex;
+	GLuint uniform_color;
 
 	std::map<GLchar, Character> Characters;
 	vec2 m_position;
