@@ -17,6 +17,7 @@
 #include "current_level.hpp"
 #include "LevelGenerator.hpp"
 #include "press_w.hpp"
+#include "TextRenderer.hpp"
 
 // stlib
 #include <vector>
@@ -124,6 +125,7 @@ private:
 	Texture m_screen_tex;
 
 	LevelGenerator levelGenerator;
+	TextRenderer textRenderer;
 
 	// Screen object, we draw everything to another buffer first and then draw the screen using that buffer
 	Screen m_screen;

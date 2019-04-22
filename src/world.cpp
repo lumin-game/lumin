@@ -101,6 +101,7 @@ bool World::init(vec2 screen) {
 	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
+	textRenderer.init();
 
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
@@ -156,6 +157,7 @@ void World::destroy()
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	m_press_w.destroy();
+	textRenderer.destroy();
 
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
@@ -274,6 +276,8 @@ void World::draw() {
 
 	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
+	vec3 colour = vec3({ 1.0,0.0,0.0 });
+
 	for (Entity* entity : m_entities) {
 		entity->predraw();
 	}
@@ -281,7 +285,6 @@ void World::draw() {
 	for (Entity* entity: m_entities) {
 		entity->draw(projection_2D);
 	}
-
 	m_player.draw(projection_2D);
 
 	float scaled_width = w / SCREEN_SCALE;
@@ -327,11 +330,14 @@ void World::draw() {
 		m_right_top_menu.draw(menu_projection_2D);
 		m_left_top_menu.draw(menu_projection_2D);
 		m_current_level_top_menu.draw(menu_projection_2D);
+
+		textRenderer.draw(menu_projection_2D);
 	}
 
 	if(m_draw_w){
 		m_press_w.draw(projection_2D);
 	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -344,9 +350,8 @@ void World::draw() {
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
-
+	//textRenderer.drawText("Hello world", 540.0f, 570.0f, 1.0, colour);
 	m_screen.draw(projection_2D);
-
 	//////////////////
 	// Presenting
 	glfwSwapBuffers(m_window);

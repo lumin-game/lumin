@@ -24,6 +24,7 @@
 #define audio_path(name) data_path  "/audio/" name
 #define mesh_path(name) data_path  "/meshes/" name
 #define levels_path(name) data_path "/levels/" name
+#define fonts_path(name) data_path "/fonts/" name
 
 // Not much math is needed and there are already way too many libraries linked (:
 // If you want to do some overloads..
