@@ -10,7 +10,7 @@ A light-based puzzle platformer game.
 - SDL
 
 ```
-brew install pkg-config glfw3 sdl2 sdl2_mixer
+brew install pkg-config glfw3 sdl2 sdl2_mixer freetype
 ```
 
 ## Miscellaneous
