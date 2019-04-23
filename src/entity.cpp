@@ -205,7 +205,7 @@ void Entity::set_lit(bool lit) {
 }
 
 bool Entity::get_lit() const {
-	return m_was_lit;
+	return m_is_lit;
 }
 ParametricLines Entity::calculate_dynamic_equations() const
 {
