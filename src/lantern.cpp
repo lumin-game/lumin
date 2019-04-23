@@ -18,7 +18,7 @@ bool Lantern::init(float x_pos, float y_pos) {
 void Lantern::update(float ms) {
 
     // after the lantern is turned on, have fireflies appear one by one until all 12 are visible
-    if (ms_since_activation < MAX_MS_SINCE_ACTIVATION && get_lit()) {
+    if (ms_since_activation < MAX_MS_SINCE_ACTIVATION && get_on()) {
         ms_since_activation += ms;
         num_fireflies_drawn = std::min(FIREFLY_COUNT - 1, (int) (ms_since_activation / MS_BETWEEN_SPAWN));
     }
@@ -33,7 +33,7 @@ void Lantern::update(float ms) {
 void Lantern::draw(const mat3 &projection) {
     Entity::draw(projection);
     // same as Firefly::draw(), except don't draw all the SingleFireflies at once when lantern is turned on
-    if (get_lit()) {
+    if (get_on()) {
         SingleFirefly::ParentData fireflyData;
         // the firefly jar is in bottom half of the lantern texture, so move the fireflies down
         fireflyData.m_position = vec2{m_position.x, m_position.y + 18};
@@ -63,5 +63,23 @@ void Lantern::destroy() {
 }
 
 void Lantern::activate() {
-    set_lit(true);
+    set_on(true);
+}
+
+void Lantern::deactivate() {
+    set_on(false);
+}
+
+void Lantern::predraw() {
+    if (get_on()) {
+        Firefly::predraw();
+    }
+}
+
+bool Lantern::get_on() {
+    return m_is_on;
+}
+
+void Lantern::set_on(bool on) {
+    m_is_on = on;
 }
