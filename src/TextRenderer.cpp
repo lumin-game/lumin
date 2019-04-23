@@ -40,7 +40,7 @@ void TextRenderer::destroy() {
 
 void TextRenderer::draw(const mat3& projection) { }
 
-void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy) {
+void TextRenderer::drawText(int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy) {
 	FT_GlyphSlot g = face->glyph;
 
 	GLuint tex;
@@ -73,6 +73,7 @@ void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, G
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	std::string text = "current level: ";
 	text += std::to_string(level);
 
 	for (std::string::const_iterator p = text.begin(); p != text.end(); p++){

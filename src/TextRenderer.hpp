@@ -14,7 +14,7 @@ public:
 	bool init();
 	void destroy();
 	void draw(const mat3& projection)override;
-	void drawText(std::string text, int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy);
+	void drawText(int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy);
 
 private:
 	FT_Library ft;
