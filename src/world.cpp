@@ -6,7 +6,7 @@
 
 const float NEXT_LEVEL_DELAY = 450.f;
 const float SCREEN_SCALE = 1.2f;
-#define LASER_UNLOCK 11
+#define LASER_UNLOCK 12
 
 // Same as static in c, local to compilation unit
 namespace {
