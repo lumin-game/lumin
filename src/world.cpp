@@ -342,8 +342,8 @@ void World::draw() {
 		m_right_top_menu.draw(menu_projection_2D);
 		float sx = 2.f / 1200.f;
 		float sy = 2.f / 800.f;
-		textRenderer.drawText("current level: ", m_save_state.current_level, -1 + 50 * sx, 1 - 50 * sy, sx, sy);
-		textRenderer.drawText("skips remaining: ", m_save_state.skips_allowed, -1 + 200 * sx, 1 - 50 * sy, sx, sy);
+		textRenderer.drawText("current level: ", m_save_state.current_level, -1 + 50 * sx, 1 - 50 * sy, sx, sy, retinaScale);
+		textRenderer.drawText("skips remaining: ", m_save_state.skips_allowed, -1 + 200 * sx, 1 - 50 * sy, sx, sy, retinaScale);
 	}
 
 	if(m_draw_w){
