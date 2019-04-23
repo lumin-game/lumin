@@ -556,18 +556,21 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		// check for clicks on the top menu bar
-		vec2 exit_pos_start = {932, 10};
-		vec2 exit_pos_end = {970, 25};
+		vec2 exit_pos_start = {851, 10};
+		vec2 exit_pos_end = {897, 38};
 
-		vec2 menu_pos_start = {986, 10};
-		vec2 menu_pos_end = {1039, 25};
+		vec2 menu_pos_start = {916, 10};
+		vec2 menu_pos_end = {978, 38};
 
-		vec2 pause_pos_start = {1051, 10};
-		vec2 pause_pos_end = {1102, 25};
+		vec2 pause_pos_start = {995, 10};
+		vec2 pause_pos_end = {1056, 38};
 
-		vec2 reset_pos_start = {1113, 10};
-		vec2 reset_pos_end = {1164, 25};
+		vec2 reset_pos_start = {1067, 10};
+		vec2 reset_pos_end = {1125, 38};
 
+		vec2 skip_pos_start = {1139, 10};
+		vec2 skip_pos_end = {1191, 38};
+	
 		if (!m_should_game_start_screen) {
 			if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
 				if (m_save_state.current_level > 0 && m_save_state.save()) {
@@ -593,21 +596,29 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 					reset_game();
 				}
 			}
+			else if (is_button_clicked(xpos, ypos, skip_pos_start, skip_pos_end)) {
+				if (m_save_state.skips_allowed > 0) {
+					m_save_state.current_level += 1;
+					m_save_state.skips_allowed--;
+					next_level();
+				}
+			}
 
 			if (m_save_state.current_level == -1 || m_save_state.current_level > LASER_UNLOCK) {
 				m_player.setLightMode(!m_player.getLightMode());
 			}
 		}
-		vec2 initial_pos = { 258, 168 };
 		int square_length = 125;
 		int square_gap = 13;
 		int grid_length = square_length + square_gap;
+		vec2 initial_pos = {258, 168};
+		vec2 end_pos = {(float) w / retinaScale - initial_pos.x, (float) initial_pos.y + grid_length * 4};
 		int num_col = 5;
 		int grid_x = 0;
 		int grid_y = 0;
 		float load_level = 0;
 		if (m_should_load_level_screen) {
-			if (xpos >= initial_pos.x && xpos <= (float) w / retinaScale - initial_pos.x && ypos >= initial_pos.y && ypos <= (float) initial_pos.y + grid_length * 4) {
+			if (is_button_clicked (xpos, ypos, initial_pos, end_pos)) {
 				grid_x = floor((xpos - (int)initial_pos.x)/grid_length);
 				grid_y = floor((ypos - (int)initial_pos.y)/grid_length);
 				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
