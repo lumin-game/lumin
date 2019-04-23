@@ -42,7 +42,7 @@ void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, G
 	FT_GlyphSlot g = face->glyph;
 
 	// Set size to load glyphs as
-	FT_Set_Pixel_Sizes(face, 0, 28 / scale);
+	FT_Set_Pixel_Sizes(face, 0, 28 * scale);
 
 	GLuint tex;
 	glActiveTexture(GL_TEXTURE0);
