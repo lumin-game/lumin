@@ -107,4 +107,6 @@ void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, G
 		x += (g->advance.x >> 6) * sx;
 		y += (g->advance.y >> 6) * sy;
 	}
+	glDisableVertexAttribArray(attribute_coord);
+	glDeleteTextures(1, &tex);
 }
