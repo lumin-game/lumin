@@ -134,6 +134,8 @@ bool World::init(vec2 screen) {
 	// Loop background music
 	Mix_PlayMusic(m_background_music, -1);
 
+	m_player.init();
+
 	return m_screen.init();
 }
 
