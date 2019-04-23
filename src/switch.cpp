@@ -38,6 +38,8 @@ void Switch::deactivate() {
 		return;
 	}
 
+	set_lit(false);
+
 	for (auto* entity : m_entities) {
 		if (entity != nullptr) {
 			entity->deactivate();
