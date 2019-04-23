@@ -330,7 +330,7 @@ void World::draw() {
 		m_right_top_menu.draw(menu_projection_2D);
 		float sx = 2.f / 1200.f;
 		float sy = 2.f / 800.f;
-		textRenderer.drawText(m_save_state.current_level, -1 + 69 * sx, 1 - 50 * sy, sx, sy);
+		textRenderer.drawText(m_save_state.current_level, -1 + 65 * sx, 1 - 50 * sy, sx, sy);
 	}
 
 	if(m_draw_w){

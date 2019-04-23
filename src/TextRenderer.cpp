@@ -73,11 +73,10 @@ void TextRenderer::drawText(int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	const char* p = 0;
+	std::string text = "current level: ";
+	text += std::to_string(level);
 
-	const char* text = ("current level: " + level);
-
-	for (p = text; *p; p++){
+	for (std::string::const_iterator p = text.begin(); p != text.end(); p++){
 		/* Try to load and render the character */
 		if (FT_Load_Char(face, *p, FT_LOAD_RENDER)) {
 			fprintf(stderr, "ERROR::FREETYPE: Failed to load font glyph");
