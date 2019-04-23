@@ -344,7 +344,7 @@ void World::draw() {
 		m_right_top_menu.draw(menu_projection_2D);
 		float sx = 2.f / (float) w;
 		float sy = 2.f / (float) h;
-		textRenderer.drawText("current level: ", m_save_state.current_level, -1 + 50 * sx * retinaScale, 1 - 50 * sy * retinaScale, sx, sy, retinaScale);
+		textRenderer.drawText("current level: ", std::min(m_save_state.current_level, MAX_LEVEL - 1), -1 + 50 * sx * retinaScale, 1 - 50 * sy * retinaScale, sx, sy, retinaScale);
 		textRenderer.drawText("skips remaining: ", m_save_state.skips_allowed, -1 + 200 * sx * retinaScale, 1 - 50 * sy * retinaScale, sx, sy, retinaScale);
 	}
 
