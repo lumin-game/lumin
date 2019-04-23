@@ -35,7 +35,7 @@
 
 struct SaveState {
     int current_level = 0;
-    int unlocked_levels = MAX_LEVEL;
+    int unlocked_levels = 1;
 	int skips_allowed = MAX_SKIPS;
 	bool data_found = false;
 
