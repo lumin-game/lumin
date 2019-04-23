@@ -138,8 +138,8 @@ vec2 GameScreen::calculate_position(vec2 screen, bool is_left) {
   if (is_left) {
     x_offset = -screen.x * 0.5 + boundingBox.x;
   } else {
-    // ideally, it should jsut be a reverse of x_offset but not sure why - boundingBox.x * 0.5 does not work 
-    x_offset = screen.x * 0.5 - boundingBox.x * 0.75;
+    // ideally, it should just be a reverse of x_offset but not sure why - boundingBox.x * 0.5 does not work 
+    x_offset = screen.x * 0.5 - boundingBox.x * 0.6;
   }
   vec2 position = { x_offset, y_offset };
   return position;

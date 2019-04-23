@@ -548,21 +548,22 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	glfwGetCursorPos(m_window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
+		std::cout << ypos << std::endl;
 		// check for clicks on the top menu bar
-		vec2 exit_pos_start = {861, 10};
-		vec2 exit_pos_end = {899, 25};
+		vec2 exit_pos_start = {851, 10};
+		vec2 exit_pos_end = {897, 38};
 
-		vec2 menu_pos_start = {915, 10};
-		vec2 menu_pos_end = {970, 25};
+		vec2 menu_pos_start = {916, 10};
+		vec2 menu_pos_end = {978, 38};
 
-		vec2 pause_pos_start = {984, 10};
-		vec2 pause_pos_end = {1033, 25};
+		vec2 pause_pos_start = {995, 10};
+		vec2 pause_pos_end = {1056, 38};
 
-		vec2 reset_pos_start = {1047, 10};
-		vec2 reset_pos_end = {1097, 25};
+		vec2 reset_pos_start = {1067, 10};
+		vec2 reset_pos_end = {1125, 38};
 
-		vec2 skip_pos_start = {1108, 10};
-		vec2 skip_pos_end = {1152, 25};
+		vec2 skip_pos_start = {1139, 10};
+		vec2 skip_pos_end = {1191, 38};
 	
 		if (!m_should_game_start_screen) {
 			if (is_button_clicked(xpos, ypos, exit_pos_start, exit_pos_end)) {
@@ -601,17 +602,17 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 				m_player.setLightMode(!m_player.getLightMode());
 			}
 		}
-		vec2 start_pos = {258, 168};
-		vec2 end_pos = {(float) w / retinaScale - initial_pos.x, (float) initial_pos.y + grid_length * 4}
 		int square_length = 125;
 		int square_gap = 13;
 		int grid_length = square_length + square_gap;
+		vec2 initial_pos = {258, 168};
+		vec2 end_pos = {(float) w / retinaScale - initial_pos.x, (float) initial_pos.y + grid_length * 4};
 		int num_col = 5;
 		int grid_x = 0;
 		int grid_y = 0;
 		float load_level = 0;
 		if (m_should_load_level_screen) {
-			if (is_button_clicked (xpos, ypos, initia_pos, end_pos) {
+			if (is_button_clicked (xpos, ypos, initial_pos, end_pos)) {
 				grid_x = floor((xpos - (int)initial_pos.x)/grid_length);
 				grid_y = floor((ypos - (int)initial_pos.y)/grid_length);
 				if (!(((int) xpos - (int) initial_pos.x) % grid_length >= square_length || ((int) ypos - (int) initial_pos.y) % grid_length >= square_length)) {
