@@ -1,8 +1,9 @@
 #version 330
-varying vec2 texpos;
+out vec2 texpos;
 uniform sampler2D tex;
 uniform vec4 color;
+layout(location = 0) out  vec4 fragColor;
 
 void main(void) {
-  gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
+  fragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color;
 }
