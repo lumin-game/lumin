@@ -31,7 +31,7 @@
 #include <string>
 #include <math.h> 
 
-#define MAX_LEVEL 20
+#define MAX_LEVEL 21
 #define MAX_SKIPS 3
 
 struct SaveState {
