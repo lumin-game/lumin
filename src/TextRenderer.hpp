@@ -14,15 +14,9 @@ public:
 	bool init();
 	void destroy();
 	void draw(const mat3& projection)override;
-	void drawText(std::string text, GLfloat x, GLfloat y, GLfloat scale, float color[]);
+	void drawText(int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy);
 
 private:
-	struct Character {
-		GLuint textureID;
-		glm::ivec2 size;
-		glm::ivec2 Bearing;
-		GLuint Advance;
-	};
 	FT_Library ft;
 	// Load font as face
 	FT_Face face;
@@ -31,8 +25,4 @@ private:
 	GLuint attribute_coord;
 	GLuint uniform_tex;
 	GLuint uniform_color;
-
-	std::map<GLchar, Character> Characters;
-	vec2 m_position;
-	vec2 m_scale = { 1.f, 1.f };
 };

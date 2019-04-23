@@ -127,7 +127,7 @@ if (IS_OS_LINUX OR IS_OS_MAC)
     find_package(PkgConfig REQUIRED)
 
     pkg_search_module(GLFW REQURIED glfw3)
-	pkg_search_module(FREETYPE2 REQUIRED freetype2)
+	pkg_search_module(FREETYPE REQUIRED freetype)
     pkg_search_module(SDL2 REQURIED sdl2)
     pkg_search_module(SDL2MIXER REQURIED SDL2_mixer)
 

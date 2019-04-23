@@ -126,7 +126,6 @@ bool World::init(vec2 screen) {
 		fprintf(stderr, "Failed to open audio device");
 		return false;
 	}
-
 	return m_screen.init();
 }
 
@@ -243,6 +242,7 @@ mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
+
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 
@@ -328,8 +328,9 @@ void World::draw() {
 
 	if (!m_should_game_start_screen) {
 		m_right_top_menu.draw(menu_projection_2D);
-		m_left_top_menu.draw(menu_projection_2D);
-		m_current_level_top_menu.draw(menu_projection_2D);
+		float sx = 2.f / 1200.f;
+		float sy = 2.f / 800.f;
+		textRenderer.drawText(m_save_state.current_level, -1 + 69 * sx, 1 - 50 * sy, sx, sy);
 	}
 
 	if(m_draw_w){
@@ -348,9 +349,7 @@ void World::draw() {
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
-	textRenderer.draw(menu_projection_2D);
-	
-	//m_screen.draw(projection_2D);
+	m_screen.draw(projection_2D);
 	//////////////////
 	// Presenting
 	glfwSwapBuffers(m_window);
