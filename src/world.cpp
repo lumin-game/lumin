@@ -474,14 +474,11 @@ void World::on_key(GLFWwindow* window, int key, int, int action, int mod)
 		else if (!m_paused && key == GLFW_KEY_R) {
 			reset_game();
 		}
-		else if (!m_should_game_start_screen && key == GLFW_KEY_N) {
-			if (m_save_state.unlocked_levels > m_save_state.current_level) {
+		else if (key == GLFW_KEY_N) {
+			if (!m_should_game_start_screen && m_save_state.skips_allowed > 0) {
 				m_save_state.current_level += 1;
-				next_level();
-			} else if (m_save_state.skips_allowed > 0) {
-				m_save_state.current_level += 1;
-				next_level();
 				m_save_state.skips_allowed--;
+				next_level();
 			}
 		}
 	}
