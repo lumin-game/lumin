@@ -221,7 +221,7 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
 
-		if (m_player.get_position().y > 2000) {
+		if (m_player.get_position().y > 3000) {
 			reset_game();
 		}
 
