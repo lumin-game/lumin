@@ -112,6 +112,7 @@ bool World::init(vec2 screen) {
 	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_press_w.init(screen);
 	m_end_screen.init(screen);
+	textRenderer.init();
 
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
@@ -167,6 +168,7 @@ void World::destroy()
 	m_current_level_top_menu.destroy();
 	m_end_screen.destroy();
 	m_press_w.destroy();
+	textRenderer.destroy();
 
 	for (int i = 0; i < m_unlocked_level_sparkles.size(); ++i) {
 		m_unlocked_level_sparkles[i].destroy();
@@ -197,7 +199,9 @@ bool World::update(float elapsed_ms) {
 				m_w_position = door->get_position();
 				if (door->is_enterable() && door->is_player_inside(&m_player)) {
 						if (m_interact) {
-							if (m_save_state.skips_allowed < MAX_SKIPS && m_save_state.current_level != door->get_level_index()) {
+							if (m_save_state.skips_allowed < MAX_SKIPS &&
+							m_save_state.current_level != door->get_level_index() &&
+							m_save_state.unlocked_levels > m_save_state.current_level) {
 								m_save_state.skips_allowed++;
 							}
 							m_save_state.current_level = door->get_level_index();
@@ -221,7 +225,7 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
 
-		if (m_player.get_position().y > 2000) {
+		if (m_player.get_position().y > 3000) {
 			reset_game();
 		}
 
@@ -252,6 +256,7 @@ mat3 World::draw_projection_matrix(int w, int h, float retinaScale, vec2 player_
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
+
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 
@@ -285,6 +290,8 @@ void World::draw() {
 
 	mat3 projection_2D = draw_projection_matrix(w, h, retinaScale, m_player.get_position());
 
+	vec3 colour = vec3({ 1.0,0.0,0.0 });
+
 	for (Entity* entity : m_entities) {
 		entity->predraw();
 	}
@@ -292,7 +299,6 @@ void World::draw() {
 	for (Entity* entity: m_entities) {
 		entity->draw(projection_2D);
 	}
-
 	m_player.draw(projection_2D);
 
 	float scaled_width = w / SCREEN_SCALE;
@@ -336,13 +342,16 @@ void World::draw() {
 
 	if (!m_should_game_start_screen) {
 		m_right_top_menu.draw(menu_projection_2D);
-		m_left_top_menu.draw(menu_projection_2D);
-		m_current_level_top_menu.draw(menu_projection_2D);
+		float sx = 2.f / 1200.f;
+		float sy = 2.f / 800.f;
+		textRenderer.drawText("current level: ", m_save_state.current_level, -1 + 50 * sx, 1 - 50 * sy, sx, sy);
+		textRenderer.drawText("skips remaining: ", m_save_state.skips_allowed, -1 + 200 * sx, 1 - 50 * sy, sx, sy);
 	}
 
 	if(m_draw_w){
 		m_press_w.draw(projection_2D);
 	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clearing backbuffer
@@ -355,9 +364,7 @@ void World::draw() {
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_screen_tex.id);
-
 	m_screen.draw(projection_2D);
-
 	//////////////////
 	// Presenting
 	glfwSwapBuffers(m_window);
@@ -548,7 +555,6 @@ void World::on_mouse_button(GLFWwindow* window, int button, int action, int mods
 	glfwGetCursorPos(m_window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		std::cout << ypos << std::endl;
 		// check for clicks on the top menu bar
 		vec2 exit_pos_start = {851, 10};
 		vec2 exit_pos_end = {897, 38};
