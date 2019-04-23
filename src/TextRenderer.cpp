@@ -12,8 +12,6 @@ bool TextRenderer::init() {
 		fprintf(stderr, "ERROR::FREETYPE: Failed to load font");
 		return false;
 	}
-	// Set size to load glyphs as
-	FT_Set_Pixel_Sizes(face, 0, 28);
 
 	// Loading shaders
 	if (!effect.load_from_file(shader_path("text.vs.glsl"), shader_path("text.fs.glsl")))
@@ -40,8 +38,11 @@ void TextRenderer::destroy() {
 
 void TextRenderer::draw(const mat3& projection) { }
 
-void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy) {
+void TextRenderer::drawText(std::string text, int level, GLfloat x, GLfloat y, GLfloat sx, GLfloat sy, float scale) {
 	FT_GlyphSlot g = face->glyph;
+
+	// Set size to load glyphs as
+	FT_Set_Pixel_Sizes(face, 0, 28 * scale);
 
 	GLuint tex;
 	glActiveTexture(GL_TEXTURE0);
