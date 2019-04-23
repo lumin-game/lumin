@@ -7,6 +7,9 @@
 
 class MovableWall : public Wall {
 public:
+	const char* get_texture_path() const override { return textures_path("movable_wall.png"); }
+	const char* get_lit_texture_path() const override { return textures_path("movable_wall.png");  }
+
 	bool init(float xPos, float yPos) override;
 
 	void update(float ms) override;

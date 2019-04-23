@@ -72,7 +72,7 @@ bool Entity::init(float x_pos, float y_pos) {
 	darkness_modifier = 1.f;
 
 	if (get_audio_path() != nullptr && m_entity_sound == nullptr) {
-		fprintf(stderr, "Failed to load audio file!");
+		fprintf(stderr, "Failed to load audio file: %s\n", Mix_GetError());
 		return false;
 	}
 
@@ -111,10 +111,6 @@ void Entity::UpdateHitByLight()
 }
 
 void Entity::update(float elapsed_ms) {
-	if (get_audio_path() && m_entity_sound == nullptr) {
-		m_entity_sound = Mix_LoadWAV(get_audio_path());
-	}
-
 	const float LIGHTING_TRANSITION_SPEED = 0.0025f;
 	const float MINIMUM_BRIGHTNESS = 0.3f;
 

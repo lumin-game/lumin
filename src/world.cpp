@@ -77,6 +77,17 @@ bool World::init(vec2 screen) {
 	// Initialize the screen texture
 	m_screen_tex.create_from_screen(m_window);
 
+	// Set up audio device
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		fprintf(stderr, "Failed to initialize SDL Audio");
+		return false;
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
+		fprintf(stderr, "Failed to open audio device");
+		return false;
+	}
+
 	m_next_level_elapsed = -1;
 	m_save_state = SaveState{};
 
@@ -115,17 +126,17 @@ bool World::init(vec2 screen) {
 		m_unlocked_level_sparkles[i].init();
 	}
 
-	if (SDL_Init(SDL_INIT_AUDIO) < 0)
-	{
-		fprintf(stderr, "Failed to initialize SDL Audio");
-		return false;
+	m_background_music = Mix_LoadMUS(audio_path("music.wav"));
+
+	if (m_background_music == nullptr) {
+		fprintf(stderr, "Failed to load music: %s\n", Mix_GetError());
 	}
 
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
-	{
-		fprintf(stderr, "Failed to open audio device");
-		return false;
-	}
+	// Loop background music
+	Mix_PlayMusic(m_background_music, -1);
+
+	m_player.init();
+
 	return m_screen.init();
 }
 
@@ -134,8 +145,9 @@ void World::destroy()
 {
 	glDeleteFramebuffers(1, &m_frame_buffer);
 
-	if (m_background_music != nullptr)
+	if (m_background_music != nullptr) {
 		Mix_FreeMusic(m_background_music);
+	}
 
 	Mix_CloseAudio();
 
