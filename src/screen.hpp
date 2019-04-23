@@ -18,7 +18,6 @@ public:
 
 	void update(float elapsed_ms);
 
-	// Renders the water
 	void draw(const mat3& projection)override;
 
 	bool render_screen();
