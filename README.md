@@ -1,6 +1,8 @@
-# lumin
+# Lumin
 
 A light-based puzzle platformer game.
+
+![Lumin Screenshot](.github/screenshot.png)
 
 
 ## Requirements
