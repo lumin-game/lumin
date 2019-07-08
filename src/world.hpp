@@ -50,8 +50,10 @@ struct SaveState {
 
 	bool load() {
 		std::ifstream in("lumin.sav");
+
 		if (!in) {
 			std::cerr << "Cannot open file. \n" << std::endl;
+			data_found = false;
 			return false;
 		}
 

@@ -116,7 +116,6 @@ bool World::init(vec2 screen) {
 
 	if (m_save_state.load()) {
 		std::cout << "Loaded save state from file.\n" << std::endl;
-		m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	}
 
 	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
@@ -225,7 +224,7 @@ bool World::update(float elapsed_ms) {
 		CollisionManager::GetInstance().UpdateDynamicLightEquations();
 		m_player.update(elapsed_ms);
 
-		if (m_player.get_position().y > 3000) {
+		if (m_player.get_position().y > 3000 && !m_should_game_start_screen) {
 			reset_game();
 		}
 
@@ -388,7 +387,6 @@ void World::reset_game() {
 	m_player.destroy();
 	m_press_w.destroy();
 	levelGenerator.create_current_level(m_save_state.current_level, m_player, m_entities);
-	m_current_level_top_menu.set_current_level_texture(m_save_state.current_level);
 	m_player.init();
 	m_press_w.init(m_screen_size);
 
@@ -397,7 +395,7 @@ void World::reset_game() {
 	m_show_laser_screen = false;
 	m_draw_w = false;
 
-	if (m_save_state.save()) {
+	if (m_save_state.current_level > 0 && m_save_state.save()) {
 		std::cout << "Saved game state to file.\n" << std::endl;
 	}
 }
