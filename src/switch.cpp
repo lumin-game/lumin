@@ -8,7 +8,7 @@ bool Switch::init(float x_pos, float y_pos) {
 		return false;
 	}
 
-	Entity::init(x_pos, y_pos);
+	return Entity::init(x_pos, y_pos);
 }
 
 void Switch::activate() {
@@ -101,7 +101,7 @@ void Switch::draw(const mat3& projection) {
 
 void Switch::add_beam_particle(LightBeamParticle* particle) {
 	// sending all particles the texture from switch lets us only load the texture from file once per switch instead of once per particle
-	particle->set_texture(&particle_texture); 
+	particle->set_texture(&particle_texture);
 
 	light_beam_particles.insert(particle);
 }
